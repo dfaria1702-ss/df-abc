@@ -20,9 +20,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ExternalLink, AlertCircle, Info, Plus, X, Server, AlertTriangle, Download, ChevronDown, ChevronRight, Search, Check, HardDrive, Trash2 } from "lucide-react"
+import { ExternalLink, AlertCircle, Info, Plus, X, Server, AlertTriangle, Download, ChevronDown, ChevronRight, Search, Check, HardDrive, Trash2, HelpCircle } from "lucide-react"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
+import { RequestHigherLimitsModal } from "@/components/modals/request-higher-limits-modal"
 import {
   availableRegions,
   mockVPCs,
@@ -410,8 +411,8 @@ export default function CreateClusterPage() {
     
     // Show success toast message
     toast({
-      title: "Cluster Created Successfully! 🎉",
-      description: "Your Kubernetes cluster has been created and is being provisioned. You can monitor its status from the dashboard."
+      title: "Your cluster is being created🚀",
+      description: "We've started provisioning your Kubernetes cluster. This includes setting up the control plane, configuring node pools, and installing default add-ons. The process may take a few minutes. You can safely navigate away, progress will continue in the background."
     })
     
     // Redirect back to Kubernetes dashboard
@@ -629,9 +630,23 @@ export default function CreateClusterPage() {
                 {/* Subnet Selection */}
                 <div className="mb-8">
                   <div className="mb-5">
-                    <Label className="block mb-2 font-medium">
-                      Subnet <span className="text-destructive">*</span>
-                    </Label>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Label className="font-medium">
+                        Subnet <span className="text-destructive">*</span>
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="right" align="start" className="max-w-sm">
+                            <p className="text-sm">
+                              <strong>Cluster Subnet:</strong> This subnet is for the cluster load balancer. Choosing a public subnet allows the load balancer to receive a public (floating) IP for internet access. Private subnets restrict the load balancer to an internal IP only.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     {configuration.vpcId ? (
                       availableSubnets.length > 0 ? (
                         <Select 
@@ -1120,6 +1135,7 @@ function NodePoolsAndAddonsView({
   const [highlightedStorage, setHighlightedStorage] = useState<string | null>(null)
   const [draggingStorage, setDraggingStorage] = useState<string | null>(null)
   const [dragValue, setDragValue] = useState<number>(0)
+  const [requestLimitsModalOpen, setRequestLimitsModalOpen] = useState(false)
 
   // Check if any add-ons are disabled
   const hasDisabledAddons = defaultAddons.some(addon => !addon.enabled)
@@ -1448,7 +1464,7 @@ ${nodePoolsYAML}`
                   {/* Instance Selection */}
                   <div className="space-y-3">
                     <Label className="text-sm font-medium">
-                      Instance Type <span className="text-destructive">*</span>
+                      Instance Flavour <span className="text-destructive">*</span>
                     </Label>
                     <Select
                       value={pool.instanceFlavor}
@@ -1537,13 +1553,7 @@ ${nodePoolsYAML}`
                       <button 
                         type="button"
                         className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                        onClick={() => {
-                          // In a real implementation, this would open a support form or redirect to limits page
-                          toast({
-                            title: "Request Submitted",
-                            description: "Your request for higher node limits has been submitted to our support team.",
-                          })
-                        }}
+                        onClick={() => setRequestLimitsModalOpen(true)}
                       >
                         Request Higher Limits
                       </button>
@@ -2163,6 +2173,12 @@ ${nodePoolsYAML}`
             </div>
         </div>
       </div>
+
+      {/* Request Higher Limits Modal */}
+      <RequestHigherLimitsModal
+        open={requestLimitsModalOpen}
+        onClose={() => setRequestLimitsModalOpen(false)}
+      />
     </PageLayout>
   )
 }
