@@ -253,214 +253,206 @@ export default function CreateTemplatePage() {
       description="Create a new Auto Scaling Group template for reusable configurations"
     >
       <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Template Configuration */}
+        <div className="flex gap-6">
+          {/* Left Form */}
+          <div className="flex-1">
             <Card>
-              <CardHeader>
-                <CardTitle>Template Configuration</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="templateName">
-                      Template Name <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="templateName"
-                      placeholder="Enter template name"
-                      value={formData.templateName}
-                      onChange={(e) => handleInputChange("templateName", e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="templateDescription">Description</Label>
-                    <Input
-                      id="templateDescription"
-                      placeholder="Enter template description"
-                      value={formData.templateDescription}
-                      onChange={(e) => handleInputChange("templateDescription", e.target.value)}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Network Configuration */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Network Configuration</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="region">
-                      Region <span className="text-red-500">*</span>
-                    </Label>
-                    <Select value={formData.region} onValueChange={(value) => handleInputChange("region", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select region" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="us-east-1">US East (N. Virginia)</SelectItem>
-                        <SelectItem value="us-west-2">US West (Oregon)</SelectItem>
-                        <SelectItem value="eu-west-1">Europe (Ireland)</SelectItem>
-                        <SelectItem value="ap-south-1">Asia Pacific (Mumbai)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="vpc">
-                      VPC <span className="text-red-500">*</span>
-                    </Label>
-                    <Select 
-                      value={formData.vpc} 
-                      onValueChange={(value) => handleInputChange("vpc", value)}
-                      disabled={!formData.region}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={formData.region ? "Select VPC" : "Select region first"} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {vpcs.map((vpc) => (
-                          <SelectItem key={vpc.id} value={vpc.id}>
-                            {vpc.name} ({vpc.cidr})
-                          </SelectItem>
-                        ))}
-                        <Separator className="my-2" />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className="w-full justify-start"
-                          onClick={() => setShowCreateVPCModal(true)}
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Create New VPC
-                        </Button>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="subnets">
-                    Subnets <span className="text-red-500">*</span>
-                  </Label>
-                  <Select 
-                    value={formData.subnets[0] || ""} 
-                    onValueChange={(value) => handleInputChange("subnets", [value])}
-                    disabled={!formData.vpc}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={formData.vpc ? "Select subnet" : "Select VPC first"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockSubnets
-                        .filter(subnet => subnet.vpcId === formData.vpc)
-                        .map((subnet) => (
-                          <SelectItem key={subnet.id} value={subnet.id}>
-                            {subnet.name} ({subnet.cidr}) - {subnet.availabilityZone}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="securityGroups">Security Groups</Label>
-                  <div className="border border-gray-200 rounded-lg p-4 min-h-[100px] flex items-center justify-center">
-                    <div className="text-center text-muted-foreground">
-                      <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mx-auto mb-2">
-                        <div className="w-6 h-6 bg-gray-400 rounded"></div>
-                      </div>
-                      <p className="text-sm">No security groups configured</p>
-                      <p className="text-xs">Security groups will be inherited from the VPC</p>
+              <CardContent className="space-y-6 pt-6">
+                {/* Template Configuration */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">Template Configuration</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="templateName">
+                        Template Name <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="templateName"
+                        placeholder="Enter template name"
+                        value={formData.templateName}
+                        onChange={(e) => handleInputChange("templateName", e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="templateDescription">Description</Label>
+                      <Input
+                        id="templateDescription"
+                        placeholder="Enter template description"
+                        value={formData.templateDescription}
+                        onChange={(e) => handleInputChange("templateDescription", e.target.value)}
+                      />
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
 
-            {/* Instance Configuration */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Instance Configuration</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="instanceName">
-                      Instance Name <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="instanceName"
-                      placeholder="Enter instance name"
-                      value={formData.instanceName}
-                      onChange={(e) => handleInputChange("instanceName", e.target.value)}
-                      required
-                    />
+                {/* Network Configuration */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">Network Configuration</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="region">
+                        Region <span className="text-red-500">*</span>
+                      </Label>
+                      <Select value={formData.region} onValueChange={(value) => handleInputChange("region", value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select region" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="us-east-1">US East (N. Virginia)</SelectItem>
+                          <SelectItem value="us-west-2">US West (Oregon)</SelectItem>
+                          <SelectItem value="eu-west-1">Europe (Ireland)</SelectItem>
+                          <SelectItem value="ap-south-1">Asia Pacific (Mumbai)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="vpc">
+                        VPC <span className="text-red-500">*</span>
+                      </Label>
+                      <Select 
+                        value={formData.vpc} 
+                        onValueChange={(value) => handleInputChange("vpc", value)}
+                        disabled={!formData.region}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={formData.region ? "Select VPC" : "Select region first"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {vpcs.map((vpc) => (
+                            <SelectItem key={vpc.id} value={vpc.id}>
+                              {vpc.name} ({vpc.cidr})
+                            </SelectItem>
+                          ))}
+                          <Separator className="my-2" />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className="w-full justify-start"
+                            onClick={() => setShowCreateVPCModal(true)}
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Create New VPC
+                          </Button>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="instanceType">
-                      Instance Type <span className="text-red-500">*</span>
+                    <Label htmlFor="subnets">
+                      Subnets <span className="text-red-500">*</span>
                     </Label>
-                    <Select value={formData.instanceType} onValueChange={(value) => handleInputChange("instanceType", value)}>
+                    <Select 
+                      value={formData.subnets[0] || ""} 
+                      onValueChange={(value) => handleInputChange("subnets", [value])}
+                      disabled={!formData.vpc}
+                    >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select instance type" />
+                        <SelectValue placeholder={formData.vpc ? "Select subnet" : "Select VPC first"} />
                       </SelectTrigger>
                       <SelectContent>
-                        {instanceTypes.map((type) => (
-                          <SelectItem key={type.id} value={type.id}>
-                            <div className="flex items-center justify-between w-full">
-                              <span>{type.name}</span>
-                              <span className="text-muted-foreground text-sm">
-                                {type.vcpus} vCPUs, {type.memory}
-                              </span>
-                            </div>
-                          </SelectItem>
-                        ))}
+                        {mockSubnets
+                          .filter(subnet => subnet.vpcId === formData.vpc)
+                          .map((subnet) => (
+                            <SelectItem key={subnet.id} value={subnet.id}>
+                              {subnet.name} ({subnet.cidr}) - {subnet.availabilityZone}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="securityGroups">Security Groups</Label>
+                    <div className="border border-gray-200 rounded-lg p-4 min-h-[100px] flex items-center justify-center">
+                      <div className="text-center text-muted-foreground">
+                        <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mx-auto mb-2">
+                          <div className="w-6 h-6 bg-gray-400 rounded"></div>
+                        </div>
+                        <p className="text-sm">No security groups configured</p>
+                        <p className="text-xs">Security groups will be inherited from the VPC</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Instance Configuration */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">Instance Configuration</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="instanceName">
+                        Instance Name <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="instanceName"
+                        placeholder="Enter instance name"
+                        value={formData.instanceName}
+                        onChange={(e) => handleInputChange("instanceName", e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="instanceType">
+                        Instance Type <span className="text-red-500">*</span>
+                      </Label>
+                      <Select value={formData.instanceType} onValueChange={(value) => handleInputChange("instanceType", value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select instance type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {instanceTypes.map((type) => (
+                            <SelectItem key={type.id} value={type.id}>
+                              <div className="flex items-center justify-between w-full">
+                                <span>{type.name}</span>
+                                <span className="text-muted-foreground text-sm">
+                                  {type.vcpus} vCPUs, {type.memory}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Storage Section */}
+                <StorageSection
+                  bootVolumeName={formData.bootVolumeName}
+                  bootVolumeSize={formData.bootVolumeSize}
+                  machineImage={formData.machineImage}
+                  storageVolumes={formData.storageVolumes}
+                  onUpdateBootVolumeName={(value) => handleInputChange("bootVolumeName", value)}
+                  onUpdateBootVolumeSize={(value) => handleInputChange("bootVolumeSize", value)}
+                  onUpdateMachineImage={(value) => handleInputChange("machineImage", value)}
+                  onAddStorageVolume={handleAddStorageVolume}
+                  onRemoveStorageVolume={handleRemoveStorageVolume}
+                  onUpdateStorageVolume={handleUpdateStorageVolume}
+                />
+
+                {/* Scripts and Tags Section */}
+                <ScriptsTagsSection
+                  sshKey={formData.sshKey}
+                  startupScript={formData.startupScript}
+                  tags={formData.tags}
+                  onUpdateSshKey={(value) => handleInputChange("sshKey", value)}
+                  onUpdateStartupScript={(value) => handleInputChange("startupScript", value)}
+                  onAddTag={handleAddTag}
+                  onRemoveTag={handleRemoveTag}
+                  onUpdateTag={handleUpdateTag}
+                />
+
+                {/* Auto Scaling Policies Section */}
+                <ScalingPoliciesSection
+                  scalingPolicies={formData.scalingPolicies}
+                  onAddScalingPolicy={handleAddScalingPolicy}
+                  onRemoveScalingPolicy={handleRemoveScalingPolicy}
+                  onUpdateScalingPolicy={handleUpdateScalingPolicy}
+                />
               </CardContent>
             </Card>
-
-            {/* Storage Section */}
-            <StorageSection
-              bootVolumeName={formData.bootVolumeName}
-              bootVolumeSize={formData.bootVolumeSize}
-              machineImage={formData.machineImage}
-              storageVolumes={formData.storageVolumes}
-              onUpdateBootVolumeName={(value) => handleInputChange("bootVolumeName", value)}
-              onUpdateBootVolumeSize={(value) => handleInputChange("bootVolumeSize", value)}
-              onUpdateMachineImage={(value) => handleInputChange("machineImage", value)}
-              onAddStorageVolume={handleAddStorageVolume}
-              onRemoveStorageVolume={handleRemoveStorageVolume}
-              onUpdateStorageVolume={handleUpdateStorageVolume}
-            />
-
-            {/* Scripts and Tags Section */}
-            <ScriptsTagsSection
-              sshKey={formData.sshKey}
-              startupScript={formData.startupScript}
-              tags={formData.tags}
-              onUpdateSshKey={(value) => handleInputChange("sshKey", value)}
-              onUpdateStartupScript={(value) => handleInputChange("startupScript", value)}
-              onAddTag={handleAddTag}
-              onRemoveTag={handleRemoveTag}
-              onUpdateTag={handleUpdateTag}
-            />
-
-            {/* Auto Scaling Policies Section */}
-            <ScalingPoliciesSection
-              scalingPolicies={formData.scalingPolicies}
-              onAddScalingPolicy={handleAddScalingPolicy}
-              onRemoveScalingPolicy={handleRemoveScalingPolicy}
-              onUpdateScalingPolicy={handleUpdateScalingPolicy}
-            />
           </div>
 
           {/* Side Panel */}
