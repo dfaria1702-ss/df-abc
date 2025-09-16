@@ -152,11 +152,11 @@ function AutoScalingGroupsSection() {
         );
       },
     },
-    {
-      key: "actions",
-      label: "Actions",
-      align: "right",
-      render: (value: any, row: AutoScalingGroup) => {
+        {
+          key: "actions",
+          label: "Actions",
+          align: "right" as const,
+          render: (value: any, row: AutoScalingGroup) => {
         const asg = row
         
         return (
@@ -238,6 +238,7 @@ function TemplatesSection() {
   const [selectedTemplate, setSelectedTemplate] = useState<AutoScalingTemplate | null>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const { toast } = useToast()
+  const router = useRouter()
 
   // Filter data based on user access
   const filteredTemplates = filterDataForUser(autoScalingTemplates, "template")
@@ -351,11 +352,11 @@ function TemplatesSection() {
         );
       },
     },
-    {
-      key: "actions",
-      label: "Actions",
-      align: "right",
-      render: (value: any, row: AutoScalingTemplate) => {
+        {
+          key: "actions",
+          label: "Actions",
+          align: "right" as const,
+          render: (value: any, row: AutoScalingTemplate) => {
         const template = row
         
         return (

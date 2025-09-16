@@ -321,7 +321,7 @@ export default function CreateTemplatePage() {
                         <SelectContent>
                           {vpcs.map((vpc) => (
                             <SelectItem key={vpc.id} value={vpc.id}>
-                              {vpc.name} ({vpc.cidr})
+                              {vpc.name}
                             </SelectItem>
                           ))}
                           <Separator className="my-2" />
@@ -544,6 +544,10 @@ export default function CreateTemplatePage() {
       <CreateVPCModal
         open={showCreateVPCModal}
         onClose={() => setShowCreateVPCModal(false)}
+        onSuccess={() => {
+          setShowCreateVPCModal(false)
+          // Refresh VPC list or handle success
+        }}
       />
     </PageLayout>
   )
