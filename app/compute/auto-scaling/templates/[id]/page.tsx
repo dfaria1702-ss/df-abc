@@ -195,7 +195,14 @@ export default function TemplateDetailsPage() {
                   Status
                 </label>
                 <div>
-                  <Badge variant={template.isLatest ? 'default' : 'secondary'}>
+                  <Badge 
+                    variant='secondary'
+                    className={`text-xs h-5 cursor-default ${
+                      template.isLatest
+                        ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-100 hover:text-green-800'
+                        : 'hover:bg-secondary hover:text-secondary-foreground'
+                    }`}
+                  >
                     {template.isLatest ? 'Latest' : 'Previous'}
                   </Badge>
                 </div>
@@ -355,7 +362,14 @@ export default function TemplateDetailsPage() {
                       Monitoring
                     </Label>
                     <div className='mt-1'>
-                      <Badge variant={templateSpecifications.monitoring ? 'default' : 'secondary'} className='text-xs'>
+                      <Badge 
+                        variant='secondary'
+                        className={`text-xs h-5 cursor-default ${
+                          templateSpecifications.monitoring
+                            ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-100 hover:text-green-800'
+                            : 'hover:bg-secondary hover:text-secondary-foreground'
+                        }`}
+                      >
                         {templateSpecifications.monitoring ? 'Enabled' : 'Disabled'}
                       </Badge>
                     </div>
@@ -411,7 +425,12 @@ export default function TemplateDetailsPage() {
                           Status
                         </Label>
                         <div className='mt-1'>
-                          <Badge variant='default' className='text-xs'>Active</Badge>
+                          <Badge 
+                            variant='secondary'
+                            className='text-xs h-5 cursor-default bg-green-100 text-green-800 border-green-200 hover:bg-green-100 hover:text-green-800'
+                          >
+                            Active
+                          </Badge>
                         </div>
                       </div>
                     </div>
@@ -521,8 +540,12 @@ export default function TemplateDetailsPage() {
                         Version {version.version}
                       </h4>
                       <Badge 
-                        variant={version.isLatest ? 'default' : 'secondary'} 
-                        className='text-xs h-5'
+                        variant='secondary'
+                        className={`text-xs h-5 cursor-default ${
+                          version.isLatest
+                            ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-100 hover:text-green-800'
+                            : 'hover:bg-secondary hover:text-secondary-foreground'
+                        }`}
                       >
                         {version.status}
                       </Badge>

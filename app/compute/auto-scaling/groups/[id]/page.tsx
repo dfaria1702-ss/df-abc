@@ -484,8 +484,12 @@ export default function AutoScalingGroupDetailsPage() {
                       {policy.name}
                     </h4>
                     <Badge 
-                      variant={policy.enabled ? 'default' : 'secondary'} 
-                      className='text-xs h-5'
+                      variant='secondary'
+                      className={`text-xs h-5 cursor-default ${
+                        policy.enabled
+                          ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-100 hover:text-green-800'
+                          : 'hover:bg-secondary hover:text-secondary-foreground'
+                      }`}
                     >
                       {policy.enabled ? 'Active' : 'Inactive'}
                     </Badge>
