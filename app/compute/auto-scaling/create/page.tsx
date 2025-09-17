@@ -962,22 +962,40 @@ export default function CreateAutoScalingGroupPage() {
               <h3 className="text-base font-semibold">Estimated Cost</h3>
             </div>
             <div className="space-y-3">
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold">
-                  ₹{((instanceTypes.find(t => t.id === formData.instanceType)?.pricePerHour || 0) * formData.desiredInstances * 72).toFixed(2)}
-                </span>
-                <span className="text-sm text-muted-foreground">per hour</span>
+              {/* Cost Breakdown */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Instances</span>
+                  <span className="text-sm font-medium">
+                    ₹{((instanceTypes.find(t => t.id === formData.instanceType)?.pricePerHour || 0) * formData.desiredInstances * 24 * 30).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Bootable Volume</span>
+                  <span className="text-sm font-medium">
+                    ₹{(formData.bootVolumeSize * 0.1 * formData.desiredInstances).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Storage Volume</span>
+                  <span className="text-sm font-medium">
+                    ₹{(formData.storageVolumes.reduce((sum, vol) => sum + vol.size, 0) * 0.1 * formData.desiredInstances).toFixed(2)}
+                  </span>
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Auto Scaling Group with {formData.desiredInstances} {formData.instanceType || 'instance'} instances.
-              </p>
-              <div className="text-xs text-muted-foreground pt-2 border-t">
-                <p>• Compute: ₹{((instanceTypes.find(t => t.id === formData.instanceType)?.pricePerHour || 0) * formData.desiredInstances * 72).toFixed(2)}/hour</p>
-                <p>• Storage: ₹{((formData.bootVolumeSize + formData.storageVolumes.reduce((sum, vol) => sum + vol.size, 0)) * 0.1 * formData.desiredInstances).toFixed(2)}/month</p>
-                <p>• Estimated monthly: ₹{(
-                  ((instanceTypes.find(t => t.id === formData.instanceType)?.pricePerHour || 0) * formData.desiredInstances * 72 * 24 * 30) +
-                  ((formData.bootVolumeSize + formData.storageVolumes.reduce((sum, vol) => sum + vol.size, 0)) * 0.1 * formData.desiredInstances)
-                ).toFixed(2)}</p>
+              
+              {/* Total */}
+              <div className="pt-2 border-t">
+                <div className="flex justify-end items-baseline gap-2">
+                  <span className="text-2xl font-bold">
+                    ₹{(
+                      ((instanceTypes.find(t => t.id === formData.instanceType)?.pricePerHour || 0) * formData.desiredInstances * 24 * 30) +
+                      (formData.bootVolumeSize * 0.1 * formData.desiredInstances) +
+                      (formData.storageVolumes.reduce((sum, vol) => sum + vol.size, 0) * 0.1 * formData.desiredInstances)
+                    ).toFixed(2)}
+                  </span>
+                  <span className="text-sm text-muted-foreground">per month</span>
+                </div>
               </div>
             </div>
           </div>

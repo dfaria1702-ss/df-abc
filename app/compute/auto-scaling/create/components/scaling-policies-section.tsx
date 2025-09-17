@@ -115,7 +115,6 @@ export function ScalingPoliciesSection({
                   </div>
 
                   <div>
-                    <Label className="text-sm font-medium mb-3 block">Scaling Configuration</Label>
                     <div className="p-4 bg-gray-50/30 rounded-lg">
                       {policy.type === "Scheduled Action" ? (
                         <div className="space-y-4">
@@ -132,8 +131,6 @@ export function ScalingPoliciesSection({
                               <SelectContent>
                                 <SelectItem value="IST">IST (Indian Standard Time)</SelectItem>
                                 <SelectItem value="UTC">UTC (Coordinated Universal Time)</SelectItem>
-                                <SelectItem value="EST">EST (Eastern Standard Time)</SelectItem>
-                                <SelectItem value="PST">PST (Pacific Standard Time)</SelectItem>
                               </SelectContent>
                             </Select>
                             <p className="text-sm text-muted-foreground">Select the timezone for your scheduled actions</p>

@@ -897,38 +897,46 @@ export default function EditAutoScalingGroupPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Compute (per hour)</span>
-                    <span className="text-sm font-medium">
-                      ₹{(() => {
-                        const selectedType = instanceTypes.find(t => t.id === formData.instanceType)
-                        return selectedType ? (selectedType.pricePerHour * formData.desiredInstances).toFixed(2) : "0.00"
-                      })()}
-                    </span>
+                  {/* Cost Breakdown */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Instances</span>
+                      <span className="text-sm font-medium">
+                        ₹{(() => {
+                          const selectedType = instanceTypes.find(t => t.id === formData.instanceType)
+                          return selectedType ? (selectedType.pricePerHour * formData.desiredInstances * 24 * 30).toFixed(2) : "0.00"
+                        })()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Bootable Volume</span>
+                      <span className="text-sm font-medium">
+                        ₹{(formData.bootVolumeSize * 0.1 * formData.desiredInstances).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Storage Volume</span>
+                      <span className="text-sm font-medium">
+                        ₹{(formData.storageVolumes.reduce((sum, vol) => sum + vol.size * 0.1 * formData.desiredInstances, 0)).toFixed(2)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Storage (per month)</span>
-                    <span className="text-sm font-medium">
-                      ₹{(formData.bootVolumeSize * 0.1 * formData.desiredInstances + 
-                        formData.storageVolumes.reduce((sum, vol) => sum + vol.size * 0.1 * formData.desiredInstances, 0)).toFixed(2)}
-                    </span>
+                  
+                  {/* Total */}
+                  <div className="pt-2 border-t">
+                    <div className="flex justify-end items-baseline gap-2">
+                      <span className="text-2xl font-bold">
+                        ₹{(() => {
+                          const selectedType = instanceTypes.find(t => t.id === formData.instanceType)
+                          const computeCost = selectedType ? selectedType.pricePerHour * formData.desiredInstances * 24 * 30 : 0
+                          const bootVolumeCost = formData.bootVolumeSize * 0.1 * formData.desiredInstances
+                          const storageVolumeCost = formData.storageVolumes.reduce((sum, vol) => sum + vol.size * 0.1 * formData.desiredInstances, 0)
+                          return (computeCost + bootVolumeCost + storageVolumeCost).toFixed(2)
+                        })()}
+                      </span>
+                      <span className="text-sm text-muted-foreground">per month</span>
+                    </div>
                   </div>
-                  <Separator />
-                  <div className="flex justify-between items-center font-medium">
-                    <span className="text-sm">Total (per hour)</span>
-                    <span className="text-sm">
-                      ₹{(() => {
-                        const selectedType = instanceTypes.find(t => t.id === formData.instanceType)
-                        const computeCost = selectedType ? selectedType.pricePerHour * formData.desiredInstances : 0
-                        const storageCost = (formData.bootVolumeSize * 0.1 * formData.desiredInstances + 
-                          formData.storageVolumes.reduce((sum, vol) => sum + vol.size * 0.1 * formData.desiredInstances, 0)) / 730
-                        return (computeCost + storageCost).toFixed(2)
-                      })()}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    * Estimates are based on current instance configuration and may vary with actual usage
-                  </p>
                 </div>
               </CardContent>
             </Card>
