@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2 } from "lucide-react";
 
 interface ScalingPolicy {
@@ -21,6 +22,20 @@ interface ScalingPoliciesSectionProps {
   onUpdateScalingPolicy: (id: string, field: keyof Omit<ScalingPolicy, 'id'>, value: any) => void;
   onRemoveScalingPolicy: (id: string) => void;
 }
+
+// Helper function to get badge text from policy type
+const getPolicyBadgeText = (type: "Average CPU Utilization" | "Average Memory Utilization" | "Scheduled Action") => {
+  switch (type) {
+    case "Average CPU Utilization":
+      return "CPU";
+    case "Average Memory Utilization":
+      return "Memory";
+    case "Scheduled Action":
+      return "Scheduled";
+    default:
+      return "CPU";
+  }
+};
 
 export function ScalingPoliciesSection({
   scalingPolicies,
@@ -55,8 +70,14 @@ export function ScalingPoliciesSection({
           <div className="space-y-6">
             {scalingPolicies.map((policy, index) => (
               <div key={policy.id} className="p-4 border rounded-lg">
-                <div className="space-y-4">
-                  <div className="flex justify-end">
+                  <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Badge 
+                      variant="secondary" 
+                      className="bg-gray-100 text-gray-800 font-medium"
+                    >
+                      {getPolicyBadgeText(policy.type)}
+                    </Badge>
                     <Button
                       size="sm"
                       variant="ghost"
