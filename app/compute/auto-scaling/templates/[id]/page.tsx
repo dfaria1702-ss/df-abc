@@ -9,7 +9,6 @@ import {
   Activity,
   Shield,
   FileText,
-  History,
 } from 'lucide-react';
 import { PageLayout } from '@/components/page-layout';
 import { DetailGrid } from '@/components/detail-grid';
@@ -159,29 +158,6 @@ export default function TemplateDetailsPage() {
     return sgIds.map(id => mockSecurityGroups.find(sg => sg.id === id)).filter(Boolean);
   };
 
-  const versionHistory = [
-    {
-      version: template.version,
-      date: template.lastModified,
-      status: 'Current',
-      changes: 'Latest version',
-      isLatest: template.isLatest
-    },
-    {
-      version: template.version - 1,
-      date: '2024-01-20T15:30:00Z',
-      status: 'Previous',
-      changes: 'Updated security groups',
-      isLatest: false
-    },
-    {
-      version: template.version - 2,
-      date: '2024-01-15T10:20:00Z',
-      status: 'Previous',
-      changes: 'Initial template creation',
-      isLatest: false
-    }
-  ];
 
   // Action handlers
   const handleEdit = () => {
@@ -246,8 +222,8 @@ export default function TemplateDetailsPage() {
           </div>
 
           <DetailGrid>
-            {/* Template Name, Type, Version, Status in one row */}
-            <div className='col-span-full grid grid-cols-4 gap-4'>
+            {/* Template Name, Type, Flavour, Version, Created On in one row */}
+            <div className='col-span-full grid grid-cols-5 gap-4'>
               <div className='space-y-1'>
                 <label
                   className='text-sm font-normal text-gray-700'
@@ -256,7 +232,7 @@ export default function TemplateDetailsPage() {
                   Template Name
                 </label>
                 <div className='font-medium' style={{ fontSize: '14px' }}>
-                  {templateData.templateName}
+                  cache-server-template
                 </div>
               </div>
               <div className='space-y-1'>
@@ -267,7 +243,18 @@ export default function TemplateDetailsPage() {
                   Type
                 </label>
                 <div className='font-medium' style={{ fontSize: '14px' }}>
-                  {template.type}
+                  CPU
+                </div>
+              </div>
+              <div className='space-y-1'>
+                <label
+                  className='text-sm font-normal text-gray-700'
+                  style={{ fontSize: '13px' }}
+                >
+                  Flavour
+                </label>
+                <div className='font-medium' style={{ fontSize: '14px' }}>
+                  t3.medium
                 </div>
               </div>
               <div className='space-y-1'>
@@ -277,8 +264,11 @@ export default function TemplateDetailsPage() {
                 >
                   Version
                 </label>
-                <div className='font-medium' style={{ fontSize: '14px' }}>
-                  v{template.version}
+                <div className='flex items-center gap-2'>
+                  <Badge variant="secondary" className='bg-black text-white text-xs px-2 py-1'>
+                    V6
+                  </Badge>
+                  <span className='text-xs text-gray-500'>Latest Version</span>
                 </div>
               </div>
               <div className='space-y-1'>
@@ -286,55 +276,57 @@ export default function TemplateDetailsPage() {
                   className='text-sm font-normal text-gray-700'
                   style={{ fontSize: '13px' }}
                 >
-                  Status
+                  Created On
                 </label>
-                <StatusBadge status="Active" />
+                <div className='font-medium' style={{ fontSize: '14px' }}>
+                  22/01/2024
+                </div>
               </div>
             </div>
           </DetailGrid>
         </div>
 
-        {/* Main Content - Matching Create Template Structure */}
-        <div className="flex gap-6">
-          {/* Left Content */}
-          <div className="flex-1">
-            <Card>
-              <CardContent className="space-y-6 pt-6">
-                
-                {/* Instance Configuration */}
-                <div className="space-y-4">
-                  <Label className="text-base font-medium">Instance Configuration</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">Instance Name</Label>
-                      <div className="p-3 bg-gray-50 rounded-md border">
-                        <span className="text-sm">{templateData.instanceName}</span>
+        {/* Main Content - Individual Cards */}
+        <div className="space-y-6">
+          {/* Instance Configuration Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-medium">Instance Configuration</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Instance Name</Label>
+                  <div className="p-3 bg-gray-50 rounded-md border">
+                    <span className="text-sm">{templateData.instanceName}</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Instance Type</Label>
+                  <div className="p-3 bg-gray-50 rounded-md border">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <span className="font-medium text-sm">{instanceTypeDetails.name}</span>
+                        <span className="text-muted-foreground text-xs">
+                          {instanceTypeDetails.vcpus} vCPU • {instanceTypeDetails.ram} GB RAM
+                        </span>
                       </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">Instance Type</Label>
-                      <div className="p-3 bg-gray-50 rounded-md border">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <span className="font-medium text-sm">{instanceTypeDetails.name}</span>
-                            <span className="text-muted-foreground text-xs">
-                              {instanceTypeDetails.vcpus} vCPU • {instanceTypeDetails.ram} GB RAM
-                            </span>
-                          </div>
-                          <span className="text-primary font-semibold text-xs">
-                            ₹{instanceTypeDetails.pricePerHour}/hr
-                          </span>
-                        </div>
-                      </div>
+                      <span className="text-primary font-semibold text-xs">
+                        ₹{instanceTypeDetails.pricePerHour}/hr
+                      </span>
                     </div>
                   </div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
 
-                <Separator />
-
-                {/* Storage Configuration */}
-                <div className="space-y-4">
-                  <Label className="text-base font-medium">Storage Configuration</Label>
+          {/* Storage Configuration Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-medium">Storage Configuration</CardTitle>
+            </CardHeader>
+            <CardContent>
                   
                   {/* Bootable Volume */}
                   <div className="space-y-4">
@@ -361,35 +353,37 @@ export default function TemplateDetailsPage() {
                     </div>
                   </div>
 
-                  {/* Additional Storage Volumes */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium text-gray-700">Additional Storage Volumes</Label>
-                    {templateData.storageVolumes.map((volume, index) => (
-                      <div key={volume.id} className="p-4 border rounded-lg bg-gray-50/50">
-                        <div className="grid grid-cols-3 gap-4">
-                          <div className="space-y-1">
-                            <Label className="text-xs text-muted-foreground">Volume Name</Label>
-                            <div className="text-sm font-medium">{volume.name}</div>
-                          </div>
-                          <div className="space-y-1">
-                            <Label className="text-xs text-muted-foreground">Size (GB)</Label>
-                            <div className="text-sm">{volume.size} GB</div>
-                          </div>
-                          <div className="space-y-1">
-                            <Label className="text-xs text-muted-foreground">Type</Label>
-                            <div className="text-sm">{volume.type}</div>
-                          </div>
-                        </div>
+              {/* Additional Storage Volumes */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium text-gray-700">Additional Storage Volumes</Label>
+                {templateData.storageVolumes.map((volume, index) => (
+                  <div key={volume.id} className="p-4 border rounded-lg bg-gray-50/50">
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Volume Name</Label>
+                        <div className="text-sm font-medium">{volume.name}</div>
                       </div>
-                    ))}
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Size (GB)</Label>
+                        <div className="text-sm">{volume.size} GB</div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Type</Label>
+                        <div className="text-sm">{volume.type}</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-                <Separator />
-
-                {/* Scripts & Tags */}
-                <div className="space-y-4">
-                  <Label className="text-base font-medium">Scripts & Tags</Label>
+          {/* Scripts & Tags Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-medium">Scripts & Tags</CardTitle>
+            </CardHeader>
+            <CardContent>
                   
                   {/* SSH Key */}
                   <div className="space-y-2">
@@ -409,29 +403,31 @@ export default function TemplateDetailsPage() {
                     </div>
                   </div>
 
-                  {/* Tags */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium text-gray-700">Tags</Label>
-                    <div className="space-y-2">
-                      {templateData.tags.map((tag, index) => (
-                        <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded border">
-                          <div className="flex-1">
-                            <span className="text-sm font-medium">{tag.key}</span>
-                          </div>
-                          <div className="flex-1">
-                            <span className="text-sm text-muted-foreground">{tag.value}</span>
-                          </div>
-                        </div>
-                      ))}
+              {/* Tags */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium text-gray-700">Tags</Label>
+                <div className="space-y-2">
+                  {templateData.tags.map((tag, index) => (
+                    <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded border">
+                      <div className="flex-1">
+                        <span className="text-sm font-medium">{tag.key}</span>
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-sm text-muted-foreground">{tag.value}</span>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
+              </div>
+            </CardContent>
+          </Card>
 
-                <Separator />
-
-                {/* Network Configuration */}
-                <div className="space-y-4">
-                  <Label className="text-base font-medium">Network Configuration</Label>
+          {/* Network Configuration Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-medium">Network Configuration</CardTitle>
+            </CardHeader>
+            <CardContent>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
@@ -471,13 +467,16 @@ export default function TemplateDetailsPage() {
                       </div>
                     </div>
                   </div>
-                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-                <Separator />
-
-                {/* Auto Scaling Policies */}
-                <div className="space-y-4">
-                  <Label className="text-base font-medium">Auto Scaling Policies</Label>
+          {/* Auto Scaling Policies Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-medium">Auto Scaling Policies</CardTitle>
+            </CardHeader>
+            <CardContent>
                   
                   <div className="space-y-4">
                     {templateData.scalingPolicies.map((policy, index) => (
@@ -516,110 +515,8 @@ export default function TemplateDetailsPage() {
                       </div>
                     ))}
                   </div>
-                </div>
-
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Sidebar */}
-          <div className="w-full lg:w-80 space-y-6">
-            {/* Template Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-normal">Template Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Created</span>
-                    <span className="text-sm font-medium">{formatDate(template.lastModified)}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Version</span>
-                    <span className="text-sm font-medium">v{template.version}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Type</span>
-                    <span className="text-sm font-medium">{template.type}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Status</span>
-                    <StatusBadge status="Active" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Estimated Cost */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-normal">Estimated Cost</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Compute (per hour)</span>
-                    <span className="text-sm font-medium">₹{instanceTypeDetails.pricePerHour}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Storage (per month)</span>
-                    <span className="text-sm font-medium">
-                      ₹{(templateData.bootVolumeSize * 0.1 + 
-                        templateData.storageVolumes.reduce((sum, vol) => sum + vol.size * 0.1, 0)).toFixed(2)}
-                    </span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between items-center font-medium">
-                    <span className="text-sm">Total (per hour)</span>
-                    <span className="text-sm">
-                      ₹{(instanceTypeDetails.pricePerHour + 
-                        (templateData.bootVolumeSize * 0.1 + 
-                        templateData.storageVolumes.reduce((sum, vol) => sum + vol.size * 0.1, 0)) / 730).toFixed(2)}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    * Estimates based on template configuration
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Version History */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-normal flex items-center gap-2">
-                  <History className="h-4 w-4" />
-                  Version History
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {versionHistory.map((version, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <div className={`w-2 h-2 rounded-full mt-2 ${
-                        version.isLatest ? 'bg-green-500' : 'bg-gray-300'
-                      }`} />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">v{version.version}</span>
-                          {version.isLatest && (
-                            <Badge variant="secondary" className="text-xs">Current</Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {version.changes}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDate(version.date)}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
