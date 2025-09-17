@@ -224,6 +224,12 @@ export function getEmptyStateMessage(resourceType: string): {
           'Create auto scaling templates to standardize your instance configurations and make it easier to launch consistent auto scaling groups.',
         actionText: 'Create Template',
       },
+      'object-storage': {
+        title: 'No Storage Buckets Yet',
+        description:
+          'Create your first storage bucket to start storing and managing your files in the cloud. Storage buckets provide scalable object storage with built-in redundancy and security.',
+        actionText: 'Create Your First Bucket',
+      },
       default: {
         title: `No ${resourceType} yet`,
         description: `Create your first ${resourceType} to get started.`,

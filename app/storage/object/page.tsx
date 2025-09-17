@@ -1,48 +1,53 @@
 'use client';
 
 import { useState } from 'react';
-import { PageLayout } from '@/components/page-layout';
+import { PageShell } from '@/components/page-shell';
+import { CreateButton } from '@/components/create-button';
 import { ShadcnDataTable } from '@/components/ui/shadcn-data-table';
 import { StatusBadge } from '@/components/status-badge';
 import { ActionMenu } from '@/components/action-menu';
-import { Button } from '@/components/ui/button';
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal';
 import { useToast } from '@/hooks/use-toast';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  filterDataForUser,
+  shouldShowEmptyState,
+  getEmptyStateMessage,
+} from '@/lib/demo-data-filter';
 
-// Mock data for object storage buckets - empty for new users
+// Mock data for object storage buckets - matching the attachment format
 const mockBuckets: any[] = [
   {
     id: 'bucket-1',
-    name: 'project-assets',
-    region: 'us-east-1',
-    size: '12.4 GB',
-    createdOn: '2024-04-10T14:23:00Z',
+    name: 'user-uploads',
+    region: 'us-west-2',
+    size: '0 B',
+    createdOn: '2024-05-10T16:30:00Z',
     status: 'success',
   },
   {
     id: 'bucket-2',
-    name: 'logs-archive',
-    region: 'eu-west-1',
-    size: '2.1 TB',
-    createdOn: '2024-03-22T09:10:00Z',
-    status: 'success',
-  },
-  {
-    id: 'bucket-3',
     name: 'media-backups',
     region: 'ap-south-1',
     size: '850 MB',
-    createdOn: '2024-05-01T18:45:00Z',
+    createdOn: '2024-05-02T00:15:00Z',
     status: 'updating',
   },
   {
+    id: 'bucket-3',
+    name: 'project-assets',
+    region: 'us-east-1',
+    size: '12.4 GB',
+    createdOn: '2024-04-10T19:53:00Z',
+    status: 'success',
+  },
+  {
     id: 'bucket-4',
-    name: 'user-uploads',
-    region: 'us-west-2',
-    size: '0 B',
-    createdOn: '2024-05-10T11:00:00Z',
+    name: 'logs-archive',
+    region: 'eu-west-1',
+    size: '2.1 TB',
+    createdOn: '2024-03-22T14:40:00Z',
     status: 'success',
   },
 ];
@@ -51,6 +56,10 @@ export default function ObjectStoragePage() {
   const [selectedBucket, setSelectedBucket] = useState<any>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { toast } = useToast();
+
+  // Filter data for demo mode
+  const filteredBuckets = filterDataForUser(mockBuckets);
+  const showEmptyState = shouldShowEmptyState(filteredBuckets);
 
   const handleDeleteClick = (bucket: any) => {
     setSelectedBucket(bucket);
@@ -121,14 +130,14 @@ export default function ObjectStoragePage() {
           return (
             <a
               href={`/storage/object/${row.id}`}
-              className='text-primary font-medium hover:underline leading-5'
+              className='text-primary font-medium hover:underline'
             >
               {value}
             </a>
           );
         }
         // For "updating" status, just show plain text
-        return <div className='font-medium leading-5'>{value}</div>;
+        return <div className='font-medium'>{value}</div>;
       },
     },
     {
@@ -136,13 +145,11 @@ export default function ObjectStoragePage() {
       label: 'Region',
       sortable: true,
       searchable: true,
-      render: (value: string) => <div className='leading-5'>{value}</div>,
     },
     {
       key: 'size',
       label: 'Size',
       sortable: true,
-      render: (value: string) => <div className='leading-5'>{value}</div>,
     },
     {
       key: 'createdOn',
@@ -150,9 +157,19 @@ export default function ObjectStoragePage() {
       sortable: true,
       render: (value: string) => {
         const date = new Date(value);
+        const formattedDate = date.toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+        const formattedTime = date.toLocaleTimeString('en-GB', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        });
         return (
-          <div className='text-muted-foreground leading-5'>
-            {date.toLocaleDateString()} {date.toLocaleTimeString()}
+          <div className='text-muted-foreground'>
+            {formattedDate} {formattedTime}
           </div>
         );
       },
@@ -184,7 +201,7 @@ export default function ObjectStoragePage() {
   ];
 
   // Add actions property to each bucket row for DataTable
-  const dataWithActions = mockBuckets.map(bucket => ({
+  const dataWithActions = filteredBuckets.map(bucket => ({
     ...bucket,
     actions: null,
   }));
@@ -692,40 +709,38 @@ export default function ObjectStoragePage() {
   );
 
   return (
-    <PageLayout
+    <PageShell
       title='Object Storage'
-      description='Manage your object storage buckets and files'
+      description='Create and manage your object storage buckets for scalable file storage with built-in redundancy and security.'
       headerActions={
-        mockBuckets.length > 0 && (
-          <Button onClick={handleCreateBucket}>Create Bucket</Button>
-        )
+        <CreateButton href='/storage/object/create' label='Create Bucket' />
       }
     >
-      <div className='space-y-6'>
-        {mockBuckets.length === 0 ? (
-          <Card className='mt-8'>
-            <CardContent>
-              <EmptyState
-                title='No Storage Buckets Yet'
-                description='Create your first storage bucket to start storing and managing your files in the cloud. Storage buckets provide scalable object storage with built-in redundancy and security.'
-                actionText='Create Your First Bucket'
-                onAction={handleCreateBucket}
-                icon={objectStorageIcon}
-              />
-            </CardContent>
-          </Card>
-        ) : (
-          <ShadcnDataTable
-            columns={columns}
-            data={dataWithActions}
-            searchableColumns={['name', 'region']}
-            defaultSort={{ column: 'createdOn', direction: 'desc' }}
-            enableSearch={true}
-            enablePagination={true}
-            onRefresh={handleRefresh}
-          />
-        )}
-      </div>
+      {showEmptyState ? (
+        <Card className='mt-8'>
+          <CardContent>
+            <EmptyState
+              {...getEmptyStateMessage('object-storage')}
+              onAction={() => (window.location.href = '/storage/object/create')}
+              icon={objectStorageIcon}
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <ShadcnDataTable
+          columns={columns}
+          data={dataWithActions}
+          searchableColumns={['name', 'region']}
+          defaultSort={{ column: 'createdOn', direction: 'desc' }}
+          pageSize={10}
+          enableSearch={true}
+          enableColumnVisibility={false}
+          enablePagination={true}
+          onRefresh={handleRefresh}
+          enableAutoRefresh={true}
+          enableVpcFilter={false}
+        />
+      )}
 
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
@@ -734,6 +749,6 @@ export default function ObjectStoragePage() {
         resourceType='Bucket'
         onConfirm={handleDeleteConfirm}
       />
-    </PageLayout>
+    </PageShell>
   );
 }
