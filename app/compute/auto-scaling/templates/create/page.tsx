@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { CreateVPCModal, CreateSSHKeyModal } from "@/components/modals/vm-creation-modals"
+import { CreateSSHKeyModal } from "@/components/modals/vm-creation-modals"
 import { PageLayout } from "@/components/page-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,12 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useToast } from "@/hooks/use-toast"
-import { mockSubnets } from "@/lib/cluster-creation-data"
-import { vpcs } from "@/lib/data"
-import { Check, ChevronDown, Search, HelpCircle, Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ScalingPoliciesSection } from "../../create/components/scaling-policies-section"
@@ -26,13 +21,6 @@ import { StorageSection } from "../../create/components/storage-section"
 interface TemplateFormData {
   // Basic Information
   templateName: string
-  templateDescription: string
-
-  // Network Configuration
-  region: string
-  vpc: string
-  subnets: string[]
-  securityGroups: string[]
 
   // Instance Configuration
   instanceName: string
@@ -98,106 +86,14 @@ const sshKeys = [
   { id: "ssh-key-3", name: "development-key" },
 ]
 
-// Mock security groups data
-const mockSecurityGroups = [
-  { id: "sg-default", name: "default", description: "Default security group" },
-  { id: "sg-web", name: "web-servers", description: "Security group for web servers" },
-  { id: "sg-db", name: "database", description: "Security group for database servers" },
-  { id: "sg-app", name: "application", description: "Security group for application servers" },
-  { id: "sg-cache", name: "cache-servers", description: "Security group for cache servers" }
-]
-
-// Mock region availability data (same as cluster page)
-const regionAvailability = {
-  "us-east-1": {
-    name: "US East (N. Virginia)",
-    resources: [
-      { type: "CPU Instances", availability: "high" },
-      { type: "GPU A40", availability: "high" },
-      { type: "GPU RTX A5000", availability: "medium" },
-      { type: "GPU RTX A6000", availability: "medium" },
-      { type: "Storage", availability: "high" },
-    ]
-  },
-  "us-west-2": {
-    name: "US West (Oregon)",
-    resources: [
-      { type: "CPU Instances", availability: "high" },
-      { type: "GPU A40", availability: "medium" },
-      { type: "GPU RTX A5000", availability: "low" },
-      { type: "GPU RTX A6000", availability: "low" },
-      { type: "Storage", availability: "high" },
-    ]
-  },
-  "eu-west-1": {
-    name: "EU (Ireland)",
-    resources: [
-      { type: "CPU Instances", availability: "high" },
-      { type: "GPU A40", availability: "high" },
-      { type: "GPU RTX A5000", availability: "medium" },
-      { type: "GPU RTX A6000", availability: "medium" },
-      { type: "Storage", availability: "high" },
-    ]
-  },
-  "ap-south-1": {
-    name: "Asia Pacific (Mumbai)",
-    resources: [
-      { type: "CPU Instances", availability: "medium" },
-      { type: "GPU A40", availability: "medium" },
-      { type: "GPU RTX A5000", availability: "high" },
-      { type: "GPU RTX A6000", availability: "high" },
-      { type: "Storage", availability: "medium" },
-    ]
-  },
-  "ap-southeast-1": {
-    name: "Asia Pacific (Singapore)",
-    resources: [
-      { type: "CPU Instances", availability: "high" },
-      { type: "GPU A40", availability: "low" },
-      { type: "GPU RTX A5000", availability: "medium" },
-      { type: "GPU RTX A6000", availability: "medium" },
-      { type: "Storage", availability: "high" },
-    ]
-  }
-}
-
-const getAvailabilityColor = (availability: string) => {
-  switch (availability) {
-    case "high": return "bg-green-500"
-    case "medium": return "bg-yellow-500"
-    case "low": return "bg-gray-400"
-    default: return "bg-gray-300"
-  }
-}
-
-const getAvailabilityBars = (availability: string) => {
-  const totalBars = 3
-  const activeBars = availability === "high" ? 3 : availability === "medium" ? 2 : 1
-
-  return Array.from({ length: totalBars }, (_, index) => (
-    <div
-      key={index}
-      className={`h-1.5 w-6 rounded-sm ${index < activeBars ? getAvailabilityColor(availability) : "bg-gray-300"
-        }`}
-    />
-  ))
-}
 
 export default function CreateTemplatePage() {
   const router = useRouter()
   const { toast } = useToast()
-  const [showCreateVPCModal, setShowCreateVPCModal] = useState(false)
   const [showCreateSSHKeyModal, setShowCreateSSHKeyModal] = useState(false)
-  const [vpcSelectorOpen, setVpcSelectorOpen] = useState(false)
-  const [vpcSearchTerm, setVpcSearchTerm] = useState("")
 
   const [formData, setFormData] = useState<TemplateFormData>({
     templateName: "",
-    templateDescription: "",
-    region: "",
-    vpc: "",
-    subnets: [],
-    securityGroups: [],
     instanceName: "",
     instanceType: "",
     bootVolumeName: "",
@@ -335,25 +231,6 @@ export default function CreateTemplatePage() {
     router.push("/compute/auto-scaling")
   }
 
-  const selectedVPC = vpcs.find(vpc => vpc.id === formData.vpc)
-  
-  // Map VPC IDs to cluster creation VPC IDs for subnet data
-  const vpcIdMapping: Record<string, string> = {
-    'vpc-1': 'vpc-bangalore-1',
-    'vpc-2': 'vpc-bangalore-2', 
-    'vpc-3': 'vpc-hyderabad-1',
-    'vpc-16': 'vpc-bangalore-1',
-    'vpc-17': 'vpc-bangalore-2'
-  }
-
-  // Use the same subnet data as cluster creation
-  const mappedVpcId = selectedVPC ? vpcIdMapping[selectedVPC.id] : null
-  const availableSubnets = mappedVpcId ? mockSubnets.filter(subnet => subnet.vpcId === mappedVpcId) : []
-
-  const filteredVPCs = vpcs.filter(vpc =>
-    vpc.name.toLowerCase().includes(vpcSearchTerm.toLowerCase()) ||
-    vpc.id.toLowerCase().includes(vpcSearchTerm.toLowerCase())
-  )
 
   return (
     <PageLayout
@@ -369,270 +246,21 @@ export default function CreateTemplatePage() {
                 {/* Template Configuration */}
                 <div className="space-y-4">
                   <Label className="text-base font-medium">Template Configuration</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="templateName">
-                        Template Name <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        id="templateName"
-                        placeholder="Enter template name"
-                        value={formData.templateName}
-                        onChange={(e) => handleInputChange("templateName", e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="templateDescription">Description</Label>
-                      <Input
-                        id="templateDescription"
-                        placeholder="Enter template description"
-                        value={formData.templateDescription}
-                        onChange={(e) => handleInputChange("templateDescription", e.target.value)}
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="templateName">
+                      Template Name <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="templateName"
+                      placeholder="Enter template name"
+                      value={formData.templateName}
+                      onChange={(e) => handleInputChange("templateName", e.target.value)}
+                      required
+                    />
                   </div>
                 </div>
 
                 <Separator />
-
-                {/* Network Configuration */}
-                <div className="space-y-4">
-                  <Label className="text-base font-medium">Network Configuration</Label>
-                  
-                  {/* Row 1: Region */}
-                  <div className="space-y-2">
-                    <Label htmlFor="region">
-                      Region <span className="text-red-500">*</span>
-                    </Label>
-                    <Select value={formData.region} onValueChange={(value) => handleInputChange("region", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a Region" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="us-east-1">US East (N. Virginia)</SelectItem>
-                        <SelectItem value="us-west-2">US West (Oregon)</SelectItem>
-                        <SelectItem value="eu-west-1">EU (Ireland)</SelectItem>
-                        <SelectItem value="ap-south-1">Asia Pacific (Mumbai)</SelectItem>
-                        <SelectItem value="ap-southeast-1">Asia Pacific (Singapore)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Resource Availability - appears below Region when selected */}
-                  {formData.region && regionAvailability[formData.region as keyof typeof regionAvailability] && (
-                    <div className="p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-xs text-gray-900">Resource Availability</h4>
-                        <span className="text-xs text-gray-500">
-                          {regionAvailability[formData.region as keyof typeof regionAvailability].name}
-                        </span>
-                      </div>
-                      <div className="space-y-2">
-                        {regionAvailability[formData.region as keyof typeof regionAvailability].resources.map((resource, index) => (
-                          <div key={index} className="flex items-center justify-between">
-                            <span className="text-xs text-gray-700">{resource.type}</span>
-                            <div className="flex items-center gap-0.5">
-                              {getAvailabilityBars(resource.availability)}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="mt-2 pt-2 border-t border-gray-100">
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-1">
-                              <div className="h-1.5 w-1.5 bg-green-500 rounded-sm"></div>
-                              <span>High</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <div className="h-1.5 w-1.5 bg-yellow-500 rounded-sm"></div>
-                              <span>Medium</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <div className="h-1.5 w-1.5 bg-gray-400 rounded-sm"></div>
-                              <span>Low</span>
-                            </div>
-                          </div>
-                          <span>Updated 5 min ago</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Row 2: VPC */}
-                  <div className="space-y-2">
-                    <Label htmlFor="vpc">
-                      VPC <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setVpcSelectorOpen(!vpcSelectorOpen)}
-                        className={`w-full flex items-center justify-between px-3 py-2 border border-input rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-background`}
-                      >
-                        <span className={selectedVPC ? "text-foreground" : "!text-[#64748b]"}>
-                          {selectedVPC ? `${selectedVPC.name} (${selectedVPC.region})` : "Select region first"}
-                        </span>
-                        <ChevronDown className="h-4 w-4 opacity-50" />
-                      </button>
-                      {vpcSelectorOpen && (
-                        <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md">
-                          <div className="p-2 border-b">
-                            <div className="relative">
-                              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                placeholder="Search VPCs..."
-                                value={vpcSearchTerm}
-                                onChange={(e) => setVpcSearchTerm(e.target.value)}
-                                className="pl-8"
-                              />
-                            </div>
-                          </div>
-                          <div className="p-1">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowCreateVPCModal(true)
-                                setVpcSelectorOpen(false)
-                              }}
-                              className="w-full flex items-center px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm text-primary font-medium"
-                            >
-                              Create new VPC
-                            </button>
-                            {filteredVPCs.map((vpc) => (
-                              <button
-                                key={vpc.id}
-                                type="button"
-                                onClick={() => {
-                                  handleInputChange("vpc", vpc.id)
-                                  handleInputChange("subnets", []) // Reset subnets when VPC changes
-                                  handleInputChange("securityGroups", []) // Reset security groups when VPC changes
-                                  setVpcSelectorOpen(false)
-                                  setVpcSearchTerm("")
-                                }}
-                                className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm"
-                              >
-                                <div className="flex flex-col items-start">
-                                  <span className="font-medium">{vpc.name}</span>
-                                  <span className="text-xs text-muted-foreground">{vpc.id} • {vpc.region}</span>
-                                </div>
-                                {formData.vpc === vpc.id && <Check className="h-4 w-4" />}
-                              </button>
-                            ))}
-                            {filteredVPCs.length === 0 && vpcSearchTerm && (
-                              <div className="px-2 py-2 text-sm text-muted-foreground">
-                                No VPCs found matching "{vpcSearchTerm}"
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Row 3: Subnet */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="subnet">
-                        Subnet <span className="text-red-500">*</span>
-                      </Label>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-                          </TooltipTrigger>
-                          <TooltipContent side="right" align="start" className="max-w-sm">
-                            <p className="text-sm">
-                              <strong>Template Subnet:</strong> This subnet determines where instances will be launched from this template. Choosing a public subnet allows instances to have direct internet access. Private subnets restrict instances to internal network access only.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    <Select
-                      value={formData.subnets[0] || ""}
-                      onValueChange={(value) => handleInputChange("subnets", [value])}
-                      disabled={!formData.vpc}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a Subnet" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableSubnets.map((subnet) => (
-                          <SelectItem key={subnet.id} value={subnet.id}>
-                            <div className="flex items-center justify-between w-full">
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">{subnet.name}</span>
-                                <Badge 
-                                  variant="secondary" 
-                                  className={`text-xs ${
-                                    subnet.type === "Public" 
-                                      ? "bg-blue-100 text-blue-800" 
-                                      : "bg-orange-100 text-orange-800"
-                                  }`}
-                                >
-                                  {subnet.type}
-                                </Badge>
-                              </div>
-                              <div className="text-sm text-muted-foreground ml-2">
-                                {subnet.cidr} • {subnet.availabilityZone}
-                              </div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Row 4: Security Groups */}
-                  <div className="space-y-3">
-                    <Label>Security Groups</Label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {mockSecurityGroups.map(sg => {
-                        const isSelected = formData.securityGroups.includes(sg.id)
-                        return (
-                          <div
-                            key={sg.id}
-                            onClick={() => {
-                              const currentSGs = formData.securityGroups
-                              if (isSelected) {
-                                // Remove from selection
-                                handleInputChange("securityGroups", currentSGs.filter(id => id !== sg.id))
-                              } else {
-                                // Add to selection
-                                handleInputChange("securityGroups", [...currentSGs, sg.id])
-                              }
-                            }}
-                            className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-sm ${
-                              isSelected 
-                                ? 'border-primary bg-primary/5 shadow-sm' 
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                                    isSelected 
-                                      ? 'border-primary bg-primary' 
-                                      : 'border-gray-300'
-                                  }`}>
-                                    {isSelected && (
-                                      <Check className="w-2.5 h-2.5 text-white" />
-                                    )}
-                                  </div>
-                                  <h4 className="font-medium text-sm">{sg.name}</h4>
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-1 ml-6">{sg.description}</p>
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                </div>
 
                 {/* Instance Configuration */}
                 <div className="space-y-4">
@@ -772,37 +400,6 @@ export default function CreateTemplatePage() {
               </CardContent>
             </Card>
 
-            {/* Template Preview */}
-            <div
-              className="sticky top-6"
-              style={{
-                borderRadius: '16px',
-                border: '4px solid #FFF',
-                background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
-                boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
-                padding: '1.5rem'
-              }}
-            >
-              <div className="pb-4">
-                <h3 className="text-base font-semibold">Template Preview</h3>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-lg font-semibold">
-                    {formData.templateName || "Untitled Template"}
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {formData.templateDescription || "No description provided"}
-                </p>
-                <div className="text-xs text-muted-foreground pt-2 border-t">
-                  <p>• Instance Type: {formData.instanceType || "Not selected"}</p>
-                  <p>• Storage: {formData.bootVolumeSize}GB + {formData.storageVolumes.reduce((sum, vol) => sum + vol.size, 0)}GB additional</p>
-                  <p>• Policies: {formData.scalingPolicies.length} configured</p>
-                  <p>• Tags: {formData.tags.length} applied</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -824,11 +421,6 @@ export default function CreateTemplatePage() {
           </div>
         </div>
       </form>
-
-      <CreateVPCModal
-        open={showCreateVPCModal}
-        onClose={() => setShowCreateVPCModal(false)}
-      />
 
       <CreateSSHKeyModal
         open={showCreateSSHKeyModal}
