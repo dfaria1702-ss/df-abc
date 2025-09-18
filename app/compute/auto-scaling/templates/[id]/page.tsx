@@ -395,7 +395,7 @@ export default function TemplateDetailsPage() {
                       {/* Policy Type */}
                       <div>
                         <Label className='text-xs text-muted-foreground'>
-                          Type
+                          Policy Type
                         </Label>
                         <div className='mt-1'>
                           <span className='text-sm'>{policy.type}</span>

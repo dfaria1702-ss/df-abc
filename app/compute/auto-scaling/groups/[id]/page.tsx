@@ -419,15 +419,15 @@ export default function AutoScalingGroupDetailsPage() {
               >
                 {/* Fields */}
                 <div className='space-y-3 text-xs'>
-                  {/* Policy Type */}
-                  <div>
-                    <Label className='text-xs text-muted-foreground'>
-                      Type
-                    </Label>
-                    <div className='mt-1'>
-                      <span className='text-sm'>{policy.type}</span>
-                    </div>
-                  </div>
+                      {/* Policy Type */}
+                      <div>
+                        <Label className='text-xs text-muted-foreground'>
+                          Policy Type
+                        </Label>
+                        <div className='mt-1'>
+                          <span className='text-sm'>{policy.type}</span>
+                        </div>
+                      </div>
 
                   {(policy.type === 'Average CPU Utilization' || policy.type === 'Average Memory Utilization') && (
                     <div className='space-y-3'>
