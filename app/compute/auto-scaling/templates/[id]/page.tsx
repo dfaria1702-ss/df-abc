@@ -339,7 +339,13 @@ export default function TemplateDetailsPage() {
                     </div>
                     <div className='space-y-1'>
                       <Label className='text-xs text-muted-foreground'>Tags</Label>
-                      <div className='text-sm font-medium'>{templateData.tags.length} tag(s) configured</div>
+                      <div className='flex flex-wrap gap-1'>
+                        {templateData.tags.map((tag, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {tag.key}: {tag.value}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -839,33 +839,15 @@ export default function EditTemplatePage() {
                 <ul className="space-y-3">
                   <li className="flex items-start gap-2">
                     <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-sm text-muted-foreground">
-                      Use descriptive template names to easily identify configurations
-                    </span>
+                    <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use templates to standardize ASG configs across teams and avoid drift.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-sm text-muted-foreground">
-                      Test your scaling policies with different workloads before production use
-                    </span>
+                    <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Templates are only for creating new ASGs — once an ASG is created, it manages its own configuration and won't change if the template is updated.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-sm text-muted-foreground">
-                      Configure appropriate cooldown periods to prevent rapid scaling
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-sm text-muted-foreground">
-                      Use tags to organize and track your templates effectively
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-sm text-muted-foreground">
-                      Note: Network settings (Region, VPC, Subnet) cannot be modified after creation
-                    </span>
+                    <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Keep templates lightweight — specify only the fields that remain constant across ASGs. Other fields can still be edited during ASG creation.</span>
                   </li>
                 </ul>
               </CardContent>
