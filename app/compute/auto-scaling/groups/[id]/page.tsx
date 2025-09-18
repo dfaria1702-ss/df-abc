@@ -165,9 +165,9 @@ export default function AutoScalingGroupDetailsPage() {
       key: 'privateIp',
       label: 'Private IP Address',
       sortable: false,
-      align: 'left',
+      align: 'right',
       render: (value: string) => (
-        <div className="text-left">{value}</div>
+        <div className="text-right">{value}</div>
       ),
     },
   ];
