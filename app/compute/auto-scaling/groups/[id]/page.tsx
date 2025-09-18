@@ -21,14 +21,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { ShadcnDataTable } from '@/components/ui/shadcn-data-table';
 import { AutoScalingSettingsModal } from '@/components/modals/auto-scaling-settings-modal';
 
 export default function AutoScalingGroupDetailsPage() {
@@ -124,7 +117,59 @@ export default function AutoScalingGroupDetailsPage() {
 
   // Mock running instances
   const runningInstances = [
-    // Empty state as shown in screenshot
+    {
+      id: '1',
+      name: 'media-processing-asg-01',
+      status: 'running',
+      privateIp: '54.218.123.47',
+    },
+    {
+      id: '2',
+      name: 'media-processing-asg-02',
+      status: 'running',
+      privateIp: '54.218.123.48',
+    },
+    {
+      id: '3',
+      name: 'media-processing-asg-03',
+      status: 'terminating',
+      privateIp: '54.218.123.49',
+    },
+    {
+      id: '4',
+      name: 'media-processing-asg-04',
+      status: 'running',
+      privateIp: '54.218.123.50',
+    },
+  ];
+
+  // Instance table columns
+  const instanceColumns = [
+    {
+      key: 'name',
+      label: 'Instance Name',
+      sortable: true,
+      align: 'left',
+      render: (value: string) => (
+        <span className="font-medium">{value}</span>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      align: 'left',
+      render: (value: string) => <StatusBadge status={value} />,
+    },
+    {
+      key: 'privateIp',
+      label: 'Private IP Address',
+      sortable: false,
+      align: 'left',
+      render: (value: string) => (
+        <div className="text-left">{value}</div>
+      ),
+    },
   ];
 
   // Action handlers
@@ -525,6 +570,28 @@ export default function AutoScalingGroupDetailsPage() {
             ))}
             </div>
           </div>
+        </div>
+
+        {/* Instance Details */}
+        <div className='bg-card text-card-foreground border-border border rounded-lg p-6'>
+          <div className='flex items-center justify-between mb-6'>
+            <div className='flex items-center gap-3'>
+              <h3 className='text-lg font-semibold'>Instance Details</h3>
+              <div className='bg-gray-800 text-white text-sm font-medium rounded-full w-6 h-6 flex items-center justify-center'>
+                {runningInstances.length}
+              </div>
+            </div>
+          </div>
+          <ShadcnDataTable
+            columns={instanceColumns}
+            data={runningInstances}
+            searchableColumns={[]}
+            pageSize={10}
+            enableSearch={false}
+            enableColumnVisibility={false}
+            enablePagination={true}
+            enableVpcFilter={false}
+          />
         </div>
 
       </div>
