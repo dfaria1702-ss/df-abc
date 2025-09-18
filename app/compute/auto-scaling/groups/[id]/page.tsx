@@ -254,7 +254,7 @@ export default function AutoScalingGroupDetailsPage() {
           </div>
 
           <DetailGrid>
-            {/* ASG Name, Type, Flavour, Status in one row */}
+            {/* ASG Name, Type, Status, Created On in one row */}
             <div className='col-span-full grid grid-cols-4 gap-4'>
               <div className='space-y-1'>
                 <label
@@ -283,58 +283,10 @@ export default function AutoScalingGroupDetailsPage() {
                   className='text-sm font-normal text-gray-700'
                   style={{ fontSize: '13px' }}
                 >
-                  Flavour
-                </label>
-                <div className='font-medium' style={{ fontSize: '14px' }}>
-                  {asg.flavour}
-                </div>
-              </div>
-              <div className='space-y-1'>
-                <label
-                  className='text-sm font-normal text-gray-700'
-                  style={{ fontSize: '13px' }}
-                >
                   Status
                 </label>
                 <div>
                   <StatusBadge status={asg.status} />
-                </div>
-              </div>
-            </div>
-
-            {/* VPC, Region, Subnet, Created On in second row */}
-            <div className='col-span-full grid grid-cols-4 gap-4 mt-4'>
-              <div className='space-y-1'>
-                <label
-                  className='text-sm font-normal text-gray-700'
-                  style={{ fontSize: '13px' }}
-                >
-                  VPC
-                </label>
-                <div className='font-medium' style={{ fontSize: '14px' }}>
-                  {asg.vpc}
-                </div>
-              </div>
-              <div className='space-y-1'>
-                <label
-                  className='text-sm font-normal text-gray-700'
-                  style={{ fontSize: '13px' }}
-                >
-                  Region
-                </label>
-                <div className='font-medium' style={{ fontSize: '14px' }}>
-                  {asg.region || 'US East N. Virginia'}
-                </div>
-              </div>
-              <div className='space-y-1'>
-                <label
-                  className='text-sm font-normal text-gray-700'
-                  style={{ fontSize: '13px' }}
-                >
-                  Subnet
-                </label>
-                <div className='font-medium' style={{ fontSize: '14px' }}>
-                  {asg.subnet || 'subnet-5'}
                 </div>
               </div>
               <div className='space-y-1'>
@@ -378,10 +330,6 @@ export default function AutoScalingGroupDetailsPage() {
               <div className='space-y-1'>
                 <Label className='text-xs text-muted-foreground'>Security Groups</Label>
                 <div className='text-sm font-medium'>{instanceSpecifications.securityGroups}</div>
-              </div>
-              <div className='space-y-1'>
-                <Label className='text-xs text-muted-foreground'>Availability Zones</Label>
-                <div className='text-sm font-medium'>{asg.availabilityZones?.join(', ') || 'us-east-1a, us-east-1b'}</div>
               </div>
             </div>
           </div>
@@ -484,25 +432,6 @@ export default function AutoScalingGroupDetailsPage() {
                 key={index}
                 className='border transition-colors rounded-lg bg-card p-4 relative border-border hover:border-gray-300'
               >
-                {/* Header with policy name and Active tag */}
-                <div className='flex items-start justify-between mb-4'>
-                  <div className='flex items-center gap-2 flex-1 min-w-0'>
-                    <h4 className='text-sm font-medium leading-none'>
-                      {policy.name}
-                    </h4>
-                    <Badge 
-                      variant='secondary'
-                      className={`text-xs h-5 cursor-default ${
-                        policy.enabled
-                          ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-100 hover:text-green-800'
-                          : 'hover:bg-secondary hover:text-secondary-foreground'
-                      }`}
-                    >
-                      {policy.enabled ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </div>
-                </div>
-
                 {/* Fields */}
                 <div className='space-y-3 text-xs'>
                   {/* Policy Type */}
@@ -558,39 +487,39 @@ export default function AutoScalingGroupDetailsPage() {
 
                   {policy.type === 'Scheduled Action' && (
                     <div className='space-y-3'>
-                      <div className='grid grid-cols-2 gap-6'>
-                        <div>
-                          <Label className='text-xs text-muted-foreground'>
-                            Schedule
-                          </Label>
-                          <div className='mt-1'>
-                            <span className='text-sm'>{policy.schedule}</span>
-                          </div>
-                        </div>
+                      <div className='grid grid-cols-1 gap-6'>
                         <div>
                           <Label className='text-xs text-muted-foreground'>
                             Timezone
                           </Label>
                           <div className='mt-1'>
-                            <span className='text-sm'>{policy.timezone}</span>
+                            <span className='text-sm'>{policy.timezone || 'IST (Indian Standard Time)'}</span>
                           </div>
                         </div>
                       </div>
                       <div className='grid grid-cols-2 gap-6'>
                         <div>
                           <Label className='text-xs text-muted-foreground'>
-                            Next Run
+                            Scale Up Time
                           </Label>
                           <div className='mt-1'>
-                            <span className='text-sm'>{policy.nextRun}</span>
+                            <span className='text-sm'>
+                              {String(policy.scaleUpHours || 9).padStart(2, '0')}:
+                              {String(policy.scaleUpMinutes || 0).padStart(2, '0')}:
+                              {String(policy.scaleUpSeconds || 0).padStart(2, '0')}
+                            </span>
                           </div>
                         </div>
                         <div>
                           <Label className='text-xs text-muted-foreground'>
-                            Action
+                            Scale Down Time
                           </Label>
                           <div className='mt-1'>
-                            <span className='text-sm'>{policy.action}</span>
+                            <span className='text-sm'>
+                              {String(policy.scaleDownHours || 18).padStart(2, '0')}:
+                              {String(policy.scaleDownMinutes || 0).padStart(2, '0')}:
+                              {String(policy.scaleDownSeconds || 0).padStart(2, '0')}
+                            </span>
                           </div>
                         </div>
                       </div>

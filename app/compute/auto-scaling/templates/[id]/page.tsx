@@ -337,37 +337,9 @@ export default function TemplateDetailsPage() {
                       <Label className='text-xs text-muted-foreground'>SSH Key</Label>
                       <div className='text-sm font-medium'>{sshKeyDetails.name}</div>
                     </div>
-                    <div className='space-y-1'>
-                      <Label className='text-xs text-muted-foreground'>Tags</Label>
-                      <div className='flex flex-wrap gap-1'>
-                        {templateData.tags.map((tag, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {tag.key}: {tag.value}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
                   </div>
                 </div>
 
-                {/* Instance Specifications */}
-                <div>
-                  <Label className='text-sm font-medium mb-3 block'>Instance Specifications</Label>
-                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-                    <div className='space-y-1'>
-                      <Label className='text-xs text-muted-foreground'>vCPUs</Label>
-                      <div className='text-sm font-medium'>{instanceTypeDetails.vcpus}</div>
-                    </div>
-                    <div className='space-y-1'>
-                      <Label className='text-xs text-muted-foreground'>Memory</Label>
-                      <div className='text-sm font-medium'>{instanceTypeDetails.ram} GB</div>
-                    </div>
-                    <div className='space-y-1'>
-                      <Label className='text-xs text-muted-foreground'>Price</Label>
-                      <div className='text-sm font-medium'>₹{instanceTypeDetails.pricePerHour}/hr</div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -399,10 +371,6 @@ export default function TemplateDetailsPage() {
                   <Label className='text-xs text-muted-foreground'>Security Groups</Label>
                   <div className='text-sm font-medium'>{securityGroupDetails.map(sg => sg?.name).join(', ')}</div>
                 </div>
-                <div className='space-y-1'>
-                  <Label className='text-xs text-muted-foreground'>Availability Zones</Label>
-                  <div className='text-sm font-medium'>us-east-1a, us-east-1b</div>
-                </div>
               </div>
             </div>
           </div>
@@ -413,38 +381,104 @@ export default function TemplateDetailsPage() {
               <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-3'>
                   <h3 className='text-lg font-semibold'>Auto Scaling Policies</h3>
+                  <div className='bg-gray-800 text-white text-sm font-medium rounded-full w-6 h-6 flex items-center justify-center'>
+                    {templateData.scalingPolicies.length}
+                  </div>
                 </div>
               </div>
             </div>
             <div className='px-6 pb-6'>
-              <div className='space-y-4'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 {templateData.scalingPolicies.map((policy, index) => (
-                  <div key={policy.id} className='p-4 border rounded-lg'>
-                    <div className='flex items-center justify-between mb-4'>
-                      <div className='flex items-center gap-3'>
-                        <h4 className='text-sm font-medium'>{policy.type}</h4>
-                        <Badge variant="outline" className="text-xs text-muted-foreground border-muted-foreground/30 bg-transparent">
-                          {policy.type === 'CPU Utilization' ? 'CPU' : policy.type === 'Memory Utilization' ? 'Memory' : 'Scheduled'}
-                        </Badge>
+                  <div
+                    key={policy.id}
+                    className='border transition-colors rounded-lg bg-card p-4 relative border-border hover:border-gray-300'
+                  >
+                    {/* Fields */}
+                    <div className='space-y-3 text-xs'>
+                      {/* Policy Type */}
+                      <div>
+                        <Label className='text-xs text-muted-foreground'>
+                          Type
+                        </Label>
+                        <div className='mt-1'>
+                          <span className='text-sm'>{policy.type}</span>
+                        </div>
                       </div>
-                    </div>
-                    <div className='grid grid-cols-2 md:grid-cols-4 gap-4 text-sm'>
-                      <div className='space-y-1'>
-                        <Label className='text-xs text-muted-foreground'>Metric</Label>
-                        <div className='text-sm font-medium'>{policy.metric}</div>
-                      </div>
-                      <div className='space-y-1'>
-                        <Label className='text-xs text-muted-foreground'>Threshold</Label>
-                        <div className='text-sm font-medium'>{policy.threshold}</div>
-                      </div>
-                      <div className='space-y-1'>
-                        <Label className='text-xs text-muted-foreground'>Action</Label>
-                        <div className='text-sm font-medium'>{policy.action}</div>
-                      </div>
-                      <div className='space-y-1'>
-                        <Label className='text-xs text-muted-foreground'>Cooldown</Label>
-                        <div className='text-sm font-medium'>{policy.scaleOutCooldown || policy.scaleInCooldown}s</div>
-                      </div>
+
+                      {(policy.type === 'CPU Utilization' || policy.type === 'Memory Utilization') && (
+                        <div className='space-y-3'>
+                          <div className='grid grid-cols-2 gap-6'>
+                            <div>
+                              <Label className='text-xs text-muted-foreground'>
+                                Up Scale Target
+                              </Label>
+                              <div className='mt-1'>
+                                <span className='text-sm'>{policy.threshold}%</span>
+                              </div>
+                            </div>
+                            <div>
+                              <Label className='text-xs text-muted-foreground'>
+                                Down Scale Target
+                              </Label>
+                              <div className='mt-1'>
+                                <span className='text-sm'>30%</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className='grid grid-cols-2 gap-6'>
+                            <div>
+                              <Label className='text-xs text-muted-foreground'>
+                                Scale Out Cooldown
+                              </Label>
+                              <div className='mt-1'>
+                                <span className='text-sm'>{policy.scaleOutCooldown || '300'}s</span>
+                              </div>
+                            </div>
+                            <div>
+                              <Label className='text-xs text-muted-foreground'>
+                                Scale In Cooldown
+                              </Label>
+                              <div className='mt-1'>
+                                <span className='text-sm'>{policy.scaleInCooldown || '300'}s</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {policy.type === 'Scheduled Action' && (
+                        <div className='space-y-3'>
+                          <div className='grid grid-cols-1 gap-6'>
+                            <div>
+                              <Label className='text-xs text-muted-foreground'>
+                                Timezone
+                              </Label>
+                              <div className='mt-1'>
+                                <span className='text-sm'>IST (Indian Standard Time)</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className='grid grid-cols-2 gap-6'>
+                            <div>
+                              <Label className='text-xs text-muted-foreground'>
+                                Scale Up Time
+                              </Label>
+                              <div className='mt-1'>
+                                <span className='text-sm'>09:00:00</span>
+                              </div>
+                            </div>
+                            <div>
+                              <Label className='text-xs text-muted-foreground'>
+                                Scale Down Time
+                              </Label>
+                              <div className='mt-1'>
+                                <span className='text-sm'>18:00:00</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
