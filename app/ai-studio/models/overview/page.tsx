@@ -123,7 +123,7 @@ print(response.json())`;
         {/* Right Side - Code Example */}
         <div className='hidden lg:block relative z-10'>
           <GlowingShadow>
-            <div className='w-full h-full flex flex-col overflow-hidden'>
+            <div className='bg-gray-900 rounded-xl border border-gray-700 overflow-hidden w-full h-full'>
               {/* Header */}
               <div className='flex items-center justify-between px-4 py-3 bg-gray-800 border-b border-gray-700'>
                 <h3 className='text-sm font-medium text-gray-200'>Try it now</h3>
@@ -140,7 +140,7 @@ print(response.json())`;
               </div>
               
               {/* Code Content */}
-              <div className='p-4 bg-gray-900 flex-1'>
+              <div className='p-4 bg-gray-900'>
                 <pre className='text-sm text-gray-300 leading-relaxed overflow-x-auto'>
                   <code>{codeSnippet}</code>
                 </pre>
