@@ -452,8 +452,8 @@ export default function PlaygroundPage() {
             </div>
 
             {/* Right Panel - Entire section wrapped in Card */}
-            <Card className='flex-1 flex flex-col h-full'>
-              <CardContent className='flex-1 flex flex-col h-full p-6'>
+            <Card className='flex-1 flex flex-col min-h-0'>
+              <CardContent className='flex-1 flex flex-col min-h-0 p-6 overflow-hidden'>
                 {/* System Prompt Section */}
                 <div className='flex-shrink-0 space-y-3'>
                   <div className='flex items-center justify-between'>
@@ -483,7 +483,7 @@ export default function PlaygroundPage() {
                 </div>
 
                 {/* Chat History */}
-                <div className='flex-1 flex flex-col mt-6'>
+                <div className='flex-1 flex flex-col mt-6 min-h-0'>
                   {chatHistory.length === 0 ? (
                     <div className='flex-1 flex items-center justify-center'>
                       <div className='text-center space-y-4 text-muted-foreground'>
@@ -513,7 +513,7 @@ export default function PlaygroundPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className='flex-1 overflow-y-auto space-y-3'>
+                    <div className='flex-1 overflow-y-auto space-y-3 pr-2'>
                       {chatHistory.map((msg, index) => (
                         <div key={index} className={`p-4 rounded-lg border ${msg.role === 'user' ? 'ml-12 bg-muted/30' : 'mr-12 bg-background'}`}>
                           <div className='text-sm font-medium mb-2 capitalize'>{msg.role}</div>
