@@ -24,8 +24,7 @@ import {
   Globe,
   FileText,
   Sparkles,
-  BookOpen,
-  Trash2
+  BookOpen
 } from 'lucide-react';
 
 // Mock model data - in real app, this would come from API
@@ -480,19 +479,19 @@ export default function PlaygroundPage() {
                     <h3 className='text-sm font-medium text-foreground'>
                       System Prompt
                     </h3>
-                    <div className='flex items-center gap-1'>
-                      <TooltipWrapper content="Clear chat history">
+                    <div className='flex items-center gap-2'>
+                      <TooltipWrapper content="Clear all messages and start fresh">
                         <Button
-                          variant='ghost'
+                          variant='outline'
                           size='sm'
                           onClick={handleClearChat}
-                          className='h-6 w-6 p-0'
+                          className='h-7 px-3 text-xs'
                           disabled={chatHistory.length === 0}
                         >
-                          <Trash2 className='h-3 w-3' />
+                          Clear
                         </Button>
                       </TooltipWrapper>
-                      <TooltipWrapper content="Copy system prompt">
+                      <TooltipWrapper content="Copy system prompt to clipboard">
                         <Button
                           variant='ghost'
                           size='sm'
