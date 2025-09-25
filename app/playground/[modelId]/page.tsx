@@ -184,7 +184,7 @@ export default function PlaygroundPage() {
             {/* Left Sidebar */}
             <div className='w-80 flex-shrink-0 flex flex-col h-full relative'>
               {/* Scrollable Content */}
-              <div className='flex-1 space-y-3 p-4 pr-2 overflow-y-auto min-h-0 pb-32'>
+              <div className='flex-1 space-y-3 p-6 pr-2 overflow-y-auto min-h-0 pb-32'>
                 {/* Model Section */}
                 <div className='space-y-3'>
                   <div className='relative z-50'>
@@ -453,7 +453,7 @@ export default function PlaygroundPage() {
               {/* Fixed Cost Information */}
               <div className='absolute bottom-0 left-0 right-0'>
                 <div 
-                  className='mx-3'
+                  className='mx-6 mr-3'
                   style={{
                     borderRadius: '16px',
                     border: '4px solid #FFF',
