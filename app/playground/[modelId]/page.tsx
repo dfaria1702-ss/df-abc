@@ -499,7 +499,7 @@ export default function PlaygroundPage() {
                     <div className='flex-1 flex items-center justify-center'>
                       <div className='text-center space-y-4 text-muted-foreground'>
                         <div className='flex flex-col items-center space-y-3'>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" className='text-muted-foreground'>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 18 18" className='text-muted-foreground'>
                             <title>msg-sparkle</title>
                             <g fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" stroke="currentColor">
                               <path d="M16.25 9C16.25 4.996 13.004 1.75 9 1.75C4.996 1.75 1.75 4.996 1.75 9C1.75 10.319 2.108 11.552 2.723 12.617C3.153 13.423 2.67 15.329 1.75 16.25C3 16.318 4.647 15.753 5.383 15.277C5.872 15.559 6.647 15.933 7.662 16.125C8.095 16.207 8.543 16.25 9 16.25C9.0045 16.25 9.009 16.25 9.0135 16.25"></path>
