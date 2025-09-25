@@ -498,9 +498,18 @@ export default function PlaygroundPage() {
                   {chatHistory.length === 0 ? (
                     <div className='flex-1 flex items-center justify-center'>
                       <div className='text-center space-y-4 text-muted-foreground'>
-                        <div>
-                          <div className='text-base font-medium mb-1'>Start a conversation</div>
-                          <div className='text-sm'>Enter a message below or use one of the quick actions</div>
+                        <div className='flex flex-col items-center space-y-3'>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" className='text-muted-foreground'>
+                            <title>msg-sparkle</title>
+                            <g fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" stroke="currentColor">
+                              <path d="M16.25 9C16.25 4.996 13.004 1.75 9 1.75C4.996 1.75 1.75 4.996 1.75 9C1.75 10.319 2.108 11.552 2.723 12.617C3.153 13.423 2.67 15.329 1.75 16.25C3 16.318 4.647 15.753 5.383 15.277C5.872 15.559 6.647 15.933 7.662 16.125C8.095 16.207 8.543 16.25 9 16.25C9.0045 16.25 9.009 16.25 9.0135 16.25"></path>
+                              <path d="M17.4873 13.5381L15.5928 12.9072L14.9615 11.0127C14.8594 10.707 14.5728 10.5 14.2501 10.5C13.9274 10.5 13.6407 10.707 13.5387 11.0127L12.9074 12.9072L11.0129 13.5381C10.7067 13.6406 10.5002 13.9268 10.5002 14.25C10.5002 14.5732 10.7067 14.8594 11.0129 14.9619L12.9074 15.5928L13.5387 17.4873C13.6408 17.793 13.9274 18 14.2501 18C14.5728 18 14.8595 17.793 14.9615 17.4873L15.5928 15.5928L17.4873 14.9619C17.7935 14.8594 18 14.5732 18 14.25C18 13.9268 17.7935 13.6406 17.4873 13.5381Z" fill="currentColor" stroke="none"></path>
+                            </g>
+                          </svg>
+                          <div>
+                            <div className='text-base font-medium mb-1'>Start a conversation</div>
+                            <div className='text-sm'>Enter a message below or use one of the quick actions</div>
+                          </div>
                         </div>
                         
                         {/* Quick Actions moved here */}
