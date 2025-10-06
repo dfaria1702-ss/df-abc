@@ -15,6 +15,10 @@ import { TooltipWrapper } from '@/components/ui/tooltip-wrapper';
 import { useToast } from '@/hooks/use-toast';
 import { SetupCodeModal } from '@/components/modals/setup-code-modal';
 import { AIChatInput } from '@/components/ui/ai-chat-input';
+import { TextShimmer } from '@/components/ui/text-shimmer';
+import { ChatBubbleAvatar } from '@/components/ui/chat-bubble';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { motion } from 'framer-motion';
 import { 
   Copy, 
   ChevronDown, 
@@ -25,7 +29,9 @@ import {
   FileText,
   Sparkles,
   BookOpen,
-  RotateCcw
+  RotateCcw,
+  User,
+  ChevronUp
 } from 'lucide-react';
 
 // Mock model data - in real app, this would come from API
@@ -112,9 +118,12 @@ export default function PlaygroundPage() {
   const [systemPrompt, setSystemPrompt] = useState('');
   const [message, setMessage] = useState('');
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const [chatHistory, setChatHistory] = useState<Array<{role: 'user' | 'assistant', content: string, reasoning?: string, isThinking?: boolean}>>([]);
+  const [chatHistory, setChatHistory] = useState<Array<{role: 'user' | 'assistant', content: string, reasoning?: string, isThinking?: boolean, metrics?: {ttft: number, latency: number, tps: number, cost: number}}>>([]);
   const [isSetupCodeModalOpen, setIsSetupCodeModalOpen] = useState(false);
   const [expandedReasoning, setExpandedReasoning] = useState<Set<number>>(new Set());
+  const [totalCost, setTotalCost] = useState(0);
+  const [showCostShimmer, setShowCostShimmer] = useState(false);
+  const [isCostPopoverOpen, setIsCostPopoverOpen] = useState(false);
 
   const handleCopySystemPrompt = async () => {
     try {
@@ -134,6 +143,7 @@ export default function PlaygroundPage() {
 
   const handleClearChat = () => {
     setChatHistory([]);
+    setTotalCost(0);
     toast({
       title: "Chat cleared",
       description: "All conversation history has been cleared.",
@@ -160,6 +170,19 @@ export default function PlaygroundPage() {
     
     // Simulate AI reasoning and response (in real app, this would call the API)
     setTimeout(() => {
+      // Generate mock metrics
+      const mockMetrics = {
+        ttft: Math.floor(Math.random() * 200) + 50, // 50-250ms
+        latency: Math.floor(Math.random() * 500) + 300, // 300-800ms
+        tps: Math.floor(Math.random() * 100) + 100, // 100-200
+        cost: parseFloat((Math.random() * 0.02 + 0.005).toFixed(6)) // ₹0.005-0.025
+      };
+
+      // Update total cost and trigger shimmer animation
+      setTotalCost(prev => prev + mockMetrics.cost);
+      setShowCostShimmer(true);
+      setTimeout(() => setShowCostShimmer(false), 2000);
+
       // Remove thinking message and add actual response with reasoning
       setChatHistory(prev => {
         const withoutThinking = prev.slice(0, -1);
@@ -167,7 +190,8 @@ export default function PlaygroundPage() {
         const aiResponse = { 
           role: 'assistant' as const, 
           content: 'This is a mock response from the AI model. In a real implementation, this would be the actual AI-generated response based on your input and the selected model parameters.',
-          reasoning: reasoning
+          reasoning: reasoning,
+          metrics: mockMetrics
         };
         return [...withoutThinking, aiResponse];
       });
@@ -209,11 +233,51 @@ export default function PlaygroundPage() {
   };
 
   const handleRegenerateResponse = (index: number) => {
-    toast({
-      title: "Regenerating response",
-      description: "This feature will regenerate the AI response.",
+    // Get the old cost to subtract it
+    const oldCost = chatHistory[index].metrics?.cost || 0;
+    
+    // Replace the response at the given index with a new "thinking" state
+    setChatHistory(prev => {
+      const newHistory = [...prev];
+      newHistory[index] = { ...newHistory[index], isThinking: true, content: '' };
+      return newHistory;
     });
-    // In real implementation, this would call the API again
+
+    // Simulate API call and regenerate with new mock data
+    setTimeout(() => {
+      // Generate new mock metrics
+      const mockMetrics = {
+        ttft: Math.floor(Math.random() * 200) + 50,
+        latency: Math.floor(Math.random() * 500) + 300,
+        tps: Math.floor(Math.random() * 100) + 100,
+        cost: parseFloat((Math.random() * 0.02 + 0.005).toFixed(6))
+      };
+
+      // Update total cost (subtract old, add new) and trigger shimmer animation
+      setTotalCost(prev => prev - oldCost + mockMetrics.cost);
+      setShowCostShimmer(true);
+      setTimeout(() => setShowCostShimmer(false), 2000);
+
+      setChatHistory(prev => {
+        const newHistory = [...prev];
+        const alternateReasoning = `The assistant analyzed the query from multiple perspectives. First, it considered the technical accuracy of the information. Then, it evaluated the clarity and conciseness of the explanation.\n\nAfter weighing different approaches, it decided to structure the response in a way that would be most helpful to the user, prioritizing practical examples over theoretical concepts.\n\nThe reasoning process involved checking for potential ambiguities and ensuring the response would be actionable.`;
+        const alternateResponse = 'This is a regenerated response with different content. The AI model has processed your request again and provided an alternative perspective that might offer additional insights or clarity on the topic.';
+        
+        newHistory[index] = {
+          role: 'assistant',
+          content: alternateResponse,
+          reasoning: alternateReasoning,
+          isThinking: false,
+          metrics: mockMetrics
+        };
+        return newHistory;
+      });
+
+      toast({
+        title: "Response regenerated",
+        description: "A new response has been generated.",
+      });
+    }, 2000);
   };
 
   return (
@@ -508,28 +572,96 @@ export default function PlaygroundPage() {
                 </div>
               </div>
 
-              {/* Fixed Cost Information */}
-              <div className='absolute bottom-0 left-0 right-0'>
-                <div 
-                  className='mx-3'
-                  style={{
-                    borderRadius: '16px',
-                    border: '4px solid #FFF',
-                    background: 'linear-gradient(265deg, #FFF -13.17%, #F0F7FF 133.78%)',
-                    boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
-                    padding: '1.5rem',
-                  }}
-                >
-                  <div className='text-sm text-foreground'>
-                    Text generation will cost <span className='font-semibold text-gray-900'>₹{model.costPerToken.toFixed(3)}</span> per 1000 tokens
-                  </div>
+              {/* Fixed Cost Information - Only show when there are conversations */}
+              {totalCost > 0 && (
+                <div className='absolute bottom-0 left-0 right-0'>
+                  <Popover open={isCostPopoverOpen} onOpenChange={setIsCostPopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <div 
+                        className='mx-3 cursor-pointer transition-all hover:shadow-lg'
+                        style={{
+                          borderRadius: '16px',
+                          border: '4px solid #FFF',
+                          background: 'linear-gradient(265deg, #FFF -13.17%, #F0F7FF 133.78%)',
+                          boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+                          padding: '1.5rem',
+                        }}
+                      >
+                        <div className='flex items-center justify-between w-full'>
+                          <div className='text-sm text-foreground flex items-center gap-1'>
+                            <span>Total cost:</span>
+                            {showCostShimmer ? (
+                              <TextShimmer duration={1.5} className='font-semibold text-sm inline-block'>
+                                ₹{totalCost.toFixed(6)}
+                              </TextShimmer>
+                            ) : (
+                              <span className='font-semibold text-gray-900'>₹{totalCost.toFixed(6)}</span>
+                            )}
+                          </div>
+                          {isCostPopoverOpen ? (
+                            <ChevronDown className='h-4 w-4 text-muted-foreground' />
+                          ) : (
+                            <ChevronUp className='h-4 w-4 text-muted-foreground' />
+                          )}
+                        </div>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent 
+                      className='w-80 p-0 !shadow-[rgba(31,34,37,0.09)_0px_0px_0px_0.5px,rgba(0,0,0,0.08)_0px_12px_24px_-4px,rgba(0,0,0,0.04)_0px_8px_16px_-4px] !rounded-lg border-0 bg-popover' 
+                      side='top' 
+                      align='start'
+                      sideOffset={8}
+                    >
+                      <div className='p-1'>
+                        <div className='py-1.5 px-2 text-xs font-medium text-muted-foreground'>
+                          Cost Breakdown
+                        </div>
+                        <div className='border-t my-1'></div>
+                        {chatHistory
+                          .filter(msg => msg.role === 'assistant' && msg.metrics)
+                          .map((msg, idx) => (
+                            <div key={idx} className='px-2 py-1.5 hover:bg-accent hover:text-accent-foreground rounded-sm cursor-default flex justify-between items-center text-sm transition-colors'>
+                              <span className='text-muted-foreground'>Response {idx + 1}</span>
+                              <span className='font-medium'>₹{msg.metrics!.cost.toFixed(6)}</span>
+                            </div>
+                          ))}
+                        <div className='border-t my-1'></div>
+                        <div className='px-2 py-1.5 flex justify-between items-center text-sm font-semibold'>
+                          <span>Total</span>
+                          <span>₹{totalCost.toFixed(6)}</span>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Right Panel - Entire section wrapped in Card */}
-            <Card className='flex-1 flex flex-col min-h-0'>
-              <CardContent className='flex-1 flex flex-col min-h-0 p-0 overflow-hidden'>
+            <Card className='flex-1 flex flex-col min-h-0 relative overflow-hidden' style={{ background: 'linear-gradient(180deg, #8e92981a 0%, #ffffff 100%)' }}>
+              {/* Animated Gradient Overlay - Top 25% */}
+              <motion.div
+                className='absolute top-0 left-0 right-0 pointer-events-none'
+                style={{
+                  height: '25%',
+                  background: 'linear-gradient(180deg, rgba(139, 199, 244, 0.08) 0%, rgba(139, 199, 244, 0.04) 50%, transparent 100%)',
+                  zIndex: 1,
+                }}
+                animate={{
+                  background: [
+                    'linear-gradient(180deg, rgba(139, 199, 244, 0.08) 0%, rgba(139, 199, 244, 0.04) 50%, transparent 100%)',
+                    'linear-gradient(180deg, rgba(139, 244, 199, 0.08) 0%, rgba(139, 244, 199, 0.04) 50%, transparent 100%)',
+                    'linear-gradient(180deg, rgba(139, 244, 168, 0.08) 0%, rgba(139, 244, 168, 0.04) 50%, transparent 100%)',
+                    'linear-gradient(180deg, rgba(139, 199, 244, 0.08) 0%, rgba(139, 199, 244, 0.04) 50%, transparent 100%)',
+                  ],
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: 'linear',
+                }}
+              />
+              <CardContent className='flex-1 flex flex-col min-h-0 p-0 overflow-hidden relative' style={{ zIndex: 2 }}>
                 {/* System Prompt Section */}
                 <div className='flex-shrink-0 space-y-3 p-6 pb-0'>
                   <div className='flex items-center justify-between'>
@@ -537,27 +669,30 @@ export default function PlaygroundPage() {
                       System Prompt
                     </h3>
                     <div className='flex items-center gap-2'>
-                      <TooltipWrapper content="Clear all messages and start fresh">
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          onClick={handleClearChat}
-                          className='h-7 px-3 text-xs'
-                          disabled={chatHistory.length === 0}
-                        >
-                          Clear chat
-                        </Button>
-                      </TooltipWrapper>
-                      <TooltipWrapper content="Copy system prompt to clipboard">
-                        <Button
-                          variant='ghost'
-                          size='sm'
-                          onClick={handleCopySystemPrompt}
-                          className='h-6 w-6 p-0'
-                        >
-                          <Copy className='h-3 w-3' />
-                        </Button>
-                      </TooltipWrapper>
+                      {chatHistory.length > 0 && (
+                        <TooltipWrapper content="Clear all messages and start fresh">
+                          <Button
+                            variant='outline'
+                            size='sm'
+                            onClick={handleClearChat}
+                            className='h-7 px-3 text-xs'
+                          >
+                            Clear chat
+                          </Button>
+                        </TooltipWrapper>
+                      )}
+                      {systemPrompt.trim() && (
+                        <TooltipWrapper content="Copy system prompt to clipboard">
+                          <Button
+                            variant='ghost'
+                            size='sm'
+                            onClick={handleCopySystemPrompt}
+                            className='h-6 w-6 p-0'
+                          >
+                            <Copy className='h-3 w-3' />
+                          </Button>
+                        </TooltipWrapper>
+                      )}
                     </div>
                   </div>
                   
@@ -607,81 +742,99 @@ export default function PlaygroundPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className='flex-1 overflow-y-auto space-y-4 pr-2'>
+                    <div className='flex-1 overflow-y-auto pr-2 divide-y'>
                       {chatHistory.map((msg, index) => (
-                        <div key={index}>
+                        <div key={index} className='py-6 first:pt-0 last:pb-0'>
                           {msg.role === 'user' ? (
-                            <div className='ml-12 p-4 rounded-lg border bg-muted/30'>
-                              <div className='text-sm font-medium mb-2 capitalize'>{msg.role}</div>
-                              <div className='text-sm'>{msg.content}</div>
+                            <div className='flex gap-3 justify-end'>
+                              <div className='flex-1 flex justify-end'>
+                                <div className='rounded-lg p-3 text-sm max-w-[85%]' style={{ backgroundColor: '#ffffff' }}>
+                                  {msg.content}
+                                </div>
+                              </div>
+                              <ChatBubbleAvatar className='h-8 w-8 bg-muted'>
+                                <User className='h-4 w-4 text-muted-foreground' />
+                              </ChatBubbleAvatar>
                             </div>
                           ) : msg.isThinking ? (
-                            <div className='mr-12 p-4 rounded-lg border bg-background'>
-                              <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-                                <div className='flex gap-1'>
-                                  <span className='w-2 h-2 bg-gray-400 rounded-full animate-bounce' style={{ animationDelay: '0ms' }}></span>
-                                  <span className='w-2 h-2 bg-gray-400 rounded-full animate-bounce' style={{ animationDelay: '150ms' }}></span>
-                                  <span className='w-2 h-2 bg-gray-400 rounded-full animate-bounce' style={{ animationDelay: '300ms' }}></span>
-                                </div>
-                                <span>AI is thinking...</span>
+                            <div className='flex gap-3'>
+                              <ChatBubbleAvatar className='h-8 w-8'>
+                                {model.logo}
+                              </ChatBubbleAvatar>
+                              <div className='flex-1'>
+                                <TextShimmer duration={1.5} className='text-sm font-medium'>
+                                  AI is thinking...
+                                </TextShimmer>
                               </div>
                             </div>
                           ) : (
-                            <div className='mr-12 space-y-3'>
-                              {/* Reasoning Section */}
-                              {msg.reasoning && (
-                                <div className='rounded-lg border bg-background'>
-                                  <button
-                                    onClick={() => toggleReasoning(index)}
-                                    className='w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors'
-                                  >
-                                    <div className='flex items-center gap-2'>
-                                      {expandedReasoning.has(index) ? (
-                                        <ChevronDown className='h-4 w-4' />
-                                      ) : (
-                                        <ChevronRight className='h-4 w-4' />
-                                      )}
-                                      <span className='text-sm font-medium'>Reasoning / Thought</span>
-                                    </div>
-                                  </button>
-                                  
-                                  {expandedReasoning.has(index) && (
-                                    <div className='px-4 pb-4'>
-                                      <div className='text-sm text-foreground whitespace-pre-wrap'>
-                                        {msg.reasoning}
+                            <div className='flex gap-3'>
+                              <ChatBubbleAvatar className='h-8 w-8'>
+                                {model.logo}
+                              </ChatBubbleAvatar>
+                              <div className='flex-1 space-y-3'>
+                                {/* Reasoning Section */}
+                                {msg.reasoning && (
+                                  <div className='rounded-lg border-[0.5px] border-black/10 bg-white/70'>
+                                    <button
+                                      onClick={() => toggleReasoning(index)}
+                                      className='w-full flex items-center justify-between px-3 py-2 hover:bg-black/5 transition-colors'
+                                    >
+                                      <div className='flex items-center gap-2'>
+                                        {expandedReasoning.has(index) ? (
+                                          <ChevronDown className='h-3.5 w-3.5' />
+                                        ) : (
+                                          <ChevronRight className='h-3.5 w-3.5' />
+                                        )}
+                                        <span className='text-xs font-medium'>Reasoning / Thought</span>
                                       </div>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                              
-                              {/* Response Section */}
-                              <div className='p-4 rounded-lg border bg-background space-y-3'>
-                                <div>
-                                  <div className='text-sm font-medium mb-2 capitalize'>{msg.role}</div>
+                                    </button>
+                                    
+                                    {expandedReasoning.has(index) && (
+                                      <div className='px-3 pb-3'>
+                                        <div className='text-sm text-foreground whitespace-pre-wrap'>
+                                          {msg.reasoning}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                                
+                                {/* Response Content */}
+                                <div className='rounded-lg p-3' style={{ backgroundColor: '#ffffff' }}>
                                   <div className='text-sm'>{msg.content}</div>
                                 </div>
                                 
-                                {/* Action Buttons */}
-                                <div className='flex items-center gap-2 pt-2 border-t'>
-                                  <Button
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={() => handleRegenerateResponse(index)}
-                                    className='text-xs h-7'
-                                  >
-                                    <RotateCcw className='h-3 w-3 mr-1' />
-                                    Regenerate
-                                  </Button>
-                                  <Button
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={() => handleCopyReasoning(msg.content)}
-                                    className='text-xs h-7'
-                                  >
-                                    <Copy className='h-3 w-3 mr-1' />
-                                    Copy
-                                  </Button>
+                                {/* Action Icons and Metrics */}
+                                <div className='flex items-center justify-between gap-4'>
+                                  <div className='flex items-center gap-1'>
+                                    <TooltipWrapper content="Regenerate response">
+                                      <button
+                                        onClick={() => handleRegenerateResponse(index)}
+                                        className='p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground'
+                                      >
+                                        <RotateCcw className='h-[18px] w-[18px]' />
+                                      </button>
+                                    </TooltipWrapper>
+                                    <TooltipWrapper content="Copy response">
+                                      <button
+                                        onClick={() => handleCopyReasoning(msg.content)}
+                                        className='p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground'
+                                      >
+                                        <Copy className='h-[18px] w-[18px]' />
+                                      </button>
+                                    </TooltipWrapper>
+                                  </div>
+                                  
+                                  {/* Performance Metrics */}
+                                  {msg.metrics && (
+                                    <div className='bg-muted/50 rounded-md px-3 py-1.5 text-xs text-muted-foreground'>
+                                      <span className='font-medium'>TTFT:</span> {msg.metrics.ttft} ms <span className='mx-1'>|</span>
+                                      <span className='font-medium'>Latency:</span> {msg.metrics.latency} ms <span className='mx-1'>|</span>
+                                      <span className='font-medium'>TPS:</span> {msg.metrics.tps} <span className='mx-1'>|</span>
+                                      <span className='font-medium'>Estimated Cost:</span> ₹{msg.metrics.cost.toFixed(6)}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </div>
