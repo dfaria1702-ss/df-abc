@@ -1042,7 +1042,7 @@ export default function PlaygroundPage() {
 
       {/* Image Preview Modal */}
       <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-        <DialogContent className='max-w-fit max-h-fit p-4 overflow-visible bg-transparent border-0 shadow-none [&>button]:top-2 [&>button]:right-2 [&>button]:bg-white [&>button]:text-black [&>button]:rounded-full [&>button]:p-2 [&>button]:hover:bg-gray-200 [&>button]:shadow-lg [&>button]:z-10'>
+        <DialogContent className='max-w-fit max-h-fit p-4 overflow-visible bg-white border-0 shadow-2xl [&>button]:top-2 [&>button]:right-2 [&>button]:bg-black [&>button]:text-white [&>button]:rounded-full [&>button]:p-2 [&>button]:hover:bg-gray-800 [&>button]:shadow-lg [&>button]:z-10'>
           {selectedImage && (
             <img 
               src={selectedImage} 
