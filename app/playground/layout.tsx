@@ -1,5 +1,8 @@
 import type React from 'react';
 
+// Force dynamic rendering for playground routes
+export const dynamic = 'force-dynamic';
+
 export default function PlaygroundLayout({
   children,
 }: {
