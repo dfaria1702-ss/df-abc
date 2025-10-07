@@ -4,10 +4,14 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { TooltipWrapper } from '@/components/ui/tooltip-wrapper';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { TextShimmer } from '@/components/ui/text-shimmer';
 import { useToast } from '@/hooks/use-toast';
-import { Mic, Upload, Copy, Loader2 } from 'lucide-react';
+import { Mic, Upload, Copy, Loader2, ExternalLink, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface SpeechToTextPlaygroundProps {
   model: {
@@ -63,6 +67,10 @@ export function SpeechToTextPlayground({
   const [audioDuration, setAudioDuration] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [temperature, setTemperature] = useState([1]);
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const [isCostPopoverOpen, setIsCostPopoverOpen] = useState(false);
+  const [showCostShimmer, setShowCostShimmer] = useState(false);
 
   // Calculate cost based on audio duration
   const calculateCost = (durationInSeconds: number) => {
@@ -199,9 +207,11 @@ export function SpeechToTextPlayground({
     const transcription = mockTranscriptions[selectedLanguage] || mockTranscriptions.en;
     setTranscribedText(transcription);
 
-    // Calculate cost
+    // Calculate cost and trigger shimmer animation
     const cost = calculateCost(audioDuration);
     setTotalCost(cost);
+    setShowCostShimmer(true);
+    setTimeout(() => setShowCostShimmer(false), 2000);
 
     setIsTranscribing(false);
 
@@ -223,98 +233,258 @@ export function SpeechToTextPlayground({
   };
 
   return (
-    <div className='grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6'>
-      {/* LEFT SIDEBAR */}
-      <div className='space-y-6'>
-        {/* Model Selector */}
-        <div>
-          <label className='text-sm font-medium mb-2 block'>Model</label>
-          <Select value={selectedModel} onValueChange={onModelChange}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(modelData).map(([key, data]: [string, any]) => (
-                <SelectItem key={key} value={key} className='py-3'>
-                  <div className='flex items-center gap-2 w-full'>
-                    {data.logo}
-                    <span className='text-sm'>{data.name}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+    <div className='flex gap-6 h-[calc(100vh-280px)]'>
+      {/* LEFT SIDEBAR - Exact same as text generation */}
+      <div className='w-80 flex-shrink-0 flex flex-col h-full relative'>
+        {/* Scrollable Content */}
+        <div className='flex-1 space-y-3 overflow-y-auto min-h-0 pb-32'>
+          {/* Model Section */}
+          <div className='space-y-3'>
+            <div className='relative z-50'>
+              <Select value={selectedModel} onValueChange={onModelChange}>
+                <SelectTrigger className='w-full h-auto min-h-[40px] py-3'>
+                  <SelectValue>
+                    <div className='flex items-center gap-2 w-full'>
+                      {model.logo}
+                      <span className='truncate text-left flex-1'>{model.name}</span>
+                    </div>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent 
+                  className='z-[100] max-h-60 w-[var(--radix-select-trigger-width)]'
+                  position="popper"
+                  side="bottom"
+                  align="start"
+                  sideOffset={4}
+                >
+                  {Object.entries(modelData).map(([key, data]: [string, any]) => (
+                    <SelectItem key={key} value={key} className='py-3'>
+                      <div className='flex items-center gap-2 w-full'>
+                        {data.logo}
+                        <span className='text-sm'>{data.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-        {/* Model Info Card */}
-        <Card className={model.cardGradient}>
-          <CardHeader className='pb-3'>
-            <CardTitle className='text-base'>Model Information</CardTitle>
-          </CardHeader>
-          <CardContent className='space-y-4'>
-            {/* Pricing */}
-            <div>
-              <div className='text-xs text-muted-foreground mb-2'>Pricing</div>
+            {/* Model Info Card */}
+            <div className={`rounded-lg border p-4 space-y-4 ${model.cardGradient}`}>
+              {/* Pricing */}
               <div className='space-y-1'>
                 <div className='flex items-center justify-between'>
-                  <span className='text-sm text-muted-foreground'>Input</span>
-                  <span className='text-sm font-semibold'>₹{model.inputPrice}</span>
+                  <span className='text-base font-semibold text-gray-900'>₹{model.inputPrice}</span>
+                  <span className='text-base font-semibold text-gray-900'>₹{model.outputPrice}</span>
                 </div>
-                <div className='text-xs text-muted-foreground'>Per Hour of Audio</div>
+                <div className='flex items-center justify-between text-xs text-gray-500'>
+                  <span>Per Hour of Audio</span>
+                  <span>Output</span>
+                </div>
               </div>
-            </div>
 
-            {/* Tags */}
-            <div>
-              <div className='text-xs text-muted-foreground mb-2'>Tags</div>
+              {/* Tags */}
               <div className='flex flex-wrap gap-2'>
-                {model.tags.map((tag) => (
-                  <Badge key={tag} variant='secondary' className='text-xs'>
+                {model.tags.map((tag, index) => (
+                  <span key={index} className='px-2 py-1 bg-white border border-gray-300 text-gray-700 text-xs rounded font-medium'>
                     {tag}
-                  </Badge>
+                  </span>
                 ))}
               </div>
+
+              <div className='flex items-center gap-4 text-xs text-muted-foreground'>
+                <button className='hover:text-foreground flex items-center gap-1'>
+                  Learn more
+                  <ExternalLink className='h-3 w-3' />
+                </button>
+                <span>|</span>
+                <span>{model.license}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Parameters Section */}
+          <div className='space-y-3'>
+            <h3 className='text-sm font-medium text-foreground'>Parameters</h3>
+            
+            {/* Temperature */}
+            <div className='space-y-3'>
+              <div className='flex items-center justify-between'>
+                <div className='flex items-center gap-2'>
+                  <label className='text-sm text-muted-foreground'>Temperature</label>
+                  <TooltipWrapper content="Controls randomness in the model's output. Higher values make output more random, lower values make it more focused and deterministic.">
+                    <div className='w-4 h-4 rounded-full border border-muted-foreground/30 flex items-center justify-center text-xs'>
+                      ?
+                    </div>
+                  </TooltipWrapper>
+                </div>
+                <span className='text-sm font-medium text-foreground'>{temperature[0]}</span>
+              </div>
+              
+              <div className='px-2'>
+                <Slider
+                  value={temperature}
+                  onValueChange={setTemperature}
+                  max={2}
+                  min={0}
+                  step={0.1}
+                  className='w-full'
+                />
+                <div className='flex justify-between text-xs text-muted-foreground mt-1'>
+                  <span>0</span>
+                  <span>2</span>
+                </div>
+              </div>
             </div>
 
-            {/* License */}
-            <div>
-              <div className='text-xs text-muted-foreground mb-1'>License</div>
-              <div className='text-sm'>{model.license}</div>
-            </div>
-          </CardContent>
-        </Card>
+            {/* Advanced Parameters */}
+            <div className='mt-6'>
+              <Collapsible open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
+                <CollapsibleTrigger className='flex items-center justify-between w-full text-sm text-muted-foreground hover:text-foreground'>
+                  <span>Advanced parameters</span>
+                  {isAdvancedOpen ? <ChevronDown className='h-4 w-4' /> : <ChevronRight className='h-4 w-4' />}
+                </CollapsibleTrigger>
+                <CollapsibleContent className='mt-4'>
+                  <Card>
+                    <CardContent className='p-4 space-y-4'>
+                      {/* Maximum tokens */}
+                      <div className='space-y-3'>
+                        <div className='flex items-center gap-2'>
+                          <label className='text-sm text-muted-foreground'>Maximum tokens</label>
+                          <TooltipWrapper content="The maximum number of tokens that can be generated.">
+                            <div className='w-4 h-4 rounded-full border border-muted-foreground/30 flex items-center justify-center text-xs'>
+                              ?
+                            </div>
+                          </TooltipWrapper>
+                        </div>
+                        
+                        <div className='space-y-2'>
+                          <div className='flex items-center gap-2'>
+                            <input type="checkbox" id="unlimited" className='h-4 w-4' />
+                            <label htmlFor="unlimited" className='text-sm text-muted-foreground'>Unlimited</label>
+                          </div>
+                          <Input 
+                            value="1,024"
+                            readOnly 
+                            className='text-center'
+                          />
+                          <div className='px-2'>
+                            <Slider
+                              defaultValue={[1024]}
+                              max={128000}
+                              min={0}
+                              step={1}
+                              className='w-full'
+                            />
+                            <div className='flex justify-between text-xs text-muted-foreground mt-1'>
+                              <span>0</span>
+                              <span>1,024</span>
+                              <span>128000</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-        {/* Action Buttons */}
-        <div className='space-y-2'>
-          <Button
-            variant='outline'
-            className='w-full justify-start'
-            onClick={onOpenCreateApiKey}
-          >
-            Get API key
-          </Button>
-          <Button
-            variant='outline'
-            className='w-full justify-start'
-            onClick={onOpenSetupCode}
-          >
-            View code
-          </Button>
+                      {/* Top-p threshold */}
+                      <div className='space-y-3'>
+                        <div className='flex items-center gap-2'>
+                          <label className='text-sm text-muted-foreground'>Top-p threshold</label>
+                          <TooltipWrapper content="An alternative to sampling with temperature, called nucleus sampling.">
+                            <div className='w-4 h-4 rounded-full border border-muted-foreground/30 flex items-center justify-center text-xs'>
+                              ?
+                            </div>
+                          </TooltipWrapper>
+                        </div>
+                        
+                        <div className='space-y-2'>
+                          <Input 
+                            value="0.9"
+                            readOnly 
+                            className='text-center'
+                          />
+                          <div className='px-2'>
+                            <Slider
+                              defaultValue={[0.9]}
+                              max={1}
+                              min={0}
+                              step={0.1}
+                              className='w-full'
+                            />
+                            <div className='flex justify-between text-xs text-muted-foreground mt-1'>
+                              <span>0</span>
+                              <span>0.9</span>
+                              <span>1</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+          </div>
         </div>
 
-        {/* Total Cost Card */}
+        {/* Fixed Cost Information - Only show when there's a cost */}
         {totalCost > 0 && (
-          <Card>
-            <CardHeader className='pb-3'>
-              <CardTitle className='text-sm'>Total Cost</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>₹{totalCost.toFixed(6)}</div>
-              <div className='text-xs text-muted-foreground mt-1'>
-                For {formatDuration(audioDuration)} of audio
-              </div>
-            </CardContent>
-          </Card>
+          <div className='absolute bottom-0 left-0 right-0'>
+            <Popover open={isCostPopoverOpen} onOpenChange={setIsCostPopoverOpen}>
+              <PopoverTrigger asChild>
+                <div 
+                  className='mx-3 cursor-pointer transition-all hover:shadow-lg'
+                  style={{
+                    borderRadius: '16px',
+                    border: '4px solid #FFF',
+                    background: 'linear-gradient(265deg, #FFF -13.17%, #F0F7FF 133.78%)',
+                    boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+                    padding: '1.5rem',
+                  }}
+                >
+                  <div className='flex items-center justify-between w-full'>
+                    <div className='text-sm text-foreground flex items-center gap-1'>
+                      <span>Total cost:</span>
+                      {showCostShimmer ? (
+                        <TextShimmer duration={1.5} className='font-semibold text-sm inline-block'>{`₹${totalCost.toFixed(6)}`}</TextShimmer>
+                      ) : (
+                        <span className='font-semibold text-gray-900'>₹{totalCost.toFixed(6)}</span>
+                      )}
+                    </div>
+                    {isCostPopoverOpen ? (
+                      <ChevronDown className='h-4 w-4 text-muted-foreground' />
+                    ) : (
+                      <ChevronUp className='h-4 w-4 text-muted-foreground' />
+                    )}
+                  </div>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent 
+                className='w-80 p-0 !shadow-[rgba(31,34,37,0.09)_0px_0px_0px_0.5px,rgba(0,0,0,0.08)_0px_12px_24px_-4px,rgba(0,0,0,0.04)_0px_8px_16px_-4px] !rounded-lg border-0 bg-popover' 
+                side='top' 
+                align='start'
+                sideOffset={8}
+              >
+                <div className='p-3'>
+                  <div className='text-sm font-semibold mb-3 px-2'>Cost Breakdown</div>
+                  <div className='space-y-1'>
+                    <div className='px-2 py-1.5 flex justify-between items-center text-sm rounded-md hover:bg-muted/50 transition-colors'>
+                      <span className='text-muted-foreground'>Audio Duration</span>
+                      <span className='font-medium'>{formatDuration(audioDuration)}</span>
+                    </div>
+                    <div className='px-2 py-1.5 flex justify-between items-center text-sm rounded-md hover:bg-muted/50 transition-colors'>
+                      <span className='text-muted-foreground'>Transcription Cost</span>
+                      <span className='font-medium'>₹{totalCost.toFixed(6)}</span>
+                    </div>
+                  </div>
+                  <div className='border-t my-1'></div>
+                  <div className='px-2 py-1.5 flex justify-between items-center text-sm font-semibold'>
+                    <span>Total</span>
+                    <span>₹{totalCost.toFixed(6)}</span>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         )}
       </div>
 
