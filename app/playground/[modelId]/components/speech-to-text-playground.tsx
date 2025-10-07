@@ -592,7 +592,7 @@ export function SpeechToTextPlayground({
                       <div className='flex flex-col gap-2 min-w-[280px]'>
                         <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
                           <SelectTrigger className='h-10' onFocus={() => setIsInputFocused(true)}>
-                            <SelectValue placeholder='Language selector' />
+                            <SelectValue placeholder='Select Target Language' />
                           </SelectTrigger>
                           <SelectContent>
                             {languages.map((lang) => (
@@ -654,7 +654,7 @@ export function SpeechToTextPlayground({
                       <div className='flex flex-col gap-2 min-w-[280px]'>
                         <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
                           <SelectTrigger className='h-10' onFocus={() => setIsInputFocused(true)}>
-                            <SelectValue placeholder='Language selector' />
+                            <SelectValue placeholder='Select Target Language' />
                           </SelectTrigger>
                           <SelectContent>
                             {languages.map((lang) => (
