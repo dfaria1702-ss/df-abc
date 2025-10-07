@@ -265,7 +265,7 @@ export function SpeechToTextPlayground({
 
   return (
     <div className='flex gap-6 h-[calc(100vh-280px)]'>
-      {/* LEFT SIDEBAR - Exact same as text generation */}
+      {/* LEFT SIDEBAR */}
       <div className='w-80 flex-shrink-0 flex flex-col h-full relative'>
         {/* Scrollable Content */}
         <div className='flex-1 space-y-3 overflow-y-auto min-h-0 pb-32'>
@@ -400,7 +400,7 @@ export function SpeechToTextPlayground({
         )}
       </div>
 
-      {/* MAIN CONTENT - Same design as text generation playground */}
+      {/* MAIN CONTENT - Input/Output Layout */}
       <Card className='flex-1 flex flex-col min-h-0 relative' style={{ background: 'linear-gradient(180deg, #8e92981a 0%, #ffffff 100%)' }}>
         <CardContent className='flex-1 flex flex-col min-h-0 p-0 relative'>
           {/* Output Section - Scrollable */}
@@ -454,8 +454,13 @@ export function SpeechToTextPlayground({
                     <p className='whitespace-pre-wrap'>{transcribedText}</p>
                   </div>
                   {/* Cost Info */}
-                  <div className='flex items-center justify-end gap-4 text-xs text-muted-foreground'>
-                    <span>Estimated Cost: ₹{totalCost.toFixed(6)}</span>
+                  <div className='flex items-center justify-between gap-4'>
+                    <div className='text-xs text-muted-foreground'>
+                      Audio duration: {formatDuration(audioDuration)}
+                    </div>
+                    <div className='text-sm font-medium'>
+                      Estimated Cost: ₹{totalCost.toFixed(6)}
+                    </div>
                   </div>
                 </div>
               ) : (

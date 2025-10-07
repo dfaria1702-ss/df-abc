@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { PageShell } from '@/components/page-shell';
+import { Button } from '@/components/ui/button';
 import { SpeechToTextPlayground } from '@/components/playground/speech-to-text-playground';
 import { SetupCodeModal } from '@/components/modals/setup-code-modal';
 import { CreateApiKeyModal } from '@/components/modals/create-api-key-modal';
@@ -75,15 +77,40 @@ export default function KrutrimDhwaniPage() {
   const model = modelData['krutrim-dhwani'];
 
   return (
-    <>
-      <SpeechToTextPlayground
-        model={model}
-        selectedModel={selectedModel}
-        modelData={allModelData}
-        onModelChange={setSelectedModel}
-        onOpenSetupCode={() => setIsSetupCodeModalOpen(true)}
-        onOpenCreateApiKey={() => setIsCreateApiKeyModalOpen(true)}
-      />
+    <div className='h-full'>
+      <div className='p-4'>
+        <PageShell
+          title={model.name}
+          description={model.description}
+          headerActions={
+            <div className='flex items-center gap-2'>
+              <Button 
+                variant='outline' 
+                size='sm'
+                onClick={() => setIsSetupCodeModalOpen(true)}
+              >
+                View code
+              </Button>
+              <Button 
+                variant='default' 
+                size='sm'
+                onClick={() => setIsCreateApiKeyModalOpen(true)}
+              >
+                Get API key
+              </Button>
+            </div>
+          }
+        >
+          <SpeechToTextPlayground
+            model={model}
+            selectedModel={selectedModel}
+            modelData={allModelData}
+            onModelChange={setSelectedModel}
+            onOpenSetupCode={() => setIsSetupCodeModalOpen(true)}
+            onOpenCreateApiKey={() => setIsCreateApiKeyModalOpen(true)}
+          />
+        </PageShell>
+      </div>
 
       {/* Modals */}
       <SetupCodeModal
@@ -97,7 +124,7 @@ export default function KrutrimDhwaniPage() {
         open={isCreateApiKeyModalOpen}
         onClose={() => setIsCreateApiKeyModalOpen(false)}
       />
-    </>
+    </div>
   );
 }
 
