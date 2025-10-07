@@ -81,10 +81,19 @@ export function middleware(request: NextRequest) {
   // Get access level from request
   const accessLevel = getAccessLevelFromRequest(request);
 
+  // DEBUG: Log playground route access (will appear in Vercel logs)
+  if (pathname.startsWith('/playground')) {
+    console.log('[Middleware] Playground access:', { pathname, accessLevel, hasToken: !!request.cookies.get('auth-token') });
+  }
+
   // Check if user has access to the requested route
   const hasAccess = checkRouteAccess(pathname, accessLevel);
 
   if (!hasAccess) {
+    // DEBUG: Log blocked access
+    if (pathname.startsWith('/playground')) {
+      console.log('[Middleware] BLOCKED playground access:', { pathname, accessLevel });
+    }
     // If no access, redirect to sign in page
     const signInUrl = new URL('/auth/signin', request.url);
     signInUrl.searchParams.set('redirect', pathname);
