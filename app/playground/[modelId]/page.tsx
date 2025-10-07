@@ -21,6 +21,7 @@ import { ChatBubbleAvatar } from '@/components/ui/chat-bubble';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
+import { SpeechToTextPlayground } from '@/components/playground/speech-to-text-playground';
 import { 
   Copy, 
   ChevronDown, 
@@ -135,6 +136,10 @@ export default function PlaygroundPage() {
   
   // Get currently selected model data
   const model = modelData[selectedModel as keyof typeof modelData] || initialModel;
+  
+  // Check if this is a speech-to-text model
+  const isSpeechToText = model.tags?.includes('Speech-to-Text');
+  
   const [temperature, setTemperature] = useState([1]);
   const [systemPrompt, setSystemPrompt] = useState('');
   const [message, setMessage] = useState('');
@@ -399,6 +404,61 @@ export default function PlaygroundPage() {
     }, 2000);
   };
 
+  // If it's a speech-to-text model, render the specialized playground
+  if (isSpeechToText) {
+    return (
+      <div className='h-full'>
+        <div className='p-4'>
+          <PageShell
+            title={model.name}
+            description={model.description}
+            headerActions={
+              <div className='flex items-center gap-2'>
+                <Button 
+                  variant='outline' 
+                  size='sm'
+                  onClick={() => setIsSetupCodeModalOpen(true)}
+                >
+                  View code
+                </Button>
+                <Button 
+                  variant='default' 
+                  size='sm'
+                  onClick={() => setIsCreateApiKeyModalOpen(true)}
+                >
+                  Get API key
+                </Button>
+              </div>
+            }
+          >
+            <SpeechToTextPlayground
+              model={model}
+              selectedModel={selectedModel}
+              modelData={modelData}
+              onModelChange={setSelectedModel}
+              onOpenSetupCode={() => setIsSetupCodeModalOpen(true)}
+              onOpenCreateApiKey={() => setIsCreateApiKeyModalOpen(true)}
+            />
+          </PageShell>
+        </div>
+
+        {/* Shared Modals */}
+        <SetupCodeModal
+          open={isSetupCodeModalOpen}
+          onClose={() => setIsSetupCodeModalOpen(false)}
+          modelId={selectedModel}
+          onOpenCreateApiKey={() => setIsCreateApiKeyModalOpen(true)}
+        />
+
+        <CreateApiKeyModal
+          open={isCreateApiKeyModalOpen}
+          onClose={() => setIsCreateApiKeyModalOpen(false)}
+        />
+      </div>
+    );
+  }
+
+  // Default text generation playground
   return (
     <div className='h-full'>
       <div className='p-4'>
