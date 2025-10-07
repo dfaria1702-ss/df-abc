@@ -337,8 +337,7 @@ export function SpeechToTextPlayground({
           {/* Parameters Section - Hidden for speech-to-text model */}
           {/* NOTE: Parameters are not applicable for Krutrim-Dhwani speech-to-text model */}
           {/* TODO: Uncomment below if parameters are needed in future for this model */}
-          {false && (
-          <div className='space-y-3'>
+          {false && (<div className='space-y-3'>
             <h3 className='text-sm font-medium text-foreground'>Parameters</h3>
             
             {/* Temperature */}
