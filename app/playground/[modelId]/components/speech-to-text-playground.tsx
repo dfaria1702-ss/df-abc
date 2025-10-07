@@ -532,38 +532,9 @@ export function SpeechToTextPlayground({
             <div className='p-6 space-y-4'>
               <h3 className='text-sm font-medium text-foreground'>Input</h3>
               
-              {/* Recording Button */}
-              <div className='flex items-center gap-4'>
-                <TooltipWrapper content={isRecording ? 'Stop recording' : 'Tap to start speaking'}>
-                  <button
-                    onClick={handleRecording}
-                    className={`flex items-center justify-center w-12 h-12 rounded-full transition-all ${
-                      isRecording
-                        ? 'bg-red-500 hover:bg-red-600 animate-pulse'
-                        : 'bg-[#10A554] hover:bg-[#0d8a45]'
-                    }`}
-                  >
-                    <Mic className='h-5 w-5 text-white' />
-                  </button>
-                </TooltipWrapper>
-                <span className='text-sm text-muted-foreground'>
-                  {isRecording ? 'Recording...' : 'Tap to start speaking'}
-                </span>
-              </div>
-
-              {/* OR Divider */}
-              <div className='relative'>
-                <div className='absolute inset-0 flex items-center'>
-                  <div className='w-full border-t border-border'></div>
-                </div>
-                <div className='relative flex justify-center text-xs uppercase'>
-                  <span className='bg-background px-2 text-muted-foreground'>OR</span>
-                </div>
-              </div>
-
-              {/* File Upload Area */}
+              {/* Combined Recording and Upload Area */}
               <div
-                className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
+                className={`border-2 border-dashed rounded-lg p-6 transition-colors ${
                   isDragging
                     ? 'border-primary bg-primary/5'
                     : 'border-border hover:border-primary/50'
@@ -571,7 +542,6 @@ export function SpeechToTextPlayground({
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
               >
                 <input
                   ref={fileInputRef}
@@ -580,19 +550,77 @@ export function SpeechToTextPlayground({
                   onChange={handleFileChange}
                   className='hidden'
                 />
-                <Upload className='h-6 w-6 mx-auto mb-2 text-muted-foreground' />
-                <button className='text-[#10A554] hover:text-[#0d8a45] font-medium underline mb-1 text-sm'>
-                  Upload File
-                </button>
-                <p className='text-xs text-muted-foreground'>
-                  Supports WAV format • Max 5MB • Below 16khz
-                </p>
-                {audioFile && (
-                  <div className='mt-3 p-2 bg-muted rounded-lg'>
-                    <p className='text-sm font-medium'>{audioFile.name}</p>
-                    <p className='text-xs text-muted-foreground mt-1'>
-                      Duration: {formatDuration(audioDuration)}
-                    </p>
+                
+                {!audioFile ? (
+                  <div className='space-y-4'>
+                    {/* Recording Button */}
+                    <div className='flex items-center justify-center gap-4'>
+                      <TooltipWrapper content={isRecording ? 'Stop recording' : 'Tap to start speaking'}>
+                        <button
+                          onClick={handleRecording}
+                          className={`flex items-center justify-center w-12 h-12 rounded-full transition-all ${
+                            isRecording
+                              ? 'bg-red-500 hover:bg-red-600 animate-pulse'
+                              : 'bg-[#10A554] hover:bg-[#0d8a45]'
+                          }`}
+                        >
+                          <Mic className='h-5 w-5 text-white' />
+                        </button>
+                      </TooltipWrapper>
+                      <span className='text-sm text-muted-foreground'>
+                        {isRecording ? 'Recording...' : 'Tap to start speaking'}
+                      </span>
+                    </div>
+
+                    {/* OR Divider */}
+                    <div className='relative'>
+                      <div className='absolute inset-0 flex items-center'>
+                        <div className='w-full border-t border-border'></div>
+                      </div>
+                      <div className='relative flex justify-center text-xs uppercase'>
+                        <span className='bg-background px-2 text-muted-foreground'>OR</span>
+                      </div>
+                    </div>
+
+                    {/* Upload Section */}
+                    <div className='text-center cursor-pointer' onClick={() => fileInputRef.current?.click()}>
+                      <Upload className='h-6 w-6 mx-auto mb-2 text-muted-foreground' />
+                      <button className='text-[#10A554] hover:text-[#0d8a45] font-medium underline mb-1 text-sm'>
+                        Upload File
+                      </button>
+                      <p className='text-xs text-muted-foreground'>
+                        Supports WAV format • Max 5MB • Below 16khz
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  /* File Info Display */
+                  <div className='flex items-center justify-between p-3 bg-muted rounded-lg'>
+                    <div className='flex items-center gap-3'>
+                      <div className='w-10 h-10 rounded-lg bg-[#10A554]/10 flex items-center justify-center'>
+                        <Mic className='h-5 w-5 text-[#10A554]' />
+                      </div>
+                      <div>
+                        <p className='text-sm font-medium'>{audioFile.name}</p>
+                        <p className='text-xs text-muted-foreground'>
+                          Duration: {formatDuration(audioDuration)}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAudioFile(null);
+                        setAudioDuration(0);
+                        setTranscribedText('');
+                        setTotalCost(0);
+                      }}
+                      className='h-8 w-8 p-0'
+                    >
+                      <X className='h-4 w-4' />
+                    </Button>
                   </div>
                 )}
               </div>
