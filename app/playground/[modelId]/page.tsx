@@ -2,10 +2,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
-
-// Enable dynamic params and force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const dynamicParams = true;
 import { PageShell } from '@/components/page-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
