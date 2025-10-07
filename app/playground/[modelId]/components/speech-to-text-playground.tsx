@@ -681,41 +681,39 @@ export function SpeechToTextPlayground({
                       </div>
                     )}
 
-                    {/* Bottom Row: Language Selector and Transcribe Button - Only show when audio file is present */}
-                    {audioFile && (
-                      <div className='flex items-center gap-3'>
-                        <div className='flex-1'>
-                          <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                            <SelectTrigger className='h-9' onFocus={() => setIsInputFocused(true)}>
-                              <SelectValue placeholder='Select target language' />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {languages.map((lang) => (
-                                <SelectItem key={lang.value} value={lang.value}>
-                                  {lang.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <Button
-                          onClick={handleTranscribe}
-                          disabled={!audioFile || !selectedLanguage || isTranscribing}
-                          size='sm'
-                          className='px-6'
-                        >
-                          {isTranscribing ? (
-                            <>
-                              <Loader2 className='h-4 w-4 mr-2 animate-spin' />
-                              Transcribing...
-                            </>
-                          ) : (
-                            'Transcribe'
-                          )}
-                        </Button>
+                    {/* Bottom Row: Language Selector and Transcribe Button */}
+                    <div className='flex items-center gap-3'>
+                      <div className='flex-1'>
+                        <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                          <SelectTrigger className='h-9' onFocus={() => setIsInputFocused(true)}>
+                            <SelectValue placeholder='Select target language' />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {languages.map((lang) => (
+                              <SelectItem key={lang.value} value={lang.value}>
+                                {lang.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
-                    )}
+
+                      <Button
+                        onClick={handleTranscribe}
+                        disabled={!audioFile || !selectedLanguage || isTranscribing}
+                        size='sm'
+                        className='px-6'
+                      >
+                        {isTranscribing ? (
+                          <>
+                            <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                            Transcribing...
+                          </>
+                        ) : (
+                          'Transcribe'
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </motion.div>
               </div>
