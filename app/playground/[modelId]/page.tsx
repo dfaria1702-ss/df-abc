@@ -439,37 +439,38 @@ export default function PlaygroundPage() {
   // If it's a speech-to-text model, render the specialized playground
   if (isSpeechToText) {
     return (
-      <PageShell
-            title={model.name}
-            description={model.description}
-            headerActions={
-              <div className='flex items-center gap-2'>
-                <Button 
-                  variant='outline' 
-                  size='sm'
-                  onClick={() => setIsSetupCodeModalOpen(true)}
-                >
-                  View code
-                </Button>
-                <Button 
-                  variant='default' 
-                  size='sm'
-                  onClick={() => setIsCreateApiKeyModalOpen(true)}
-                >
-                  Get API key
-                </Button>
-              </div>
-            }
-          >
-            <SpeechToTextPlayground
-              model={model}
-              selectedModel={selectedModel}
-              modelData={modelData}
-              onModelChange={setSelectedModel}
-              onOpenSetupCode={() => setIsSetupCodeModalOpen(true)}
-              onOpenCreateApiKey={() => setIsCreateApiKeyModalOpen(true)}
-            />
-          </PageShell>
+      <>
+        <PageShell
+          title={model.name}
+          description={model.description}
+          headerActions={
+            <div className='flex items-center gap-2'>
+              <Button 
+                variant='outline' 
+                size='sm'
+                onClick={() => setIsSetupCodeModalOpen(true)}
+              >
+                View code
+              </Button>
+              <Button 
+                variant='default' 
+                size='sm'
+                onClick={() => setIsCreateApiKeyModalOpen(true)}
+              >
+                Get API key
+              </Button>
+            </div>
+          }
+        >
+          <SpeechToTextPlayground
+            model={model}
+            selectedModel={selectedModel}
+            modelData={modelData}
+            onModelChange={setSelectedModel}
+            onOpenSetupCode={() => setIsSetupCodeModalOpen(true)}
+            onOpenCreateApiKey={() => setIsCreateApiKeyModalOpen(true)}
+          />
+        </PageShell>
 
         {/* Shared Modals */}
         <SetupCodeModal
