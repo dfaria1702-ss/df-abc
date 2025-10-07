@@ -186,18 +186,10 @@ export function SpeechToTextPlayground({
     if (!isRecording) {
       setIsRecording(true);
       setRecordingTime(0);
-      toast({
-        title: 'Recording started',
-        description: 'Speak into your microphone',
-      });
     } else {
       setIsRecording(false);
       setAudioDuration(recordingTime);
       setAudioFile(new File([], 'recording.wav', { type: 'audio/wav' }));
-      toast({
-        title: 'Recording stopped',
-        description: `Duration: ${formatDuration(recordingTime)}`,
-      });
       setRecordingTime(0);
     }
   };
@@ -581,8 +573,14 @@ export function SpeechToTextPlayground({
                   <span className='ml-2 text-muted-foreground'>Transcribing...</span>
                 </div>
               ) : transcribedText ? (
-                <div className='p-4 bg-white rounded-lg border text-sm'>
-                  <p className='whitespace-pre-wrap'>{transcribedText}</p>
+                <div className='space-y-3'>
+                  <div className='p-4 bg-white rounded-lg border text-sm'>
+                    <p className='whitespace-pre-wrap'>{transcribedText}</p>
+                  </div>
+                  {/* Cost Info */}
+                  <div className='flex items-center justify-end gap-4 text-xs text-muted-foreground'>
+                    <span>Estimated Cost: ₹{totalCost.toFixed(6)}</span>
+                  </div>
                 </div>
               ) : (
                 <div className='flex flex-col items-center justify-center min-h-[400px] gap-3'>
@@ -654,15 +652,13 @@ export function SpeechToTextPlayground({
                       {/* Left: Recording Button or Recording Waveform */}
                       {!isRecording ? (
                         <div className='flex items-center gap-3'>
-                          <TooltipWrapper content='Click to start speaking'>
-                            <button
-                              onClick={handleRecording}
-                              onFocus={() => setIsInputFocused(true)}
-                              className='flex items-center justify-center w-12 h-12 rounded-full transition-all flex-shrink-0 bg-white border-2 border-border hover:border-[#10A554]'
-                            >
-                              <Mic className='h-5 w-5 text-foreground' />
-                            </button>
-                          </TooltipWrapper>
+                          <button
+                            onClick={handleRecording}
+                            onFocus={() => setIsInputFocused(true)}
+                            className='flex items-center justify-center w-12 h-12 rounded-full transition-all flex-shrink-0 bg-white border-2 border-border hover:border-[#10A554]'
+                          >
+                            <Mic className='h-5 w-5 text-foreground' />
+                          </button>
                           <span className='text-xs text-muted-foreground'>
                             Click to start speaking
                           </span>
@@ -690,13 +686,15 @@ export function SpeechToTextPlayground({
                       {/* Center: Upload Section */}
                       {!isRecording && (
                         <div className='flex items-center gap-3 flex-1'>
-                          <button
-                            onClick={() => fileInputRef.current?.click()}
-                            onFocus={() => setIsInputFocused(true)}
-                            className='flex items-center justify-center w-12 h-12 rounded-full border-2 border-border hover:border-[#10A554] transition-all bg-white flex-shrink-0'
-                          >
-                            <Upload className='h-5 w-5 text-foreground' />
-                          </button>
+                          <TooltipWrapper content='Upload audio file'>
+                            <button
+                              onClick={() => fileInputRef.current?.click()}
+                              onFocus={() => setIsInputFocused(true)}
+                              className='flex items-center justify-center w-12 h-12 rounded-full border-2 border-border hover:border-[#10A554] transition-all bg-white flex-shrink-0'
+                            >
+                              <Upload className='h-5 w-5 text-foreground' />
+                            </button>
+                          </TooltipWrapper>
                           <div>
                             <p className='text-xs text-muted-foreground font-medium'>Upload File</p>
                             <p className='text-xs text-muted-foreground/70'>WAV format • File size 5MB • Below 16khz</p>
