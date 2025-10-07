@@ -125,17 +125,33 @@ const quickActions = [
 
 export default function PlaygroundPage() {
   const params = useParams();
-  const modelId = params.modelId as string;
+  const modelId = params?.modelId as string;
   const { toast } = useToast();
   
-  // Get model info
+  // Debug logging
+  console.log('PlaygroundPage - modelId:', modelId);
+  console.log('PlaygroundPage - params:', params);
+  
+  // Get model info with fallback
   const initialModel = modelData[modelId as keyof typeof modelData] || modelData['qwen3-coder-480b'];
   
   // State management
-  const [selectedModel, setSelectedModel] = useState(modelId);
+  const [selectedModel, setSelectedModel] = useState(modelId || 'qwen3-coder-480b');
+  const [isLoading, setIsLoading] = useState(!modelId);
   
   // Get currently selected model data
   const model = modelData[selectedModel as keyof typeof modelData] || initialModel;
+  
+  // Handle case where modelId is not available
+  useEffect(() => {
+    if (modelId) {
+      setSelectedModel(modelId);
+      setIsLoading(false);
+    } else {
+      // If no modelId, redirect to default
+      window.location.href = '/playground/qwen3-coder-480b';
+    }
+  }, [modelId]);
   
   // Check if this is a speech-to-text model
   const isSpeechToText = model.tags?.includes('Speech-to-Text');
@@ -403,6 +419,22 @@ export default function PlaygroundPage() {
       });
     }, 2000);
   };
+
+  // Show loading state if modelId is not available
+  if (isLoading) {
+    return (
+      <div className='h-full'>
+        <div className='p-4'>
+          <div className='flex items-center justify-center h-64'>
+            <div className='text-center'>
+              <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4'></div>
+              <p className='text-muted-foreground'>Loading playground...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // If it's a speech-to-text model, render the specialized playground
   if (isSpeechToText) {

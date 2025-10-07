@@ -45,14 +45,6 @@ const nextConfig = {
       },
     ];
   },
-  async rewrites() {
-    return [
-      {
-        source: '/playground/(.*)',
-        destination: '/playground/$1',
-      },
-    ];
-  },
 };
 
 export default nextConfig;
