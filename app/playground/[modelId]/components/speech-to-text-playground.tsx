@@ -607,11 +607,11 @@ export function SpeechToTextPlayground({
                     className='hidden'
                   />
                   
-                  <div className='space-y-3'>
-                    {/* Top Row: Recording and Upload buttons side by side */}
-                    {!audioFile ? (
-                      <div className='flex items-center justify-between gap-6'>
-                        {/* Left Side: Recording Button */}
+                  {!audioFile ? (
+                    <div className='flex items-start justify-between gap-6'>
+                      {/* Left Side: Recording and Upload vertically stacked */}
+                      <div className='flex-1 space-y-3'>
+                        {/* Recording Option */}
                         <div className='flex items-center gap-3'>
                           <TooltipWrapper content={isRecording ? 'Stop recording' : 'Click to start speaking'}>
                             <button
@@ -632,11 +632,8 @@ export function SpeechToTextPlayground({
                           </span>
                         </div>
 
-                        {/* Center: OR */}
-                        <span className='text-sm text-muted-foreground/60 font-medium'>OR</span>
-
-                        {/* Right Side: Upload Button + File Format Info */}
-                        <div className='flex items-center gap-3'>
+                        {/* Upload Option */}
+                        <div className='space-y-1'>
                           <button
                             onClick={() => fileInputRef.current?.click()}
                             onFocus={() => setIsInputFocused(true)}
@@ -646,15 +643,49 @@ export function SpeechToTextPlayground({
                             Upload File
                           </button>
                           
-                          <div className='text-xs text-muted-foreground text-right flex-shrink-0'>
-                            <div>Supports WAV format</div>
+                          <div className='text-xs text-muted-foreground pl-6'>
+                            <div>WAV format</div>
                             <div>Max file size 5MB and below 16khz</div>
                           </div>
                         </div>
                       </div>
-                    ) : (
-                      /* File Info Display - Horizontal */
-                      <div className='flex items-center gap-3'>
+
+                      {/* Right Side: Language Selector and Transcribe Button */}
+                      <div className='flex flex-col gap-2 min-w-[280px]'>
+                        <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                          <SelectTrigger className='h-9' onFocus={() => setIsInputFocused(true)}>
+                            <SelectValue placeholder='Select target language' />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {languages.map((lang) => (
+                              <SelectItem key={lang.value} value={lang.value}>
+                                {lang.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <Button
+                          onClick={handleTranscribe}
+                          disabled={!audioFile || !selectedLanguage || isTranscribing}
+                          size='sm'
+                          className='w-full'
+                        >
+                          {isTranscribing ? (
+                            <>
+                              <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                              Transcribing...
+                            </>
+                          ) : (
+                            'Transcribe'
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* File Info Display - Horizontal */
+                    <div className='flex items-center justify-between gap-6'>
+                      <div className='flex items-center gap-3 flex-1'>
                         <div className='w-9 h-9 rounded-lg bg-[#10A554]/10 flex items-center justify-center flex-shrink-0'>
                           <Mic className='h-4 w-4 text-[#10A554]' />
                         </div>
@@ -679,11 +710,9 @@ export function SpeechToTextPlayground({
                           <X className='h-4 w-4' />
                         </Button>
                       </div>
-                    )}
 
-                    {/* Bottom Row: Language Selector and Transcribe Button */}
-                    <div className='flex items-center gap-3'>
-                      <div className='flex-1'>
+                      {/* Right Side: Language Selector and Transcribe Button */}
+                      <div className='flex flex-col gap-2 min-w-[280px]'>
                         <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
                           <SelectTrigger className='h-9' onFocus={() => setIsInputFocused(true)}>
                             <SelectValue placeholder='Select target language' />
@@ -696,25 +725,25 @@ export function SpeechToTextPlayground({
                             ))}
                           </SelectContent>
                         </Select>
-                      </div>
 
-                      <Button
-                        onClick={handleTranscribe}
-                        disabled={!audioFile || !selectedLanguage || isTranscribing}
-                        size='sm'
-                        className='px-6'
-                      >
-                        {isTranscribing ? (
-                          <>
-                            <Loader2 className='h-4 w-4 mr-2 animate-spin' />
-                            Transcribing...
-                          </>
-                        ) : (
-                          'Transcribe'
-                        )}
-                      </Button>
+                        <Button
+                          onClick={handleTranscribe}
+                          disabled={!audioFile || !selectedLanguage || isTranscribing}
+                          size='sm'
+                          className='w-full'
+                        >
+                          {isTranscribing ? (
+                            <>
+                              <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                              Transcribing...
+                            </>
+                          ) : (
+                            'Transcribe'
+                          )}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </motion.div>
               </div>
             </div>
