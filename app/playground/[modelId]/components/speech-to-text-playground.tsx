@@ -497,33 +497,55 @@ export function SpeechToTextPlayground({
               <div className='flex items-center justify-between'>
                 <h3 className='text-sm font-medium text-foreground'>Output</h3>
                 {transcribedText && (
-                  <TooltipWrapper content='Copy transcription'>
+                  <div className='flex items-center gap-2'>
                     <Button
-                      variant='ghost'
+                      variant='outline'
                       size='sm'
-                      onClick={handleCopyTranscription}
-                      className='h-6 w-6 p-0'
+                      onClick={() => {
+                        setTranscribedText('');
+                        setAudioFile(null);
+                        setAudioDuration(0);
+                        setTotalCost(0);
+                        setSelectedLanguage('');
+                        toast({
+                          title: 'Chat cleared',
+                          description: 'All transcriptions have been cleared',
+                        });
+                      }}
+                      className='h-7 px-3 text-xs'
                     >
-                      <Copy className='h-3 w-3' />
+                      Clear chat
                     </Button>
-                  </TooltipWrapper>
+                    <TooltipWrapper content='Copy transcription'>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={handleCopyTranscription}
+                        className='h-6 w-6 p-0'
+                      >
+                        <Copy className='h-3 w-3' />
+                      </Button>
+                    </TooltipWrapper>
+                  </div>
                 )}
               </div>
               
-              <div className='min-h-[400px] p-4 bg-white rounded-lg border text-sm'>
-                {isTranscribing ? (
-                  <div className='flex items-center justify-center h-full'>
-                    <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
-                    <span className='ml-2 text-muted-foreground'>Transcribing...</span>
-                  </div>
-                ) : transcribedText ? (
+              {isTranscribing ? (
+                <div className='flex items-center justify-center min-h-[400px]'>
+                  <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
+                  <span className='ml-2 text-muted-foreground'>Transcribing...</span>
+                </div>
+              ) : transcribedText ? (
+                <div className='p-4 bg-white rounded-lg border text-sm'>
                   <p className='whitespace-pre-wrap'>{transcribedText}</p>
-                ) : (
+                </div>
+              ) : (
+                <div className='flex items-center justify-center min-h-[400px]'>
                   <p className='text-muted-foreground'>
                     Your output text will be generated here
                   </p>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
 
