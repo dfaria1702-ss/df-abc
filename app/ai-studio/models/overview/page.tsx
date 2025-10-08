@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { TooltipWrapper } from '@/components/ui/tooltip-wrapper';
 import { BorderBeam } from '@/components/ui/border-beam';
@@ -10,6 +11,7 @@ import { RequestNewModelModal } from '@/components/modals/request-new-model-moda
 import { CreateApiKeyModal } from '@/components/modals/create-api-key-modal';
 
 export default function ModelsOverviewPage() {
+  const router = useRouter();
   const { toast } = useToast();
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [isSetupCodeModalOpen, setIsSetupCodeModalOpen] = useState(false);
@@ -176,7 +178,11 @@ print(response.json())`;
             <h2 className='text-2xl font-bold text-foreground'>Featured Models</h2>
             <p className='text-muted-foreground mt-1'>New and noteworthy models hosted by Krutrim</p>
           </div>
-          <Button variant='outline' className='hidden sm:flex'>
+          <Button 
+            variant='outline' 
+            className='hidden sm:flex'
+            onClick={() => router.push('/model-hub/catalog')}
+          >
             View all models
           </Button>
         </div>
