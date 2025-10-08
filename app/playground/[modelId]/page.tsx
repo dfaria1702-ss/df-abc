@@ -506,6 +506,12 @@ export default function PlaygroundPage() {
                             <span className='text-sm'>Krutrim/Krutrim-Dhwani</span>
                           </div>
                         </SelectItem>
+                        <SelectItem value="krutrim-text-to-speech" className='py-3'>
+                          <div className='flex items-center gap-2 w-full'>
+                            {modelData['krutrim-text-to-speech'].logo}
+                            <span className='text-sm'>Krutrim/Krutrim-Text-to-Speech</span>
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
