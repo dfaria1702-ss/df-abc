@@ -8,6 +8,7 @@ import { TooltipWrapper } from '@/components/ui/tooltip-wrapper';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { TextShimmer } from '@/components/ui/text-shimmer';
 import { GlowEffect } from '@/components/ui/glow-effect';
+import { ModelSelector } from '@/components/playground/model-selector';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { 
@@ -371,34 +372,11 @@ export function SpeechToSpeechPlayground({
         <div className='flex-1 space-y-3 overflow-y-auto min-h-0 pb-32'>
           {/* Model Section */}
           <div className='space-y-3'>
-            <div className='relative z-50'>
-              <Select value={selectedModel} onValueChange={onModelChange}>
-                <SelectTrigger className='w-full h-auto min-h-[40px] py-3'>
-                  <SelectValue>
-                    <div className='flex items-center gap-2 w-full'>
-                      {model.logo}
-                      <span className='truncate text-left flex-1'>{model.name}</span>
-                    </div>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent 
-                  className='z-[100] max-h-60 w-[var(--radix-select-trigger-width)]'
-                  position="popper"
-                  side="bottom"
-                  align="start"
-                  sideOffset={4}
-                >
-                  {Object.entries(modelData).map(([key, data]: [string, any]) => (
-                    <SelectItem key={key} value={key} className='py-3'>
-                      <div className='flex items-center gap-2 w-full'>
-                        {data.logo}
-                        <span className='text-sm'>{data.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <ModelSelector
+              value={selectedModel}
+              onChange={onModelChange}
+              modelData={modelData}
+            />
 
             {/* Model Info Card */}
             <div className={`rounded-lg border p-4 space-y-4 ${model.cardGradient}`}>

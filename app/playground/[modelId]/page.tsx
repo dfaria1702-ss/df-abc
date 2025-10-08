@@ -6,8 +6,8 @@ import { PageShell } from '@/components/page-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
+import { ModelSelector } from '@/components/playground/model-selector';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -486,62 +486,11 @@ export default function PlaygroundPage() {
               <div className='flex-1 space-y-3 overflow-y-auto min-h-0 pb-32'>
                 {/* Model Section */}
                 <div className='space-y-3'>
-                  <div className='relative z-50'>
-                    <Select value={selectedModel} onValueChange={setSelectedModel}>
-                      <SelectTrigger className='w-full h-auto min-h-[40px] py-3'>
-                        <SelectValue>
-                          <div className='flex items-center gap-2 w-full'>
-                            {model.logo}
-                            <span className='truncate text-left flex-1'>{model.name}</span>
-                          </div>
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent 
-                        className='z-[100] max-h-60 w-[var(--radix-select-trigger-width)]'
-                        position="popper"
-                        side="bottom"
-                        align="start"
-                        sideOffset={4}
-                      >
-                        <SelectItem value="qwen3-coder-480b" className='py-3'>
-                          <div className='flex items-center gap-2 w-full'>
-                            {modelData['qwen3-coder-480b'].logo}
-                            <span className='text-sm'>Qwen/Qwen3-Coder-480B-A35B-Instruct</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="gpt-oss-20b" className='py-3'>
-                          <div className='flex items-center gap-2 w-full'>
-                            {modelData['gpt-oss-20b'].logo}
-                            <span className='text-sm'>OpenAI/GPT-OSS-20B</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="kimi-k2-instruct" className='py-3'>
-                          <div className='flex items-center gap-2 w-full'>
-                            {modelData['kimi-k2-instruct'].logo}
-                            <span className='text-sm'>moonshotai/Kimi-K2-Instruct-0905</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="krutrim-dhwani" className='py-3'>
-                          <div className='flex items-center gap-2 w-full'>
-                            {modelData['krutrim-dhwani'].logo}
-                            <span className='text-sm'>Krutrim/Krutrim-Dhwani</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="krutrim-text-to-speech" className='py-3'>
-                          <div className='flex items-center gap-2 w-full'>
-                            {modelData['krutrim-text-to-speech'].logo}
-                            <span className='text-sm'>Krutrim/Krutrim-Text-to-Speech</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="krutrim-speech-to-speech" className='py-3'>
-                          <div className='flex items-center gap-2 w-full'>
-                            {modelData['krutrim-speech-to-speech'].logo}
-                            <span className='text-sm'>Krutrim/Krutrim-Speech-to-Speech</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <ModelSelector
+                    value={selectedModel}
+                    onChange={setSelectedModel}
+                    modelData={modelData}
+                  />
 
                   {/* Model Info Card */}
                   <div className={`rounded-lg border p-4 space-y-4 ${model.cardGradient}`}>
