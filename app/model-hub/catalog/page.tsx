@@ -63,9 +63,8 @@ export default function ModelCatalogPage() {
   };
 
   const handleOpenCreateApiKeyFromSetup = () => {
-    // Close the Setup Code Modal
-    setIsSetupCodeModalOpen(false);
-    // Open the Create API Key Modal
+    // Open the Create API Key Modal on top of Setup Code Modal
+    // Don't close the Setup Code Modal
     setIsCreateApiKeyModalOpen(true);
   };
 
