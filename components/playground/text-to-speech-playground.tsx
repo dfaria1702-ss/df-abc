@@ -58,6 +58,13 @@ export function TextToSpeechPlayground({
   const [selectedOutputLanguage, setSelectedOutputLanguage] = useState('english');
   const [selectedVoice, setSelectedVoice] = useState('female');
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [totalCost, setTotalCost] = useState(0);
+  const [audioMetrics, setAudioMetrics] = useState<{
+    ttft: number;
+    latency: number;
+    tps: number;
+    cost: number;
+  } | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const maxCharacters = 5000;
@@ -112,6 +119,17 @@ export function TextToSpeechPlayground({
 
     // Simulate API call - in real app, this would call the TTS API
     setTimeout(() => {
+      // Generate mock metrics
+      const metrics = {
+        ttft: Math.floor(Math.random() * 200) + 50, // 50-250ms
+        latency: Math.floor(Math.random() * 500) + 300, // 300-800ms
+        tps: Math.floor(Math.random() * 100) + 100, // 100-200
+        cost: parseFloat(((characterCount / 1000000) * parseFloat(model.inputPrice)).toFixed(6))
+      };
+      
+      setAudioMetrics(metrics);
+      setTotalCost(prev => prev + metrics.cost);
+      
       // For demo, we'll use a placeholder audio URL
       // In production, this would be the generated audio from the API
       const demoAudio = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
@@ -176,6 +194,7 @@ export function TextToSpeechPlayground({
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
+    setAudioMetrics(null);
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -255,47 +274,23 @@ export function TextToSpeechPlayground({
           </div>
         </div>
 
-        {/* Cost Summary - Fixed at bottom */}
-        {inputText.trim() && (
+        {/* Total Cost Card - Fixed at bottom, only show after audio is generated */}
+        {generatedAudio && totalCost > 0 && (
           <div className='absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4'>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='w-full justify-between'
-                >
-                  <span className='flex items-center gap-2'>
-                    <Sparkles className='w-4 h-4 text-yellow-500' />
-                    <span className='font-semibold'>
-                      Est. ₹{((characterCount / 1000000) * parseFloat(model.inputPrice)).toFixed(6)}
-                    </span>
-                  </span>
-                  <Info className='w-4 h-4 text-muted-foreground' />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className='w-64'>
+            <Card className='border-gray-200'>
+              <CardContent className='p-4'>
                 <div className='space-y-2'>
-                  <h4 className='font-semibold text-sm'>Cost Breakdown</h4>
-                  <div className='space-y-1 text-xs'>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Characters:</span>
-                      <span className='font-medium'>{characterCount.toLocaleString()}</span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Rate:</span>
-                      <span className='font-medium'>₹{model.inputPrice}/1M chars</span>
-                    </div>
-                    <div className='flex justify-between pt-2 border-t'>
-                      <span className='font-semibold'>Total:</span>
-                      <span className='font-semibold'>
-                        ₹{((characterCount / 1000000) * parseFloat(model.inputPrice)).toFixed(6)}
-                      </span>
-                    </div>
+                  <div className='flex items-center justify-between'>
+                    <span className='text-sm font-medium text-gray-600'>Total cost</span>
+                    <Sparkles className='w-4 h-4 text-yellow-500' />
+                  </div>
+                  <div className='text-2xl font-semibold'>₹{totalCost.toFixed(6)}</div>
+                  <div className='text-xs text-muted-foreground'>
+                    Estimated cost for this session
                   </div>
                 </div>
-              </PopoverContent>
-            </Popover>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>
@@ -306,30 +301,6 @@ export function TextToSpeechPlayground({
           {/* Output Section - Scrollable */}
           <div className='flex-1 overflow-y-auto p-6'>
             <div className='space-y-4'>
-              <div className='flex items-center justify-between'>
-                <h3 className='text-sm font-semibold text-gray-700'>Generated Audio</h3>
-                {generatedAudio && (
-                  <div className='flex items-center gap-2'>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      onClick={handleDownload}
-                    >
-                      <Download className='w-4 h-4 mr-2' />
-                      Download
-                    </Button>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      onClick={handleClear}
-                    >
-                      <RotateCcw className='w-4 h-4 mr-2' />
-                      Clear
-                    </Button>
-                  </div>
-                )}
-              </div>
-
               {!generatedAudio ? (
                 <div className='flex flex-col items-center justify-center py-20 text-center'>
                   <div className='w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4'>
@@ -341,74 +312,87 @@ export function TextToSpeechPlayground({
                   </p>
                 </div>
               ) : (
-                <div className='bg-white rounded-lg border p-6 space-y-4'>
-                  <audio
-                    ref={audioRef}
-                    src={generatedAudio}
-                    onTimeUpdate={handleTimeUpdate}
-                    onLoadedMetadata={handleLoadedMetadata}
-                    onEnded={() => setIsPlaying(false)}
-                  />
+                <div className='space-y-4'>
+                  {/* Header with actions */}
+                  <div className='flex items-center justify-between'>
+                    <h3 className='text-sm font-semibold text-gray-700'>Generated Audio</h3>
+                    <div className='flex items-center gap-2'>
+                      <Button
+                        variant='outline'
+                        size='sm'
+                        onClick={handleDownload}
+                      >
+                        <Download className='w-4 h-4 mr-2' />
+                        Download
+                      </Button>
+                      <Button
+                        variant='outline'
+                        size='sm'
+                        onClick={handleClear}
+                      >
+                        <RotateCcw className='w-4 h-4 mr-2' />
+                        Clear
+                      </Button>
+                    </div>
+                  </div>
 
-                  {/* Play/Pause Button */}
-                  <div className='flex items-center gap-4'>
-                    <Button
-                      variant='default'
-                      size='lg'
-                      onClick={handlePlayPause}
-                      className='w-16 h-16 rounded-full'
-                    >
-                      {isPlaying ? (
-                        <Pause className='w-6 h-6' />
-                      ) : (
-                        <Play className='w-6 h-6 ml-1' />
-                      )}
-                    </Button>
+                  {/* Audio Player Card */}
+                  <div className='bg-white rounded-lg border p-6 space-y-4'>
+                    <audio
+                      ref={audioRef}
+                      src={generatedAudio}
+                      onTimeUpdate={handleTimeUpdate}
+                      onLoadedMetadata={handleLoadedMetadata}
+                      onEnded={() => setIsPlaying(false)}
+                    />
 
-                    <div className='flex-1 space-y-2'>
-                      {/* Progress Bar */}
-                      <input
-                        type='range'
-                        min='0'
-                        max={duration || 0}
-                        value={currentTime}
-                        onChange={handleSeek}
-                        className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black'
-                      />
+                    {/* Play/Pause Button */}
+                    <div className='flex items-center gap-4'>
+                      <Button
+                        variant='default'
+                        size='lg'
+                        onClick={handlePlayPause}
+                        className='w-16 h-16 rounded-full'
+                      >
+                        {isPlaying ? (
+                          <Pause className='w-6 h-6' />
+                        ) : (
+                          <Play className='w-6 h-6 ml-1' />
+                        )}
+                      </Button>
 
-                      {/* Time Display */}
-                      <div className='flex justify-between text-xs text-gray-500'>
-                        <span>{formatTime(currentTime)}</span>
-                        <span>{formatTime(duration)}</span>
+                      <div className='flex-1 space-y-2'>
+                        {/* Progress Bar */}
+                        <input
+                          type='range'
+                          min='0'
+                          max={duration || 0}
+                          value={currentTime}
+                          onChange={handleSeek}
+                          className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black'
+                        />
+
+                        {/* Time Display */}
+                        <div className='flex justify-between text-xs text-gray-500'>
+                          <span>{formatTime(currentTime)}</span>
+                          <span>{formatTime(duration)}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Audio Info */}
-                  <div className='flex items-center gap-4 pt-4 border-t text-xs text-gray-600'>
-                    <div className='flex items-center gap-2'>
-                      <span className='text-muted-foreground'>Input:</span>
-                      <span className='font-medium'>
-                        {inputLanguages.find((l) => l.value === selectedInputLanguage)?.label}
-                      </span>
+                  {/* Metrics - Below audio player */}
+                  {audioMetrics && (
+                    <div className='text-xs text-gray-600 flex items-center gap-3 flex-wrap'>
+                      <span>TTFT: {audioMetrics.ttft} ms</span>
+                      <span>|</span>
+                      <span>Latency: {audioMetrics.latency} ms</span>
+                      <span>|</span>
+                      <span>TPS: {audioMetrics.tps}</span>
+                      <span>|</span>
+                      <span>Estimated Cost: ₹{audioMetrics.cost.toFixed(6)}</span>
                     </div>
-                    <div className='flex items-center gap-2'>
-                      <span className='text-muted-foreground'>Output:</span>
-                      <span className='font-medium'>
-                        {outputLanguages.find((l) => l.value === selectedOutputLanguage)?.label}
-                      </span>
-                    </div>
-                    <div className='flex items-center gap-2'>
-                      <span className='text-muted-foreground'>Voice:</span>
-                      <span className='font-medium'>
-                        {voices.find((v) => v.value === selectedVoice)?.label}
-                      </span>
-                    </div>
-                    <div className='flex items-center gap-2'>
-                      <span className='text-muted-foreground'>Characters:</span>
-                      <span className='font-medium'>{characterCount.toLocaleString()}</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
             </div>
@@ -455,7 +439,7 @@ export function TextToSpeechPlayground({
                         onChange={(e) => setInputText(e.target.value)}
                         onFocus={() => setIsInputFocused(true)}
                         onBlur={() => setIsInputFocused(false)}
-                        className='min-h-[120px] resize-none'
+                        className='min-h-[80px] resize-none'
                         maxLength={maxCharacters}
                       />
                       <div className='flex items-center justify-between text-xs text-muted-foreground'>
