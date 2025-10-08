@@ -470,46 +470,55 @@ export function TextToSpeechPlayground({
                       </div>
                     </div>
 
-                    <div className='flex items-center gap-3'>
+                    <div className='flex items-end gap-3'>
                       <div className='flex-1 grid grid-cols-3 gap-3'>
-                        <Select value={selectedInputLanguage} onValueChange={setSelectedInputLanguage}>
-                          <SelectTrigger onFocus={() => setIsInputFocused(true)} onBlur={() => setIsInputFocused(false)}>
-                            <SelectValue placeholder='Input Language' />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {inputLanguages.map((lang) => (
-                              <SelectItem key={lang.value} value={lang.value}>
-                                {lang.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className='space-y-1.5'>
+                          <label className='text-xs font-medium text-gray-600'>Input Language</label>
+                          <Select value={selectedInputLanguage} onValueChange={setSelectedInputLanguage}>
+                            <SelectTrigger onFocus={() => setIsInputFocused(true)} onBlur={() => setIsInputFocused(false)}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {inputLanguages.map((lang) => (
+                                <SelectItem key={lang.value} value={lang.value}>
+                                  {lang.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                        <Select value={selectedOutputLanguage} onValueChange={setSelectedOutputLanguage}>
-                          <SelectTrigger onFocus={() => setIsInputFocused(true)} onBlur={() => setIsInputFocused(false)}>
-                            <SelectValue placeholder='Output Language' />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {outputLanguages.map((lang) => (
-                              <SelectItem key={lang.value} value={lang.value}>
-                                {lang.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className='space-y-1.5'>
+                          <label className='text-xs font-medium text-gray-600'>Output Language</label>
+                          <Select value={selectedOutputLanguage} onValueChange={setSelectedOutputLanguage}>
+                            <SelectTrigger onFocus={() => setIsInputFocused(true)} onBlur={() => setIsInputFocused(false)}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {outputLanguages.map((lang) => (
+                                <SelectItem key={lang.value} value={lang.value}>
+                                  {lang.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                        <Select value={selectedVoice} onValueChange={setSelectedVoice}>
-                          <SelectTrigger onFocus={() => setIsInputFocused(true)} onBlur={() => setIsInputFocused(false)}>
-                            <SelectValue placeholder='Voice' />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {voices.map((voice) => (
-                              <SelectItem key={voice.value} value={voice.value}>
-                                {voice.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className='space-y-1.5'>
+                          <label className='text-xs font-medium text-gray-600'>Voice</label>
+                          <Select value={selectedVoice} onValueChange={setSelectedVoice}>
+                            <SelectTrigger onFocus={() => setIsInputFocused(true)} onBlur={() => setIsInputFocused(false)}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {voices.map((voice) => (
+                                <SelectItem key={voice.value} value={voice.value}>
+                                  {voice.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
 
                       <Button
