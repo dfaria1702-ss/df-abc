@@ -207,6 +207,7 @@ export default function PlaygroundPage() {
   const chatContainerRef = React.useRef<HTMLDivElement>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isSystemPromptVisible, setIsSystemPromptVisible] = useState(true);
 
   const handleCopySystemPrompt = async () => {
     try {
@@ -227,6 +228,7 @@ export default function PlaygroundPage() {
   const handleClearChat = () => {
     setChatHistory([]);
     setTotalCost(0);
+    setIsSystemPromptVisible(true);
     toast({
       title: "Chat cleared",
       description: "All conversation history has been cleared.",
@@ -259,6 +261,11 @@ export default function PlaygroundPage() {
 
   const handleSendMessage = () => {
     if (!message.trim() && attachedImages.length === 0) return;
+    
+    // Hide system prompt after first user message
+    if (isSystemPromptVisible) {
+      setIsSystemPromptVisible(false);
+    }
     
     // Add user message to chat with images
     const newMessage = { 
@@ -396,16 +403,32 @@ export default function PlaygroundPage() {
     }
   };
 
+  const handleCopyMessage = async (content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      toast({
+        title: "Message copied",
+        description: "The message has been copied to your clipboard.",
+      });
+    } catch (err) {
+      toast({
+        title: "Failed to copy",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleRegenerateResponse = (index: number) => {
-    // Get the old costs to subtract them
-    const oldReasoningCost = chatHistory[index].reasoningMetrics?.cost || 0;
-    const oldResponseCost = chatHistory[index].responseMetrics?.cost || 0;
-    const oldTotalCost = oldReasoningCost + oldResponseCost;
-    
-    // Replace the response at the given index with a new "thinking" state
+    // Add a new "thinking" state after the current response
     setChatHistory(prev => {
       const newHistory = [...prev];
-      newHistory[index] = { ...newHistory[index], isThinking: true, content: '' };
+      // Insert thinking message right after the current assistant response
+      newHistory.splice(index + 1, 0, { 
+        role: 'assistant' as const, 
+        content: '', 
+        isThinking: true 
+      });
       return newHistory;
     });
 
@@ -426,9 +449,9 @@ export default function PlaygroundPage() {
         cost: parseFloat((Math.random() * 0.015 + 0.005).toFixed(6))
       };
 
-      // Update total cost (subtract old, add new) and trigger shimmer animation
+      // Update total cost (add new cost) and trigger shimmer animation
       const newTotalCost = reasoningMetrics.cost + responseMetrics.cost;
-      setTotalCost(prev => prev - oldTotalCost + newTotalCost);
+      setTotalCost(prev => prev + newTotalCost);
       setShowCostShimmer(true);
       setTimeout(() => setShowCostShimmer(false), 2000);
 
@@ -437,7 +460,8 @@ export default function PlaygroundPage() {
         const alternateReasoning = `The assistant analyzed the query from multiple perspectives. First, it considered the technical accuracy of the information. Then, it evaluated the clarity and conciseness of the explanation.\n\nAfter weighing different approaches, it decided to structure the response in a way that would be most helpful to the user, prioritizing practical examples over theoretical concepts.\n\nThe reasoning process involved checking for potential ambiguities and ensuring the response would be actionable.`;
         const alternateResponse = 'This is a regenerated response with different content. The AI model has processed your request again and provided an alternative perspective that might offer additional insights or clarity on the topic.';
         
-        newHistory[index] = {
+        // Replace the thinking message with the actual response
+        newHistory[index + 1] = {
           role: 'assistant',
           content: alternateResponse,
           reasoning: alternateReasoning,
@@ -795,11 +819,67 @@ export default function PlaygroundPage() {
               <CardContent className='flex-1 flex flex-col min-h-0 p-0 overflow-hidden relative'>
                 {/* System Prompt Section */}
                 <div className='flex-shrink-0 space-y-3 p-6 pb-0'>
-                  <div className='flex items-center justify-between'>
-                    <h3 className='text-sm font-medium text-foreground'>
-                      System Prompt
-                    </h3>
-                    <div className='flex items-center gap-2'>
+                  {isSystemPromptVisible ? (
+                    <>
+                      <div className='flex items-center justify-between'>
+                        <h3 className='text-sm font-medium text-foreground'>
+                          System Prompt
+                        </h3>
+                        <div className='flex items-center gap-2'>
+                          {chatHistory.length > 0 && (
+                            <TooltipWrapper content="Clear all messages and start fresh">
+                              <Button
+                                variant='outline'
+                                size='sm'
+                                onClick={handleClearChat}
+                                className='h-7 px-3 text-xs'
+                              >
+                                Clear chat
+                              </Button>
+                            </TooltipWrapper>
+                          )}
+                          {systemPrompt.trim() && (
+                            <TooltipWrapper content="Copy system prompt to clipboard">
+                              <Button
+                                variant='ghost'
+                                size='sm'
+                                onClick={handleCopySystemPrompt}
+                                className='h-6 w-6 p-0'
+                              >
+                                <Copy className='h-3 w-3' />
+                              </Button>
+                            </TooltipWrapper>
+                          )}
+                          {chatHistory.length > 0 && (
+                            <Button
+                              variant='ghost'
+                              size='sm'
+                              onClick={() => setIsSystemPromptVisible(false)}
+                              className='h-7 px-3 text-xs text-muted-foreground hover:text-foreground'
+                            >
+                              Hide System Prompt
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <Textarea
+                        placeholder="Enter system instructions"
+                        value={systemPrompt}
+                        onChange={(e) => setSystemPrompt(e.target.value)}
+                        className='min-h-[60px]'
+                      />
+                    </>
+                  ) : (
+                    <div className='flex items-center justify-between'>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => setIsSystemPromptVisible(true)}
+                        className='h-7 px-3 text-xs text-muted-foreground hover:text-foreground'
+                      >
+                        Show System Prompt
+                      </Button>
                       {chatHistory.length > 0 && (
                         <TooltipWrapper content="Clear all messages and start fresh">
                           <Button
@@ -812,27 +892,8 @@ export default function PlaygroundPage() {
                           </Button>
                         </TooltipWrapper>
                       )}
-                      {systemPrompt.trim() && (
-                        <TooltipWrapper content="Copy system prompt to clipboard">
-                          <Button
-                            variant='ghost'
-                            size='sm'
-                            onClick={handleCopySystemPrompt}
-                            className='h-6 w-6 p-0'
-                          >
-                            <Copy className='h-3 w-3' />
-                          </Button>
-                        </TooltipWrapper>
-                      )}
                     </div>
-                  </div>
-                  
-                  <Textarea
-                    placeholder="Enter system instructions"
-                    value={systemPrompt}
-                    onChange={(e) => setSystemPrompt(e.target.value)}
-                    className='min-h-[60px]'
-                  />
+                  )}
                 </div>
 
                 {/* Chat History */}
@@ -877,8 +938,21 @@ export default function PlaygroundPage() {
                       {chatHistory.map((msg, index) => (
                         <div key={index} className='py-6 first:pt-0 last:pb-0'>
                           {msg.role === 'user' ? (
-                            <div className='flex gap-3 justify-end'>
-                              <div className='flex-1 flex justify-end'>
+                            <div className='flex gap-3 justify-end group'>
+                              <div className='flex-1 flex justify-end items-start gap-2'>
+                                {/* Copy Button - Shows on hover */}
+                                {msg.content && (
+                                  <div className='opacity-0 group-hover:opacity-100 transition-opacity pt-3'>
+                                    <TooltipWrapper content="Copy message">
+                                      <button
+                                        onClick={() => handleCopyMessage(msg.content)}
+                                        className='p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground'
+                                      >
+                                        <Copy className='h-[18px] w-[18px]' />
+                                      </button>
+                                    </TooltipWrapper>
+                                  </div>
+                                )}
                                 <div className='rounded-lg p-3 text-sm max-w-[85%] space-y-2' style={{ backgroundColor: '#ffffff' }}>
                                   {/* User Images */}
                                   {msg.images && msg.images.length > 0 && (
@@ -914,7 +988,7 @@ export default function PlaygroundPage() {
                               </div>
                             </div>
                           ) : (
-                            <div className='flex gap-3'>
+                            <div className='flex gap-3 group'>
                               <ChatBubbleAvatar className='h-8 w-8'>
                                 {model.logo}
                               </ChatBubbleAvatar>
@@ -960,9 +1034,22 @@ export default function PlaygroundPage() {
                                   </div>
                                 )}
                                 
-                                {/* Response Content */}
-                                <div className='rounded-lg p-3' style={{ backgroundColor: '#ffffff' }}>
-                                  <div className='text-sm'>{msg.content}</div>
+                                {/* Response Content with Copy Button */}
+                                <div className='flex items-start gap-2'>
+                                  <div className='rounded-lg p-3 flex-1' style={{ backgroundColor: '#ffffff' }}>
+                                    <div className='text-sm'>{msg.content}</div>
+                                  </div>
+                                  {/* Copy Button - Shows on hover */}
+                                  <div className='opacity-0 group-hover:opacity-100 transition-opacity pt-3'>
+                                    <TooltipWrapper content="Copy response">
+                                      <button
+                                        onClick={() => handleCopyMessage(msg.content)}
+                                        className='p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground'
+                                      >
+                                        <Copy className='h-[18px] w-[18px]' />
+                                      </button>
+                                    </TooltipWrapper>
+                                  </div>
                                 </div>
                                 
                                 {/* Action Icons and Metrics */}
@@ -974,14 +1061,6 @@ export default function PlaygroundPage() {
                                         className='p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground'
                                       >
                                         <RotateCcw className='h-[18px] w-[18px]' />
-                                      </button>
-                                    </TooltipWrapper>
-                                    <TooltipWrapper content="Copy response">
-                                      <button
-                                        onClick={() => handleCopyReasoning(msg.content)}
-                                        className='p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground'
-                                      >
-                                        <Copy className='h-[18px] w-[18px]' />
                                       </button>
                                     </TooltipWrapper>
                                   </div>
