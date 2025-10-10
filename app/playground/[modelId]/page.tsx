@@ -195,11 +195,12 @@ export default function PlaygroundPage() {
   const [systemPrompt, setSystemPrompt] = useState('');
   const [message, setMessage] = useState('');
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const [chatHistory, setChatHistory] = useState<Array<{role: 'user' | 'assistant', content: string, reasoning?: string, isThinking?: boolean, reasoningMetrics?: {ttft: number, latency: number, tps: number, cost: number}, responseMetrics?: {ttft: number, latency: number, tps: number, cost: number}, images?: string[]}>>([]);
+  const [chatHistory, setChatHistory] = useState<Array<{role: 'user' | 'assistant', content: string, reasoning?: string, isThinking?: boolean, tokensUsed?: number, responseMetrics?: {ttft: number, latency: number, tps: number, tokensUsed: number}, images?: string[]}>>([]);
   const [isSetupCodeModalOpen, setIsSetupCodeModalOpen] = useState(false);
   const [isCreateApiKeyModalOpen, setIsCreateApiKeyModalOpen] = useState(false);
   const [expandedReasoning, setExpandedReasoning] = useState<Set<number>>(new Set());
   const [totalCost, setTotalCost] = useState(0);
+  const [totalTokens, setTotalTokens] = useState(0);
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [showCostShimmer, setShowCostShimmer] = useState(false);
   const [isCostPopoverOpen, setIsCostPopoverOpen] = useState(false);
@@ -228,6 +229,7 @@ export default function PlaygroundPage() {
   const handleClearChat = () => {
     setChatHistory([]);
     setTotalCost(0);
+    setTotalTokens(0);
     setIsSystemPromptVisible(true);
     toast({
       title: "Chat cleared",
@@ -267,11 +269,18 @@ export default function PlaygroundPage() {
       setIsSystemPromptVisible(false);
     }
     
-    // Add user message to chat with images
+    // Calculate input tokens (mock: roughly 1 token per 4 characters)
+    const inputTokens = Math.ceil(message.length / 4) + (attachedImages.length * 85); // Images add ~85 tokens each
+    
+    // Update total tokens with input tokens
+    setTotalTokens(prev => prev + inputTokens);
+    
+    // Add user message to chat with images and token count
     const newMessage = { 
       role: 'user' as const, 
       content: message,
-      images: attachedImages.length > 0 ? [...attachedImages] : undefined
+      images: attachedImages.length > 0 ? [...attachedImages] : undefined,
+      tokensUsed: inputTokens
     };
     setChatHistory(prev => [...prev, newMessage]);
     
@@ -289,24 +298,21 @@ export default function PlaygroundPage() {
     
     // Simulate AI reasoning and response (in real app, this would call the API)
     setTimeout(() => {
-      // Generate separate mock metrics for reasoning and response
-      const reasoningMetrics = {
-        ttft: Math.floor(Math.random() * 200) + 50, // 50-250ms
-        latency: Math.floor(Math.random() * 500) + 300, // 300-800ms
-        tps: Math.floor(Math.random() * 100) + 100, // 100-200
-        cost: parseFloat((Math.random() * 0.01 + 0.003).toFixed(6)) // ₹0.003-0.013
-      };
-
+      // Generate mock metrics for response
+      const tokensUsed = Math.floor(Math.random() * 500) + 200; // 200-700 tokens
       const responseMetrics = {
         ttft: Math.floor(Math.random() * 200) + 50, // 50-250ms
         latency: Math.floor(Math.random() * 500) + 300, // 300-800ms
         tps: Math.floor(Math.random() * 100) + 100, // 100-200
-        cost: parseFloat((Math.random() * 0.015 + 0.005).toFixed(6)) // ₹0.005-0.020
+        tokensUsed: tokensUsed
       };
 
-      // Update total cost with both reasoning and response costs
-      const combinedCost = reasoningMetrics.cost + responseMetrics.cost;
-      setTotalCost(prev => prev + combinedCost);
+      // Calculate cost based on tokens (example: ₹12.5 per 1M input tokens)
+      const cost = (tokensUsed / 1000000) * parseFloat(model.inputPrice);
+      
+      // Update totals
+      setTotalCost(prev => prev + cost);
+      setTotalTokens(prev => prev + tokensUsed);
       setShowCostShimmer(true);
       setTimeout(() => setShowCostShimmer(false), 2000);
 
@@ -328,7 +334,6 @@ export default function PlaygroundPage() {
           role: 'assistant' as const, 
           content: content,
           reasoning: reasoning,
-          reasoningMetrics: reasoningMetrics,
           responseMetrics: responseMetrics
         };
         return [...withoutThinking, aiResponse];
@@ -434,24 +439,21 @@ export default function PlaygroundPage() {
 
     // Simulate API call and regenerate with new mock data
     setTimeout(() => {
-      // Generate separate mock metrics for reasoning and response
-      const reasoningMetrics = {
-        ttft: Math.floor(Math.random() * 200) + 50,
-        latency: Math.floor(Math.random() * 500) + 300,
-        tps: Math.floor(Math.random() * 100) + 100,
-        cost: parseFloat((Math.random() * 0.01 + 0.003).toFixed(6))
-      };
-
+      // Generate mock metrics for response
+      const tokensUsed = Math.floor(Math.random() * 500) + 200; // 200-700 tokens
       const responseMetrics = {
         ttft: Math.floor(Math.random() * 200) + 50,
         latency: Math.floor(Math.random() * 500) + 300,
         tps: Math.floor(Math.random() * 100) + 100,
-        cost: parseFloat((Math.random() * 0.015 + 0.005).toFixed(6))
+        tokensUsed: tokensUsed
       };
 
-      // Update total cost (add new cost) and trigger shimmer animation
-      const newTotalCost = reasoningMetrics.cost + responseMetrics.cost;
-      setTotalCost(prev => prev + newTotalCost);
+      // Calculate cost based on tokens
+      const cost = (tokensUsed / 1000000) * parseFloat(model.inputPrice);
+      
+      // Update totals and trigger shimmer animation
+      setTotalCost(prev => prev + cost);
+      setTotalTokens(prev => prev + tokensUsed);
       setShowCostShimmer(true);
       setTimeout(() => setShowCostShimmer(false), 2000);
 
@@ -466,7 +468,6 @@ export default function PlaygroundPage() {
           content: alternateResponse,
           reasoning: alternateReasoning,
           isThinking: false,
-          reasoningMetrics: reasoningMetrics,
           responseMetrics: responseMetrics
         };
         return newHistory;
@@ -784,27 +785,17 @@ export default function PlaygroundPage() {
                           Cost Breakdown
                         </div>
                         <div className='border-t my-1'></div>
-                        {chatHistory
-                          .filter(msg => msg.role === 'assistant' && (msg.reasoningMetrics || msg.responseMetrics))
-                          .map((msg, idx) => (
-                            <div key={idx}>
-                              {msg.reasoningMetrics && (
-                                <div className='px-2 py-1.5 hover:bg-accent hover:text-accent-foreground rounded-sm cursor-default flex justify-between items-center text-sm transition-colors'>
-                                  <span className='text-muted-foreground'>Response {idx + 1} - Reasoning</span>
-                                  <span className='font-medium'>₹{msg.reasoningMetrics.cost.toFixed(6)}</span>
-                                </div>
-                              )}
-                              {msg.responseMetrics && (
-                                <div className='px-2 py-1.5 hover:bg-accent hover:text-accent-foreground rounded-sm cursor-default flex justify-between items-center text-sm transition-colors'>
-                                  <span className='text-muted-foreground'>Response {idx + 1} - Output</span>
-                                  <span className='font-medium'>₹{msg.responseMetrics.cost.toFixed(6)}</span>
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                        <div className='px-2 py-1.5 flex justify-between items-center text-sm'>
+                          <span className='text-muted-foreground'>Total Tokens Used</span>
+                          <span className='font-medium'>{totalTokens.toLocaleString()}</span>
+                        </div>
+                        <div className='px-2 py-1.5 flex justify-between items-center text-sm'>
+                          <span className='text-muted-foreground'>Total Responses</span>
+                          <span className='font-medium'>{chatHistory.filter(msg => msg.role === 'assistant' && !msg.isThinking).length}</span>
+                        </div>
                         <div className='border-t my-1'></div>
                         <div className='px-2 py-1.5 flex justify-between items-center text-sm font-semibold'>
-                          <span>Total</span>
+                          <span>Total Cost</span>
                           <span>₹{totalCost.toFixed(6)}</span>
                         </div>
                       </div>
@@ -939,38 +930,46 @@ export default function PlaygroundPage() {
                         <div key={index} className='py-6 first:pt-0 last:pb-0'>
                           {msg.role === 'user' ? (
                             <div className='flex gap-3 justify-end group'>
-                              <div className='flex-1 flex justify-end items-start gap-2'>
-                                {/* Copy Button - Shows on hover */}
-                                {msg.content && (
-                                  <div className='opacity-0 group-hover:opacity-100 transition-opacity pt-3'>
-                                    <TooltipWrapper content="Copy message">
-                                      <button
-                                        onClick={() => handleCopyMessage(msg.content)}
-                                        className='p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground'
-                                      >
-                                        <Copy className='h-[18px] w-[18px]' />
-                                      </button>
-                                    </TooltipWrapper>
-                                  </div>
-                                )}
-                                <div className='rounded-lg p-3 text-sm max-w-[85%] space-y-2' style={{ backgroundColor: '#ffffff' }}>
-                                  {/* User Images */}
-                                  {msg.images && msg.images.length > 0 && (
-                                    <div className='flex flex-wrap gap-2'>
-                                      {msg.images.map((img, imgIdx) => (
-                                        <img 
-                                          key={imgIdx}
-                                          src={img} 
-                                          alt={`Image ${imgIdx + 1}`} 
-                                          className='max-w-[200px] max-h-[200px] object-contain rounded-lg border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity'
-                                          onClick={() => setSelectedImage(img)}
-                                        />
-                                      ))}
+                              <div className='flex-1 flex flex-col items-end gap-2'>
+                                <div className='flex items-start gap-2'>
+                                  {/* Copy Button - Shows on hover */}
+                                  {msg.content && (
+                                    <div className='opacity-0 group-hover:opacity-100 transition-opacity pt-3'>
+                                      <TooltipWrapper content="Copy message">
+                                        <button
+                                          onClick={() => handleCopyMessage(msg.content)}
+                                          className='p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground'
+                                        >
+                                          <Copy className='h-[18px] w-[18px]' />
+                                        </button>
+                                      </TooltipWrapper>
                                     </div>
                                   )}
-                                  {/* User Message Text */}
-                                  {msg.content && <div>{msg.content}</div>}
+                                  <div className='rounded-lg p-3 text-sm max-w-[85%] space-y-2' style={{ backgroundColor: '#ffffff' }}>
+                                    {/* User Images */}
+                                    {msg.images && msg.images.length > 0 && (
+                                      <div className='flex flex-wrap gap-2'>
+                                        {msg.images.map((img, imgIdx) => (
+                                          <img 
+                                            key={imgIdx}
+                                            src={img} 
+                                            alt={`Image ${imgIdx + 1}`} 
+                                            className='max-w-[200px] max-h-[200px] object-contain rounded-lg border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity'
+                                            onClick={() => setSelectedImage(img)}
+                                          />
+                                        ))}
+                                      </div>
+                                    )}
+                                    {/* User Message Text */}
+                                    {msg.content && <div>{msg.content}</div>}
+                                  </div>
                                 </div>
+                                {/* Token Count */}
+                                {msg.tokensUsed && (
+                                  <div className='text-xs text-muted-foreground'>
+                                    <span className='font-medium'>Tokens used:</span> {msg.tokensUsed.toLocaleString()}
+                                  </div>
+                                )}
                               </div>
                               <ChatBubbleAvatar className='h-8 w-8 bg-muted'>
                                 <User className='h-4 w-4 text-muted-foreground' />
@@ -995,39 +994,25 @@ export default function PlaygroundPage() {
                               <div className='flex-1 space-y-3'>
                                 {/* Reasoning Section */}
                                 {msg.reasoning && (
-                                  <div className='space-y-2'>
-                                    <div className='rounded-lg border-[0.5px] border-black/10 bg-white/70'>
-                                      <button
-                                        onClick={() => toggleReasoning(index)}
-                                        className='w-full flex items-center justify-between px-3 py-2 hover:bg-black/5 transition-colors'
-                                      >
-                                        <div className='flex items-center gap-2'>
-                                          {expandedReasoning.has(index) ? (
-                                            <ChevronDown className='h-3.5 w-3.5' />
-                                          ) : (
-                                            <ChevronRight className='h-3.5 w-3.5' />
-                                          )}
-                                          <span className='text-xs font-medium'>Reasoning / Thought</span>
-                                        </div>
-                                      </button>
-                                      
-                                      {expandedReasoning.has(index) && (
-                                        <div className='px-3 pb-3'>
-                                          <div className='text-sm text-foreground whitespace-pre-wrap'>
-                                            {msg.reasoning}
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
+                                  <div className='rounded-lg border-[0.5px] border-black/10 bg-white/70'>
+                                    <button
+                                      onClick={() => toggleReasoning(index)}
+                                      className='w-full flex items-center justify-between px-3 py-2 hover:bg-black/5 transition-colors'
+                                    >
+                                      <div className='flex items-center gap-2'>
+                                        {expandedReasoning.has(index) ? (
+                                          <ChevronDown className='h-3.5 w-3.5' />
+                                        ) : (
+                                          <ChevronRight className='h-3.5 w-3.5' />
+                                        )}
+                                        <span className='text-xs font-medium'>Reasoning / Thought</span>
+                                      </div>
+                                    </button>
                                     
-                                    {/* Performance Metrics after Reasoning */}
-                                    {msg.reasoningMetrics && (
-                                      <div className='flex justify-end'>
-                                        <div className='bg-muted/50 rounded-md px-3 py-1.5 text-xs text-muted-foreground'>
-                                          <span className='font-medium'>TTFT:</span> {msg.reasoningMetrics.ttft} ms <span className='mx-1'>|</span>
-                                          <span className='font-medium'>Latency:</span> {msg.reasoningMetrics.latency} ms <span className='mx-1'>|</span>
-                                          <span className='font-medium'>TPS:</span> {msg.reasoningMetrics.tps} <span className='mx-1'>|</span>
-                                          <span className='font-medium'>Estimated Cost:</span> ₹{msg.reasoningMetrics.cost.toFixed(6)}
+                                    {expandedReasoning.has(index) && (
+                                      <div className='px-3 pb-3'>
+                                        <div className='text-sm text-foreground whitespace-pre-wrap'>
+                                          {msg.reasoning}
                                         </div>
                                       </div>
                                     )}
@@ -1071,7 +1056,7 @@ export default function PlaygroundPage() {
                                       <span className='font-medium'>TTFT:</span> {msg.responseMetrics.ttft} ms <span className='mx-1'>|</span>
                                       <span className='font-medium'>Latency:</span> {msg.responseMetrics.latency} ms <span className='mx-1'>|</span>
                                       <span className='font-medium'>TPS:</span> {msg.responseMetrics.tps} <span className='mx-1'>|</span>
-                                      <span className='font-medium'>Estimated Cost:</span> ₹{msg.responseMetrics.cost.toFixed(6)}
+                                      <span className='font-medium'>Tokens used:</span> {msg.responseMetrics.tokensUsed.toLocaleString()}
                                     </div>
                                   )}
                                 </div>
