@@ -171,22 +171,22 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
         components={{
           // Headings
           h1: ({ children }) => (
-            <h1 className='text-2xl font-bold text-gray-900 mb-4 mt-6 first:mt-0 border-b border-gray-200 pb-2'>
+            <h1 className='text-lg font-bold text-gray-900 mb-3 mt-5 first:mt-0 border-b border-gray-200 pb-2'>
               {children}
             </h1>
           ),
           h2: ({ children }) => (
-            <h2 className='text-xl font-semibold text-gray-900 mb-3 mt-5'>
+            <h2 className='text-base font-semibold text-gray-900 mb-2 mt-4'>
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className='text-lg font-semibold text-gray-900 mb-2 mt-4'>
+            <h3 className='text-sm font-semibold text-gray-900 mb-2 mt-3'>
               {children}
             </h3>
           ),
           h4: ({ children }) => (
-            <h4 className='text-base font-semibold text-gray-900 mb-2 mt-3'>
+            <h4 className='text-xs font-semibold text-gray-900 mb-1.5 mt-2'>
               {children}
             </h4>
           ),
