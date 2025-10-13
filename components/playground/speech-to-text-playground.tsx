@@ -495,7 +495,7 @@ export function SpeechToTextPlayground({
 
                 {/* Input Container */}
                 <motion.div
-                  className={`relative w-full bg-white rounded-[24px] p-4 shadow-[0_2px_8px_0_rgba(0,0,0,0.08)] ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`relative w-full bg-white rounded-[24px] p-3 md:p-4 shadow-[0_2px_8px_0_rgba(0,0,0,0.08)] ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                   animate={{
                     boxShadow: disabled ? "0 2px 8px 0 rgba(0,0,0,0.08)" : (isInputFocused || audioFile 
                       ? "0 8px 32px 0 rgba(0,0,0,0.16)" 
@@ -518,7 +518,7 @@ export function SpeechToTextPlayground({
                   
                   {/* Single Row Layout - All elements horizontally aligned */}
                   {!audioFile ? (
-                    <div className='flex items-center justify-between gap-6'>
+                    <div className='flex flex-col md:flex-row md:items-center gap-3 md:gap-4'>
                       {/* Left: Recording Button or Recording Waveform */}
                       <div className='flex items-center gap-3'>
                         {!isRecording ? (
@@ -533,7 +533,7 @@ export function SpeechToTextPlayground({
                                 <Mic className='h-5 w-5 text-foreground' />
                               </button>
                             </TooltipWrapper>
-                            <span className='text-xs text-muted-foreground font-medium'>
+                            <span className='text-xs text-muted-foreground font-medium hidden sm:inline'>
                               Click to start speaking
                             </span>
                           </>
@@ -556,7 +556,7 @@ export function SpeechToTextPlayground({
                       </div>
 
                       {/* OR Divider - Only show when not recording */}
-                      {!isRecording && <span className='text-sm text-muted-foreground/60 font-medium'>OR</span>}
+                      {!isRecording && <span className='text-sm text-muted-foreground/60 font-medium text-center md:text-left'>OR</span>}
 
                       {/* Center: Upload Section */}
                       {!isRecording && (
@@ -577,15 +577,15 @@ export function SpeechToTextPlayground({
                               </svg>
                             </button>
                           </TooltipWrapper>
-                          <div className='whitespace-nowrap'>
+                          <div className='min-w-0'>
                             <p className='text-xs text-muted-foreground font-medium'>Upload File</p>
-                            <p className='text-xs text-muted-foreground/70'>WAV format • File size 5MB • Below 16khz</p>
+                            <p className='text-xs text-muted-foreground/70 hidden sm:block'>WAV format • File size 5MB • Below 16khz</p>
                           </div>
                         </div>
                       )}
 
                       {/* Right: Language Selector and Transcribe Button */}
-                      <div className='flex flex-col gap-2 min-w-[280px]'>
+                      <div className='flex flex-col gap-2 w-full md:min-w-[240px] md:max-w-[280px]'>
                         <Select value={selectedLanguage} onValueChange={setSelectedLanguage} disabled={disabled}>
                           <SelectTrigger className='h-10' onFocus={() => !disabled && setIsInputFocused(true)} disabled={disabled}>
                             <SelectValue placeholder='Select Target Language' />
@@ -618,9 +618,9 @@ export function SpeechToTextPlayground({
                     </div>
                   ) : (
                     /* File Uploaded State */
-                    <div className='flex items-center gap-6'>
+                    <div className='flex flex-col md:flex-row md:items-center gap-3 md:gap-4'>
                       {/* File Info */}
-                      <div className='flex items-center gap-3 flex-1'>
+                      <div className='flex items-center gap-3 flex-1 min-w-0'>
                         <div className='w-10 h-10 rounded-lg bg-[#10A554]/10 flex items-center justify-center flex-shrink-0'>
                           <Mic className='h-5 w-5 text-[#10A554]' />
                         </div>
@@ -647,7 +647,7 @@ export function SpeechToTextPlayground({
                       </div>
 
                       {/* Right: Language Selector and Transcribe Button */}
-                      <div className='flex flex-col gap-2 min-w-[280px]'>
+                      <div className='flex flex-col gap-2 w-full md:min-w-[240px] md:max-w-[280px]'>
                         <Select value={selectedLanguage} onValueChange={setSelectedLanguage} disabled={disabled}>
                           <SelectTrigger className='h-10' onFocus={() => !disabled && setIsInputFocused(true)} disabled={disabled}>
                             <SelectValue placeholder='Select Target Language' />
