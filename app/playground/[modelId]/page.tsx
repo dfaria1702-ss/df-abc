@@ -21,6 +21,8 @@ import { ChatBubbleAvatar } from '@/components/ui/chat-bubble';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
+import { MarkdownRenderer } from '@/components/playground/markdown-renderer';
+import { getAllSamplePrompts } from '@/lib/playground-sample-prompts';
 import { 
   Copy, 
   ChevronDown, 
@@ -151,13 +153,15 @@ const modelData = {
   }
 };
 
-const quickActions = [
-  { icon: Settings, label: 'Improve my sentence' },
-  { icon: Globe, label: 'Quick translation' },
-  { icon: FileText, label: 'Summarize quickly' },
-  { icon: Sparkles, label: 'Polish my email' },
-  { icon: BookOpen, label: 'Tell me a story' }
-];
+// Get sample prompts for quick actions
+const samplePrompts = getAllSamplePrompts();
+
+const quickActions = samplePrompts.map(prompt => ({
+  icon: Sparkles,
+  label: prompt.label,
+  prompt: prompt.prompt,
+  response: prompt.response
+}));
 
 export default function PlaygroundPage() {
   const params = useParams();
@@ -413,8 +417,59 @@ export default function PlaygroundPage() {
     }, 2000);
   };
 
-  const handleQuickAction = (action: string) => {
-    setMessage(action);
+  const handleQuickAction = (actionLabel: string) => {
+    // Find the matching sample prompt
+    const action = quickActions.find(a => a.label === actionLabel);
+    if (!action) return;
+
+    // Hide system prompt after first user message
+    if (isSystemPromptVisible) {
+      setIsSystemPromptVisible(false);
+    }
+
+    // Add user message
+    const userMessage = {
+      role: 'user' as const,
+      content: action.prompt,
+    };
+
+    // Add thinking state
+    const thinkingMessage = {
+      role: 'assistant' as const,
+      content: '',
+      isThinking: true,
+    };
+
+    setChatHistory(prev => [...prev, userMessage, thinkingMessage]);
+
+    // Simulate AI response with sample data after delay
+    setTimeout(() => {
+      setChatHistory(prev => {
+        const withoutThinking = prev.filter(msg => !msg.isThinking);
+        
+        // Mock response metrics
+        const responseMetrics = {
+          ttft: 0.8 + Math.random() * 0.4, // 0.8-1.2s
+          latency: 2 + Math.random() * 1, // 2-3s
+          tps: 40 + Math.random() * 20, // 40-60 tokens/s
+          tokensUsed: Math.ceil(action.response.length / 4), // Estimate tokens
+        };
+
+        const aiResponse = {
+          role: 'assistant' as const,
+          content: action.response,
+          tokensUsed: responseMetrics.tokensUsed,
+          responseMetrics: responseMetrics
+        };
+
+        return [...withoutThinking, aiResponse];
+      });
+
+      // Update total costs
+      const estimatedTokens = Math.ceil(action.response.length / 4);
+      setTotalTokens(prev => prev + estimatedTokens);
+      setTotalCost(prev => prev + (estimatedTokens * model.costPerToken));
+    }, 2000);
   };
 
   // Check if chat container is scrollable
@@ -1092,7 +1147,7 @@ export default function PlaygroundPage() {
                                 {/* Response Content with Copy Button */}
                                 <div className='flex items-start gap-2'>
                                   <div className='rounded-lg p-3 flex-1' style={{ backgroundColor: '#ffffff' }}>
-                                    <div className='text-sm'>{msg.content}</div>
+                                    <MarkdownRenderer content={msg.content} />
                                   </div>
                                   {/* Copy Button - Shows on hover */}
                                   <div className='opacity-0 group-hover:opacity-100 transition-opacity pt-3'>
