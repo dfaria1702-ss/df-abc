@@ -769,12 +769,6 @@ export function TextToImagePlayground({
                             </div>
                           )}
                           
-                          {/* Prompt Used */}
-                          <div className='rounded-lg p-3 max-w-2xl' style={{ backgroundColor: '#f3f4f6' }}>
-                            <div className='text-xs text-muted-foreground mb-1'>Prompt:</div>
-                            <div className='text-sm'>{msg.content}</div>
-                          </div>
-                          
                           {/* Action Icons and Metrics */}
                           <div className='flex items-center justify-between gap-4'>
                             <div className='flex items-center gap-1'>
