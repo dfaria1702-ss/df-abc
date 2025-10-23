@@ -112,10 +112,10 @@ export default function DocIntelligenceAllServicesPage() {
             <h2 className='text-2xl lg:text-3xl font-semibold tracking-tight text-foreground'>
               Automate text extraction, summarization, and PII masking with advanced document AI.
             </h2>
-            <div className='flex flex-wrap items-center justify-center gap-3'>
-              <span className='px-3 py-1 rounded-full text-sm font-medium bg-white text-foreground border border-border'>OCR & Extraction</span>
-              <span className='px-3 py-1 rounded-full text-sm font-medium bg-white text-foreground border border-border'>Summarization</span>
-              <span className='px-3 py-1 rounded-full text-sm font-medium bg-white text-foreground border border-border'>PII Masking</span>
+            <div className='pt-2 flex justify-center'>
+              <Button size='lg' variant='outline' className='px-6 border-foreground text-foreground' asChild>
+                <a href='/playground/extract-text'>Go to Playground</a>
+              </Button>
             </div>
           </div>
         </div>

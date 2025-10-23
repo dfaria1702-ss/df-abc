@@ -114,20 +114,18 @@ print(response.json())`;
           
           {/* CTAs */}
           <div className='flex flex-col sm:flex-row gap-4 pt-4'>
-            <Button 
-              size='lg' 
-              className='bg-primary text-primary-foreground hover:bg-primary/90 font-medium px-8 py-3'
-              onClick={() => setIsCreateApiKeyModalOpen(true)}
-            >
-              Get API key
+            <Button size='lg' className='font-medium px-8 py-3' asChild>
+              <a href='/playground/gpt-oss-20b'>
+                Go to Playground
+              </a>
             </Button>
             <Button 
               variant='outline' 
               size='lg'
-              onClick={() => setIsRequestModalOpen(true)}
+              onClick={() => setIsCreateApiKeyModalOpen(true)}
               className='font-medium px-8 py-3 border-border hover:bg-accent hover:text-accent-foreground'
             >
-              Request a model
+              Get API key
             </Button>
           </div>
         </div>
