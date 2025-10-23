@@ -42,7 +42,7 @@ export default function BhashikPage() {
         >
           <div className='space-y-6 relative z-10 text-center max-w-3xl mx-auto'>
             <h2 className='text-2xl lg:text-3xl font-semibold tracking-tight text-foreground'>
-              Unlock seamless communication across India&apos;s diverse languages with our proprietary speech and text models.
+              Seamless communication across India&apos;s languages with our proprietary speech and text models.
             </h2>
             <div className='flex flex-col sm:flex-row gap-4 pt-2 justify-center'>
               <Button size='lg' variant='outline' className='px-6 border-foreground text-foreground' asChild>
