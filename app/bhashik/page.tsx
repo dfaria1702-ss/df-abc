@@ -51,24 +51,24 @@ export default function BhashikPage() {
           <h2 className='text-2xl lg:text-3xl font-semibold tracking-tight text-foreground'>
             Unlock seamless communication across India&apos;s diverse languages with our proprietary speech and text models.
           </h2>
-          <div className='flex flex-wrap items-center justify-center gap-3'>
-            <Badge label='Real-time Processing' />
-            <Badge label='High Accuracy' />
-            <Badge label='Secure & Private' />
-          </div>
+          {/* Badges removed as requested */}
           <div className='flex flex-col sm:flex-row gap-4 pt-2 justify-center'>
-            <Button size='lg' className='px-6'>Explore Speech Playground</Button>
-            <Button size='lg' variant='outline' className='px-6'>Explore Text Playground</Button>
+            <Button size='lg' variant='outline' className='px-6 border-foreground text-foreground' asChild>
+              <Link href='/playground/text-to-speech'>Explore Speech Playground</Link>
+            </Button>
+            <Button size='lg' variant='outline' className='px-6 border-foreground text-foreground' asChild>
+              <Link href='/playground/text-translation'>Explore Text Playground</Link>
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Why Bhashik */}
-      <div className='space-y-6'>
+      <div className='space-y-6 pt-10 pb-10 md:pt-14 md:pb-14'>
         <div className='text-center'>
           <h3 className='text-xl font-semibold'>Why Bhashik?</h3>
           <p className='text-muted-foreground mt-2 max-w-2xl mx-auto'>
-            We develop proprietary Indic language models to enable your business needs and conversations — from transcription and translation to summarization and speech synthesis.
+            Proprietary Indic language models for transcription, translation, summarization, and speech synthesis.
           </p>
         </div>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
@@ -82,7 +82,7 @@ export default function BhashikPage() {
               <p className='text-sm text-muted-foreground mb-8'>Automatic speech recognition, speech translation, and text‑to‑speech synthesis for Indic languages.</p>
             </div>
             <div className='mt-auto'>
-              <Link href='/bhashik/speech-services' className='inline-flex items-center gap-1 text-sm text-primary'>
+              <Link href='/bhashik/speech-services?tab=speech' className='inline-flex items-center gap-1 text-sm text-primary hover:underline'>
                 Learn more <ArrowRight className='h-4 w-4' />
               </Link>
             </div>
@@ -98,7 +98,7 @@ export default function BhashikPage() {
               <p className='text-sm text-muted-foreground mb-8'>Translation, summarization, entity detection, and sentiment analysis for Indic languages.</p>
             </div>
             <div className='mt-auto'>
-              <Link href='/bhashik/speech-services?tab=text' className='inline-flex items-center gap-1 text-sm text-primary'>
+              <Link href='/bhashik/speech-services?tab=text' className='inline-flex items-center gap-1 text-sm text-primary hover:underline'>
                 Learn more <ArrowRight className='h-4 w-4' />
               </Link>
             </div>
@@ -114,21 +114,27 @@ export default function BhashikPage() {
               <p className='text-sm text-muted-foreground mb-8'>Document processing, text extraction, information extraction, and PII masking for enhanced document intelligence.</p>
             </div>
             <div className='mt-auto'>
-              <a href='#' className='inline-flex items-center gap-1 text-sm text-primary'>
+              <Link href='/doc-intelligence' className='inline-flex items-center gap-1 text-sm text-primary hover:underline'>
                 Learn more <ArrowRight className='h-4 w-4' />
-              </a>
+              </Link>
             </div>
           </div>
         </div>
       </div>
 
       {/* Workflow */}
-      <div className='space-y-6'>
+      <div className='space-y-6 mt-10 md:mt-14'>
         <div className='text-center'>
           <h3 className='text-xl font-semibold'>How businesses use Bhashik</h3>
         </div>
 
-          <Card>
+          <Card
+            className='border'
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(249,250,251,0.9) 0%, rgba(240,249,255,0.9) 100%)',
+            }}
+          >
             <CardContent className='py-8'>
               <div className='text-center mb-6'>
                 <h4 className='text-base font-medium text-foreground'>News Agency Workflow</h4>
@@ -179,11 +185,11 @@ export default function BhashikPage() {
             Break down language barriers. Start building with Bhashik today.
           </div>
           <div className='flex flex-col sm:flex-row gap-3'>
-            <Button variant='default' size='default' className='px-6'>
-              Take me to Speech Playground
+            <Button variant='outline' size='default' className='px-6 border-foreground text-foreground' asChild>
+              <Link href='/playground/text-to-speech'>Take me to Speech Playground</Link>
             </Button>
-            <Button variant='outline' size='default' className='px-6'>
-              Take me to Text Playground
+            <Button variant='outline' size='default' className='px-6 border-foreground text-foreground' asChild>
+              <Link href='/playground/text-translation'>Take me to Text Playground</Link>
             </Button>
           </div>
         </CardContent>

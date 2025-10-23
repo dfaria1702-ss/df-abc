@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { PageShell } from '@/components/page-shell';
 import { VercelTabs } from '@/components/ui/vercel-tabs';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import {
   Heart,
   ScrollText,
 } from 'lucide-react';
+import { generateBreadcrumbs } from '@/lib/generate-breadcrumbs';
 
 interface ServiceCardData {
   id: string;
@@ -35,7 +36,7 @@ const speechCards: ServiceCardData[] = [
     icon: Volume2,
     gradient: 'from-green-100/50 via-emerald-50/30 to-white',
     borderClass: 'border-green-200/60',
-    playgroundUrl: '/playground/krutrim-text-to-speech',
+    playgroundUrl: '/playground/text-to-speech',
   },
   {
     id: 'stt',
@@ -45,7 +46,7 @@ const speechCards: ServiceCardData[] = [
     icon: Mic,
     gradient: 'from-slate-100/50 via-white/80 to-white',
     borderClass: 'border-slate-200',
-    playgroundUrl: '/playground/krutrim-dhwani',
+    playgroundUrl: '/playground/speech-to-text',
   },
   {
     id: 'sts',
@@ -55,7 +56,7 @@ const speechCards: ServiceCardData[] = [
     icon: AudioLines,
     gradient: 'from-indigo-100/50 via-purple-50/30 to-white',
     borderClass: 'border-indigo-200/60',
-    playgroundUrl: '/playground/krutrim-speech-to-speech',
+    playgroundUrl: '/playground/speech-to-speech',
   },
 ];
 
@@ -67,7 +68,7 @@ const textCards: ServiceCardData[] = [
     icon: Languages,
     gradient: 'from-slate-100/50 via-white/80 to-white',
     borderClass: 'border-slate-200',
-    playgroundUrl: '#',
+    playgroundUrl: '/playground/text-translation',
   },
   {
     id: 'detection',
@@ -76,7 +77,7 @@ const textCards: ServiceCardData[] = [
     icon: SearchCheck,
     gradient: 'from-indigo-100/50 via-purple-50/30 to-white',
     borderClass: 'border-indigo-200/60',
-    playgroundUrl: '#',
+    playgroundUrl: '/playground/language-detection',
   },
   {
     id: 'extraction',
@@ -85,7 +86,7 @@ const textCards: ServiceCardData[] = [
     icon: FileText,
     gradient: 'from-slate-100/50 via-white/80 to-white',
     borderClass: 'border-slate-200',
-    playgroundUrl: '#',
+    playgroundUrl: '/playground/text-extraction',
   },
   {
     id: 'sentiment',
@@ -95,7 +96,7 @@ const textCards: ServiceCardData[] = [
     icon: Heart,
     gradient: 'from-orange-100/40 via-amber-50/30 to-white',
     borderClass: 'border-amber-200/60',
-    playgroundUrl: '#',
+    playgroundUrl: '/playground/sentiment-analysis',
   },
   {
     id: 'summarization',
@@ -104,7 +105,7 @@ const textCards: ServiceCardData[] = [
     icon: ScrollText,
     gradient: 'from-green-100/40 via-emerald-50/30 to-white',
     borderClass: 'border-green-200/60',
-    playgroundUrl: '#',
+    playgroundUrl: '/playground/text-summarization',
   },
 ];
 
@@ -138,6 +139,7 @@ function ServiceCard({ data }: { data: ServiceCardData }) {
 
 export default function BhashikServicesPage() {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [activeTab, setActiveTab] = useState<'speech' | 'text'>('speech');
 
   useEffect(() => {
@@ -151,8 +153,17 @@ export default function BhashikServicesPage() {
       ? "Explore Bhashik's speech services: Text to Speech, Speech to Text, and Speech to Speech."
       : "Explore Bhashik's text services: Translation, Detection, Extraction, Sentiment, and Summarization.";
 
+  // Custom breadcrumbs with dynamic last segment title based on active tab
+  const baseCrumbs = generateBreadcrumbs(pathname);
+  const customBreadcrumbs = baseCrumbs.length
+    ? [
+        ...baseCrumbs.slice(0, -1),
+        { ...baseCrumbs[baseCrumbs.length - 1], title: activeTab === 'speech' ? 'Speech Services' : 'Text Services' },
+      ]
+    : baseCrumbs;
+
   return (
-    <PageShell title='Bhashik' description={description}>
+    <PageShell title='Bhashik' description={description} customBreadcrumbs={customBreadcrumbs}>
       <div className='space-y-6'>
         <VercelTabs
           tabs={[

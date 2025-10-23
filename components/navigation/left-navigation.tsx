@@ -236,6 +236,24 @@ const navigationConfig = {
         subItems: [
           { href: '/bhashik', label: 'All Services' },
           {
+            href: '/bhashik/speech-services?tab=speech',
+            label: 'Speech Services',
+            subItems: [
+              {
+                href: '/bhashik/speech-services?tab=text-to-speech',
+                label: 'Text to Speech',
+              },
+              {
+                href: '/bhashik/speech-services?tab=speech-to-text',
+                label: 'Speech to Text',
+              },
+              {
+                href: '/bhashik/speech-services?tab=speech-to-speech',
+                label: 'Speech to Speech',
+              },
+            ],
+          },
+          {
             href: '/bhashik/speech-services?tab=text',
             label: 'Text Services',
             subItems: [
@@ -261,24 +279,6 @@ const navigationConfig = {
               },
             ],
           },
-          {
-            href: '/bhashik/speech-services?tab=speech',
-            label: 'Speech Services',
-            subItems: [
-              {
-                href: '/bhashik/speech-services?tab=text-to-speech',
-                label: 'Text to Speech',
-              },
-              {
-                href: '/bhashik/speech-services?tab=speech-to-text',
-                label: 'Speech to Text',
-              },
-              {
-                href: '/bhashik/speech-services?tab=speech-to-speech',
-                label: 'Speech to Speech',
-              },
-            ],
-          },
         ],
       },
       {
@@ -286,16 +286,16 @@ const navigationConfig = {
         label: 'Document Intelligence',
         subItems: [
           { href: '/doc-intelligence', label: 'All Services' },
-          { href: '/doc-intelligence/extract-text', label: 'Extract Text' },
+          { href: '/playground/extract-text', label: 'Extract Text' },
           {
-            href: '/doc-intelligence/extract-info',
+            href: '/playground/extract-info',
             label: 'Extract Information',
           },
           {
-            href: '/doc-intelligence/summarization',
+            href: '/playground/doc-summarization',
             label: 'Doc Summarization',
           },
-          { href: '/doc-intelligence/pii-masking', label: 'PII Masking' },
+          { href: '/playground/pii-masking', label: 'PII Masking' },
         ],
       },
     ],
