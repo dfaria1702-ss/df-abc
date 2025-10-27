@@ -1,11 +1,5 @@
 {
   "framework": "nextjs",
   "installCommand": "npm install",
-  "buildCommand": "npm run build",
-  "routes": [
-    {
-      "src": "/billing/usage",
-      "dest": "/billing/usage"
-    }
-  ]
+  "buildCommand": "npm run build"
 }
