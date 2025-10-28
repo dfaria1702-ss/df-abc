@@ -2765,7 +2765,7 @@ export default function UsageMetricsPage() {
                                         <tr className='bg-muted/50'>
                                           <th className='px-3 py-2 text-left text-muted-foreground font-medium'>VM Name</th>
                                           <th className='px-3 py-2 text-left text-muted-foreground font-medium'>Status</th>
-                                          <th className='px-3 py-2 text-left text-muted-foreground font-medium'>Total Time Used</th>
+                                          <th className='px-3 py-2 text-center text-muted-foreground font-medium'>Total Time Used</th>
                                           <th className='px-3 py-2 text-left text-muted-foreground font-medium'>Rate</th>
                                           <th className='px-3 py-2 text-right text-muted-foreground font-medium'>Total Credits Used</th>
                                         </tr>
@@ -2778,7 +2778,7 @@ export default function UsageMetricsPage() {
                                               Running
                                             </span>
                                           </td>
-                                          <td className='px-3 py-2'>10 hrs</td>
+                                          <td className='px-3 py-2 text-center'>10 hrs</td>
                                           <td className='px-3 py-2'>₹3 /hr</td>
                                           <td className='px-3 py-2 text-right font-semibold'>₹30.00</td>
                                         </tr>
@@ -2789,7 +2789,7 @@ export default function UsageMetricsPage() {
                                               Running
                                             </span>
                                           </td>
-                                          <td className='px-3 py-2'>10 hrs</td>
+                                          <td className='px-3 py-2 text-center'>10 hrs</td>
                                           <td className='px-3 py-2'>₹3 /hr</td>
                                           <td className='px-3 py-2 text-right font-semibold'>₹30.00</td>
                                         </tr>
@@ -2800,7 +2800,7 @@ export default function UsageMetricsPage() {
                                               Running
                                             </span>
                                           </td>
-                                          <td className='px-3 py-2'>10 hrs</td>
+                                          <td className='px-3 py-2 text-center'>10 hrs</td>
                                           <td className='px-3 py-2'>₹3 /hr</td>
                                           <td className='px-3 py-2 text-right font-semibold'>₹30.00</td>
                                         </tr>
