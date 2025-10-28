@@ -469,6 +469,9 @@ export default function UsageMetricsPage() {
   // State for cluster details drawer
   const [clusterDrawerOpen, setClusterDrawerOpen] = useState(false);
   const [selectedCluster, setSelectedCluster] = useState<any>(null);
+  
+  // State for expanded node pools (track by index)
+  const [expandedNodePools, setExpandedNodePools] = useState<Set<number>>(new Set());
 
   // Apply demo user filtering to all billing data
   const filteredPieData = filterBillingDataForUser(pieData);
@@ -501,6 +504,18 @@ export default function UsageMetricsPage() {
   const handleViewClusterDetails = (cluster: any) => {
     setSelectedCluster(cluster);
     setClusterDrawerOpen(true);
+  };
+  
+  const toggleNodePool = (index: number) => {
+    setExpandedNodePools(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
   };
 
   useEffect(() => {
