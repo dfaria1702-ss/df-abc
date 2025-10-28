@@ -432,6 +432,90 @@ const defaultDateRange: DateRange = {
   to: new Date(), // today
 };
 
+// Separate component for expandable node pool rows
+function NodePoolRow({ nodePool, index }: { nodePool: any; index: number }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <>
+      <tr className='border-b transition-colors hover:bg-gray-50/40'>
+        <td className='px-3 py-2'>
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className='p-0 hover:bg-transparent flex items-center'
+          >
+            <ChevronRightIcon 
+              className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
+            />
+          </button>
+        </td>
+        <td className='px-3 py-2 font-semibold'>{nodePool.nodePoolName}</td>
+        <td className='px-3 py-2'>{nodePool.instanceFlavour}</td>
+        <td className='px-3 py-2 text-center'>{nodePool.desiredVMCount}</td>
+        <td className='px-3 py-2'>{nodePool.rate}</td>
+        <td className='px-3 py-2 text-center'>{nodePool.totalTimeUsed}</td>
+        <td className='px-3 py-2 text-right font-semibold'>₹{nodePool.credits.toLocaleString()}</td>
+      </tr>
+      {isExpanded && (
+        <tr>
+          <td colSpan={7} className='p-0 bg-gray-50/50'>
+            <div className='px-3 py-2'>
+              <div className='rounded-md border bg-white'>
+                <table className='min-w-full text-sm'>
+                  <thead>
+                    <tr className='bg-blue-50'>
+                      <th className='px-3 py-2 text-left text-muted-foreground font-medium'>VM Name</th>
+                      <th className='px-3 py-2 text-left text-muted-foreground font-medium'>Status</th>
+                      <th className='px-3 py-2 text-center text-muted-foreground font-medium'>Total Time Used</th>
+                      <th className='px-3 py-2 text-left text-muted-foreground font-medium'>Rate</th>
+                      <th className='px-3 py-2 text-right text-muted-foreground font-medium'>Total Credits Used</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className='border-b transition-colors hover:bg-gray-50/40'>
+                      <td className='px-3 py-2'>vm-node-001</td>
+                      <td className='px-3 py-2'>
+                        <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800'>
+                          Running
+                        </span>
+                      </td>
+                      <td className='px-3 py-2 text-center'>10 hrs</td>
+                      <td className='px-3 py-2'>₹3 /hr</td>
+                      <td className='px-3 py-2 text-right font-semibold'>₹30.00</td>
+                    </tr>
+                    <tr className='border-b transition-colors hover:bg-gray-50/40'>
+                      <td className='px-3 py-2'>vm-node-002</td>
+                      <td className='px-3 py-2'>
+                        <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800'>
+                          Running
+                        </span>
+                      </td>
+                      <td className='px-3 py-2 text-center'>10 hrs</td>
+                      <td className='px-3 py-2'>₹3 /hr</td>
+                      <td className='px-3 py-2 text-right font-semibold'>₹30.00</td>
+                    </tr>
+                    <tr className='transition-colors hover:bg-gray-50/40'>
+                      <td className='px-3 py-2'>vm-node-003</td>
+                      <td className='px-3 py-2'>
+                        <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800'>
+                          Running
+                        </span>
+                      </td>
+                      <td className='px-3 py-2 text-center'>10 hrs</td>
+                      <td className='px-3 py-2'>₹3 /hr</td>
+                      <td className='px-3 py-2 text-right font-semibold'>₹30.00</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}
+
 export default function UsageMetricsPage() {
   const pathname = usePathname();
 
@@ -469,9 +553,6 @@ export default function UsageMetricsPage() {
   // State for cluster details drawer
   const [clusterDrawerOpen, setClusterDrawerOpen] = useState(false);
   const [selectedCluster, setSelectedCluster] = useState<any>(null);
-  
-  // State for expanded node pools (track by index)
-  const [expandedNodePools, setExpandedNodePools] = useState<Set<number>>(new Set());
 
   // Apply demo user filtering to all billing data
   const filteredPieData = filterBillingDataForUser(pieData);
@@ -504,18 +585,6 @@ export default function UsageMetricsPage() {
   const handleViewClusterDetails = (cluster: any) => {
     setSelectedCluster(cluster);
     setClusterDrawerOpen(true);
-  };
-  
-  const toggleNodePool = (index: number) => {
-    setExpandedNodePools(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index);
-      } else {
-        newSet.add(index);
-      }
-      return newSet;
-    });
   };
 
   useEffect(() => {
@@ -2772,15 +2841,7 @@ export default function UsageMetricsPage() {
                               {filteredMockNodePools
                                 .filter((np: any) => np.clusterName === selectedCluster.clusterName)
                                 .map((nodePool: any, idx: number) => (
-                                  <tr key={idx} className='border-b transition-colors hover:bg-gray-50/40'>
-                                    <td className='px-3 py-2'></td>
-                                    <td className='px-3 py-2 font-semibold'>{nodePool.nodePoolName}</td>
-                                    <td className='px-3 py-2'>{nodePool.instanceFlavour}</td>
-                                    <td className='px-3 py-2 text-center'>{nodePool.desiredVMCount}</td>
-                                    <td className='px-3 py-2'>{nodePool.rate}</td>
-                                    <td className='px-3 py-2 text-center'>{nodePool.totalTimeUsed}</td>
-                                    <td className='px-3 py-2 text-right font-semibold'>₹{nodePool.credits.toLocaleString()}</td>
-                                  </tr>
+                                  <NodePoolRow key={idx} nodePool={nodePool} index={idx} />
                                 ))}
                             </tbody>
                           </table>
