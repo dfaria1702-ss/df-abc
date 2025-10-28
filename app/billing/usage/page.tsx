@@ -2688,7 +2688,7 @@ export default function UsageMetricsPage() {
 
         {/* Cluster Details Drawer */}
         <Sheet open={clusterDrawerOpen} onOpenChange={setClusterDrawerOpen}>
-          <SheetContent className='w-full sm:max-w-5xl overflow-y-auto'>
+          <SheetContent className='w-full sm:max-w-4xl overflow-y-auto'>
             {selectedCluster && (
               <div className='space-y-6'>
                 {/* Header Section */}
