@@ -314,6 +314,26 @@ export default function ManageHostedZonePage({
     routingProtocol: 'Simple',
     value: '',
   });
+  // Edit-specific dynamic states to mirror Add New DNS Record UI
+  const [editRecordValues, setEditRecordValues] = useState<string[]>(['']);
+  const [editWeightedValues, setEditWeightedValues] = useState<
+    Array<{ value: string; weight: string }>
+  >([{ value: '', weight: '' }]);
+  const [editGeoipRecords, setEditGeoipRecords] = useState(
+    [
+      { type: 'Default', value: '', countryCode: '', canDelete: false },
+      { type: 'Country Code', value: '', countryCode: '', canDelete: true },
+    ]
+  );
+  const [editHealthPortData, setEditHealthPortData] = useState({
+    port: '80',
+    primaryIPs: '',
+    secondaryIPs: '',
+  });
+  const [editHealthURLData, setEditHealthURLData] = useState({
+    url: '',
+    ipv4Addresses: '',
+  });
   const [isAttachModalOpen, setIsAttachModalOpen] = useState(false);
   const [selectedAttachVpc, setSelectedAttachVpc] = useState<string>('');
 
@@ -469,11 +489,52 @@ export default function ManageHostedZonePage({
       routingProtocol: record.routingProtocol,
       value: record.value,
     });
+    // Seed edit dynamic states from record
+    const seededValues = (record.value || '')
+      .split(',')
+      .map((v: string) => v.trim())
+      .filter(Boolean);
+    setEditRecordValues(seededValues.length ? seededValues : ['']);
+    setEditWeightedValues(
+      seededValues.length
+        ? seededValues.map((v: string) => ({ value: v, weight: '' }))
+        : [{ value: '', weight: '' }]
+    );
+    setEditGeoipRecords([
+      { type: 'Default', value: seededValues[0] || '', countryCode: '', canDelete: false },
+      { type: 'Country Code', value: seededValues[1] || '', countryCode: '', canDelete: true },
+    ]);
+    setEditHealthPortData({ port: '80', primaryIPs: '', secondaryIPs: '' });
+    setEditHealthURLData({ url: '', ipv4Addresses: '' });
     setIsEditRecordModalOpen(true);
   };
 
   const handleEditRecordSave = () => {
     if (editingRecord) {
+      // Compute value from edit dynamic states based on routing protocol
+      let computedValue = editForm.value;
+      switch (editForm.routingProtocol) {
+        case 'GeoIP':
+          computedValue = editGeoipRecords
+            .map((r: any) => r.value)
+            .filter((v: string) => v && v.trim())
+            .join(', ');
+          break;
+        case 'Weighted':
+          computedValue = editWeightedValues
+            .filter(w => w.value.trim())
+            .map(w => (w.weight.trim() ? `${w.value}|${w.weight}` : w.value))
+            .join(', ');
+          break;
+        case 'HealthPort':
+          computedValue = `${editHealthPortData.port}|${editHealthPortData.primaryIPs}|${editHealthPortData.secondaryIPs}`;
+          break;
+        case 'HealthURL':
+          computedValue = `${editHealthURLData.url}|${editHealthURLData.ipv4Addresses}`;
+          break;
+        default:
+          computedValue = editRecordValues.filter(v => v.trim()).join(', ');
+      }
       setDnsRecords(prev =>
         prev.map(record =>
           record.id === editingRecord.id
@@ -482,7 +543,7 @@ export default function ManageHostedZonePage({
                 recordName: editForm.recordName,
                 ttl: parseInt(editForm.ttl),
                 routingProtocol: editForm.routingProtocol,
-                value: editForm.value,
+                value: computedValue,
               }
             : record
         )
@@ -508,7 +569,81 @@ export default function ManageHostedZonePage({
       routingProtocol: 'Simple',
       value: '',
     });
+    setEditRecordValues(['']);
+    setEditWeightedValues([{ value: '', weight: '' }]);
+    setEditGeoipRecords([
+      { type: 'Default', value: '', countryCode: '', canDelete: false },
+      { type: 'Country Code', value: '', countryCode: '', canDelete: true },
+    ]);
+    setEditHealthPortData({ port: '80', primaryIPs: '', secondaryIPs: '' });
+    setEditHealthURLData({ url: '', ipv4Addresses: '' });
+    setEditRecordValues(['']);
+    setEditWeightedValues([{ value: '', weight: '' }]);
+    setEditGeoipRecords([
+      { type: 'Default', value: '', countryCode: '', canDelete: false },
+      { type: 'Country Code', value: '', countryCode: '', canDelete: true },
+    ]);
+    setEditHealthPortData({ port: '80', primaryIPs: '', secondaryIPs: '' });
+    setEditHealthURLData({ url: '', ipv4Addresses: '' });
   };
+
+  // Edit helper updaters mirroring Add form behavior
+  const updateEditRecordValue = (index: number, value: string) => {
+    setEditRecordValues(prev => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  };
+  const addEditRecordValue = () => setEditRecordValues(prev => [...prev, '']);
+  const removeEditRecordValue = (index: number) =>
+    setEditRecordValues(prev => prev.filter((_, i) => i !== index));
+
+  const updateEditWeightedValue = (index: number, value: string) => {
+    setEditWeightedValues(prev => {
+      const next = [...prev];
+      next[index] = { ...next[index], value };
+      return next;
+    });
+  };
+  const updateEditWeightedWeight = (index: number, weight: string) => {
+    setEditWeightedValues(prev => {
+      const next = [...prev];
+      next[index] = { ...next[index], weight };
+      return next;
+    });
+  };
+  const addEditWeightedValue = () =>
+    setEditWeightedValues(prev => [...prev, { value: '', weight: '' }]);
+  const removeEditWeightedValue = (index: number) =>
+    setEditWeightedValues(prev => prev.filter((_, i) => i !== index));
+
+  const updateEditGeoipRecord = (index: number, value: string) => {
+    setEditGeoipRecords(prev => {
+      const next = [...prev];
+      next[index] = { ...next[index], value } as any;
+      return next;
+    });
+  };
+  const updateEditGeoipCountryCode = (index: number, countryCode: string) => {
+    setEditGeoipRecords(prev => {
+      const next = [...prev];
+      next[index] = { ...next[index], countryCode } as any;
+      return next;
+    });
+  };
+  const addEditGeoipRecord = () =>
+    setEditGeoipRecords(prev => [
+      ...prev,
+      { type: 'Country Code', value: '', countryCode: '', canDelete: true },
+    ]);
+  const removeEditGeoipRecord = (index: number) =>
+    setEditGeoipRecords(prev => prev.filter((_, i) => i !== index));
+
+  const updateEditHealthPortData = (field: 'port' | 'primaryIPs' | 'secondaryIPs', value: string) =>
+    setEditHealthPortData(prev => ({ ...prev, [field]: value }));
+  const updateEditHealthURLData = (field: 'url' | 'ipv4Addresses', value: string) =>
+    setEditHealthURLData(prev => ({ ...prev, [field]: value }));
 
   const addRecordValue = () => {
     setRecordValues(prev => [...prev, '']);
@@ -1629,8 +1764,7 @@ export default function ManageHostedZonePage({
               </Select>
             </div>
 
-            {(editingRecord?.type === 'A' ||
-              editingRecord?.type === 'AAAA') && (
+            {(editingRecord?.type === 'A' || editingRecord?.type === 'AAAA') && (
               <div className='space-y-2'>
                 <Label htmlFor='editRoutingProtocol'>Routing Protocol</Label>
                 <Select
@@ -1643,7 +1777,13 @@ export default function ManageHostedZonePage({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue>
+                      {editForm.routingProtocol
+                        ? ROUTING_PROTOCOLS.find(
+                            p => p.value === editForm.routingProtocol
+                          )?.label
+                        : 'Select routing protocol'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {ROUTING_PROTOCOLS.map(protocol => (
@@ -1653,23 +1793,290 @@ export default function ManageHostedZonePage({
                     ))}
                   </SelectContent>
                 </Select>
+
+                {editForm.routingProtocol && (
+                  <div className='mt-3 p-3 bg-gray-50 border border-gray-200 rounded-md flex items-start gap-2'>
+                    <Info className='h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0' />
+                    <p className='text-sm text-gray-700 leading-relaxed'>
+                      {
+                        ROUTING_PROTOCOLS.find(
+                          p => p.value === editForm.routingProtocol
+                        )?.description
+                      }
+                    </p>
+                  </div>
+                )}
+
+                <div className='space-y-2'>
+                  <Label>Record Values:</Label>
+                  <p className='text-sm text-muted-foreground'>
+                    {getRecordValuesDescription(editingRecord?.type)}
+                  </p>
+
+                  {editForm.routingProtocol === 'GeoIP' ? (
+                    <div className='space-y-2'>
+                      {editGeoipRecords.map((record, index) => (
+                        <div key={index} className='flex gap-2 items-center'>
+                          {record.type === 'Default' ? (
+                            <div className='w-48'>
+                              <div className='px-3 py-2 text-sm font-medium text-foreground bg-gray-50 border rounded-md'>
+                                Default
+                              </div>
+                            </div>
+                          ) : (
+                            <div className='w-48'>
+                              <Select
+                                value={record.countryCode}
+                                onValueChange={value =>
+                                  updateEditGeoipCountryCode(index, value)
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder='Select Country Code' />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {COUNTRY_CODES.map(country => (
+                                    <SelectItem
+                                      key={country.value}
+                                      value={country.value}
+                                    >
+                                      {country.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+                          <div className='flex-1'>
+                            <Input
+                              placeholder={
+                                editingRecord?.type === 'A'
+                                  ? 'Eg: "10.0.0.1, 10.0.0.2, 10.0.0.3"'
+                                  : editingRecord?.type === 'AAAA'
+                                    ? 'Eg: "2001:db8::1, 2001:db8::2"'
+                                    : 'Enter record value'
+                              }
+                              value={record.value}
+                              onChange={e =>
+                                updateEditGeoipRecord(index, e.target.value)
+                              }
+                              className='flex-1'
+                            />
+                          </div>
+                          <div className='flex gap-1'>
+                            {record.canDelete && (
+                              <Button
+                                type='button'
+                                variant='outline'
+                                size='icon'
+                                onClick={() => removeEditGeoipRecord(index)}
+                                className='text-red-600 hover:text-red-700 hover:bg-red-50'
+                              >
+                                <Trash2 className='w-4 h-4' />
+                              </Button>
+                            )}
+                            {index === editGeoipRecords.length - 1 && (
+                              <Button
+                                type='button'
+                                variant='outline'
+                                size='icon'
+                                onClick={addEditGeoipRecord}
+                              >
+                                <Plus className='w-4 h-4' />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : editForm.routingProtocol === 'HealthPort' ? (
+                    <div className='space-y-4'>
+                      <div className='space-y-2'>
+                        <div className='flex items-center gap-2'>
+                          <Label htmlFor='editPort'>
+                            Port <span className='text-destructive'>*</span>
+                          </Label>
+                          <TooltipWrapper content='The port number for health checks'>
+                            <HelpCircle className='h-4 w-4 text-muted-foreground cursor-help' />
+                          </TooltipWrapper>
+                        </div>
+                        <Input
+                          id='editPort'
+                          type='number'
+                          value={editHealthPortData.port}
+                          onChange={e => updateEditHealthPortData('port', e.target.value)}
+                          placeholder='80'
+                          className='w-full'
+                        />
+                      </div>
+                      <div className='space-y-2'>
+                        <div className='flex items-center gap-2'>
+                          <Label htmlFor='editPrimaryIPs'>
+                            Primary IPs <span className='text-destructive'>*</span>
+                          </Label>
+                          <TooltipWrapper content='Primary IP addresses for health checks'>
+                            <HelpCircle className='h-4 w-4 text-muted-foreground cursor-help' />
+                          </TooltipWrapper>
+                        </div>
+                        <Input
+                          id='editPrimaryIPs'
+                          value={editHealthPortData.primaryIPs}
+                          onChange={e => updateEditHealthPortData('primaryIPs', e.target.value)}
+                          placeholder='Enter primary IPs as a comma separated list'
+                          className='w-full'
+                        />
+                      </div>
+                      <div className='space-y-2'>
+                        <div className='flex items-center gap-2'>
+                          <Label htmlFor='editSecondaryIPs'>Secondary IPs</Label>
+                          <TooltipWrapper content='Secondary IP addresses used when primary IPs are unhealthy'>
+                            <HelpCircle className='h-4 w-4 text-muted-foreground cursor-help' />
+                          </TooltipWrapper>
+                        </div>
+                        <Input
+                          id='editSecondaryIPs'
+                          value={editHealthPortData.secondaryIPs}
+                          onChange={e => updateEditHealthPortData('secondaryIPs', e.target.value)}
+                          placeholder='Enter secondary IPs as a comma separated list'
+                          className='w-full'
+                        />
+                      </div>
+                    </div>
+                  ) : editForm.routingProtocol === 'HealthURL' ? (
+                    <div className='space-y-4'>
+                      <div className='space-y-2'>
+                        <div className='flex items-center gap-2'>
+                          <Label htmlFor='editUrl'>
+                            URL <span className='text-destructive'>*</span>
+                          </Label>
+                          <TooltipWrapper content='The URL endpoint for health checks'>
+                            <HelpCircle className='h-4 w-4 text-muted-foreground cursor-help' />
+                          </TooltipWrapper>
+                        </div>
+                        <Input
+                          id='editUrl'
+                          type='url'
+                          value={editHealthURLData.url}
+                          onChange={e => updateEditHealthURLData('url', e.target.value)}
+                          placeholder='https://example.com/health'
+                          className='w-full'
+                        />
+                      </div>
+                      <div className='space-y-2'>
+                        <div className='flex items-center gap-2'>
+                          <Label htmlFor='editIpv4'>
+                            IPv4 Addresses <span className='text-destructive'>*</span>
+                          </Label>
+                          <TooltipWrapper content='IPv4 addresses to return when the URL health check passes'>
+                            <HelpCircle className='h-4 w-4 text-muted-foreground cursor-help' />
+                          </TooltipWrapper>
+                        </div>
+                        <Input
+                          id='editIpv4'
+                          value={editHealthURLData.ipv4Addresses}
+                          onChange={e => updateEditHealthURLData('ipv4Addresses', e.target.value)}
+                          placeholder='Add IPv4 addresses as a comma separated list'
+                          className='w-full'
+                        />
+                      </div>
+                    </div>
+                  ) : editForm.routingProtocol === 'Weighted' ? (
+                    <div className='space-y-2'>
+                      {editWeightedValues.map((item, index) => (
+                        <div key={index} className='flex gap-2'>
+                          <Input
+                            placeholder={
+                              editingRecord?.type === 'A'
+                                ? '203.0.113.1'
+                                : editingRecord?.type === 'AAAA'
+                                  ? '2001:0db8:85a3:0000:0000:8a2e:0370:7334'
+                                  : 'Enter record value'
+                            }
+                            value={item.value}
+                            onChange={e => updateEditWeightedValue(index, e.target.value)}
+                            className='flex-1'
+                          />
+                          <Input
+                            type='number'
+                            placeholder='Weight'
+                            value={item.weight}
+                            onChange={e => updateEditWeightedWeight(index, e.target.value)}
+                            className='w-24'
+                            min='1'
+                            max='255'
+                          />
+                          <div className='flex gap-1'>
+                            {editWeightedValues.length > 1 && (
+                              <Button
+                                type='button'
+                                variant='outline'
+                                size='icon'
+                                onClick={() => removeEditWeightedValue(index)}
+                                className='text-red-600 hover:text-red-700 hover:bg-red-50'
+                              >
+                                <Trash2 className='w-4 h-4' />
+                              </Button>
+                            )}
+                            {index === editWeightedValues.length - 1 && (
+                              <Button
+                                type='button'
+                                variant='outline'
+                                size='icon'
+                                onClick={addEditWeightedValue}
+                              >
+                                <Plus className='w-4 h-4' />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className='space-y-2'>
+                      {editRecordValues.map((value, index) => (
+                        <div key={index} className='flex gap-2'>
+                          <Input
+                            placeholder={
+                              editingRecord?.type === 'A'
+                                ? '203.0.113.1'
+                                : editingRecord?.type === 'AAAA'
+                                  ? '2001:0db8:85a3:0000:0000:8a2e:0370:7334'
+                                  : 'Enter record value'
+                            }
+                            value={value}
+                            onChange={e => updateEditRecordValue(index, e.target.value)}
+                            className='flex-1'
+                          />
+                          <div className='flex gap-1'>
+                            {editRecordValues.length > 1 && (
+                              <Button
+                                type='button'
+                                variant='outline'
+                                size='icon'
+                                onClick={() => removeEditRecordValue(index)}
+                                className='text-red-600 hover:text-red-700 hover:bg-red-50'
+                              >
+                                <Trash2 className='w-4 h-4' />
+                              </Button>
+                            )}
+                            {index === editRecordValues.length - 1 && (
+                              <Button
+                                type='button'
+                                variant='outline'
+                                size='icon'
+                                onClick={addEditRecordValue}
+                              >
+                                <Plus className='w-4 h-4' />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
-
-            <div className='space-y-2'>
-              <Label htmlFor='editValue'>Record Value</Label>
-              <Input
-                id='editValue'
-                placeholder='Enter record value'
-                value={editForm.value}
-                onChange={e =>
-                  setEditForm(prev => ({
-                    ...prev,
-                    value: e.target.value,
-                  }))
-                }
-              />
-            </div>
           </div>
 
           <div className='flex justify-end gap-2'>
