@@ -8,10 +8,16 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { VercelTabs } from '@/components/ui/vercel-tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Copy } from 'lucide-react';
 import { TooltipWrapper } from '@/components/ui/tooltip-wrapper';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface SetupCodeModalProps {
   open: boolean;
@@ -27,12 +33,10 @@ export function SetupCodeModal({
   onOpenCreateApiKey,
 }: SetupCodeModalProps) {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('python');
+  const [activeLanguage, setActiveLanguage] = useState<'curl' | 'python'>('curl');
+  const [useCase, setUseCase] = useState('general');
 
-  const tabs = [
-    { id: 'python', label: 'Python' },
-    { id: 'curl', label: 'cURL' },
-  ];
+  const languageLabel = activeLanguage === 'python' ? 'Python' : 'cURL';
 
   const pythonCode = `import os
 from openai import OpenAI
@@ -136,29 +140,47 @@ print(response.choices[0].message.content)`;
             </div>
           </div>
 
-          {/* Code Tabs */}
+          {/* Controls row: Use Case + Coding Language */}
           <div className='space-y-4'>
-            <VercelTabs
-              tabs={tabs}
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              size='md'
-            />
+            <div className='flex flex-col sm:flex-row gap-3'>
+              <div className='w-full sm:w-64'>
+                <Select value={useCase} onValueChange={setUseCase}>
+                  <SelectTrigger className='h-9'>
+                    <SelectValue placeholder='Use case' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='general'>General</SelectItem>
+                    <SelectItem value='chat'>Chat</SelectItem>
+                    <SelectItem value='ocr'>OCR</SelectItem>
+                    <SelectItem value='summarization'>Summarization</SelectItem>
+                    <SelectItem value='stt'>Speech to Text</SelectItem>
+                    <SelectItem value='tts'>Text to Speech</SelectItem>
+                    <SelectItem value='translation'>Translation</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className='w-full sm:w-64'>
+                <Select value={activeLanguage} onValueChange={(v) => setActiveLanguage(v as 'curl' | 'python')}>
+                  <SelectTrigger className='h-9'>
+                    <SelectValue placeholder='Coding Language' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='curl'>cURL</SelectItem>
+                    <SelectItem value='python'>Python</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
             {/* Code Content */}
             <div className='relative h-80'>
               <div className='bg-gray-900 text-gray-100 rounded-lg overflow-hidden h-full'>
                 {/* Header */}
                 <div className='flex items-center justify-between px-4 py-3 bg-gray-800 border-b border-gray-700'>
-                  <h3 className='text-sm font-medium text-gray-200'>
-                    {activeTab === 'python' ? 'Python' : 'cURL'}
-                  </h3>
+                  <h3 className='text-sm font-medium text-gray-200'>{languageLabel}</h3>
                   <TooltipWrapper content="Copy code">
                     <button 
-                      onClick={() => handleCopyCode(
-                        activeTab === 'python' ? pythonCode : curlCode, 
-                        activeTab === 'python' ? 'Python' : 'cURL'
-                      )}
+                      onClick={() => handleCopyCode(activeLanguage === 'python' ? pythonCode : curlCode, languageLabel)}
                       className='p-1 hover:bg-gray-700 rounded transition-colors'
                     >
                       <svg className='w-4 h-4 text-gray-400 hover:text-gray-200' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -170,7 +192,7 @@ print(response.choices[0].message.content)`;
                 {/* Code Content */}
                 <div className='p-4 bg-gray-900 h-full overflow-auto'>
                   <pre className='text-sm text-gray-300 leading-relaxed whitespace-pre-wrap break-words'>
-                    <code>{activeTab === 'python' ? pythonCode : curlCode}</code>
+                    <code>{activeLanguage === 'python' ? pythonCode : curlCode}</code>
                   </pre>
                 </div>
               </div>
