@@ -6,6 +6,7 @@ import { EvervaultCard } from '@/components/ui/evervault-card';
 import { Button } from '@/components/ui/button';
 import { TooltipWrapper } from '@/components/ui/tooltip-wrapper';
 import { SetupCodeModal } from '@/components/modals/setup-code-modal';
+import { CreateApiKeyModal } from '@/components/modals/create-api-key-modal';
 import { FileText, FileSearch, ScrollText, Shield } from 'lucide-react';
 
 interface ServiceCardData {
@@ -162,10 +163,20 @@ function ServiceCard({ data, onOpenStarterCode }: { data: ServiceCardData; onOpe
 export default function DocIntelligenceAllServicesPage() {
   const [isSetupCodeModalOpen, setIsSetupCodeModalOpen] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState('');
+  const [isCreateApiKeyModalOpen, setIsCreateApiKeyModalOpen] = useState(false);
   return (
     <PageShell
       title='Document Intelligence'
       description='Comprehensive document processing and analysis services powered by AI'
+      headerActions={
+        <Button 
+          variant='default' 
+          size='sm' 
+          onClick={() => setIsCreateApiKeyModalOpen(true)}
+        >
+          Get API key
+        </Button>
+      }
     >
       <div className='space-y-6'>
         {/* Banner - reduced height, similar to Bhashik hero */}
@@ -224,6 +235,10 @@ export default function DocIntelligenceAllServicesPage() {
         open={isSetupCodeModalOpen}
         onClose={() => setIsSetupCodeModalOpen(false)}
         modelId={selectedModelId}
+      />
+      <CreateApiKeyModal
+        open={isCreateApiKeyModalOpen}
+        onClose={() => setIsCreateApiKeyModalOpen(false)}
       />
     </PageShell>
   );

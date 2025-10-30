@@ -19,6 +19,7 @@ import { VercelTabs } from '@/components/ui/vercel-tabs';
 import { Button } from '@/components/ui/button';
 import { TooltipWrapper } from '@/components/ui/tooltip-wrapper';
 import { SetupCodeModal } from '@/components/modals/setup-code-modal';
+import { CreateApiKeyModal } from '@/components/modals/create-api-key-modal';
 import { generateBreadcrumbs } from '@/lib/generate-breadcrumbs';
 
 interface ServiceCardData {
@@ -268,6 +269,7 @@ export default function BhashikServicesPage() {
   const [activeTab, setActiveTab] = useState<'speech' | 'text'>('speech');
   const [isSetupCodeModalOpen, setIsSetupCodeModalOpen] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState('');
+  const [isCreateApiKeyModalOpen, setIsCreateApiKeyModalOpen] = useState(false);
 
   useEffect(() => {
     const tabParam = searchParams.get('tab');
@@ -290,7 +292,20 @@ export default function BhashikServicesPage() {
     : baseCrumbs;
 
   return (
-    <PageShell title='Bhashik' description={description} customBreadcrumbs={customBreadcrumbs}>
+    <PageShell 
+      title='Bhashik' 
+      description={description} 
+      customBreadcrumbs={customBreadcrumbs}
+      headerActions={
+        <Button 
+          variant='default' 
+          size='sm' 
+          onClick={() => setIsCreateApiKeyModalOpen(true)}
+        >
+          Get API key
+        </Button>
+      }
+    >
       <div className='space-y-6'>
         <VercelTabs
           tabs={[
@@ -336,6 +351,10 @@ export default function BhashikServicesPage() {
         open={isSetupCodeModalOpen}
         onClose={() => setIsSetupCodeModalOpen(false)}
         modelId={selectedModelId}
+      />
+      <CreateApiKeyModal
+        open={isCreateApiKeyModalOpen}
+        onClose={() => setIsCreateApiKeyModalOpen(false)}
       />
     </PageShell>
   );
