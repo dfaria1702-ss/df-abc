@@ -1,3 +1,4 @@
+import type React from 'react';
 import { PageShell } from '@/components/page-shell';
 import { EvervaultCard } from '@/components/ui/evervault-card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,14 @@ interface ServiceCardData {
   gradient: string;
   borderClass: string;
   playgroundUrl: string;
+  // Catalog-style additions
+  logo: React.ReactNode;
+  tags: string[];
+  inputPrice: string; // display string
+  outputPrice: string; // display string
+  pricingType: 'text' | 'audio';
+  inputLabel?: string;
+  outputLabel?: string;
 }
 
 const cards: ServiceCardData[] = [
@@ -22,6 +31,13 @@ const cards: ServiceCardData[] = [
     gradient: 'from-slate-100/50 via-white/80 to-white',
     borderClass: 'border-slate-200',
     playgroundUrl: '/playground/extract-text',
+    logo: <FileText className='w-8 h-8 text-gray-700' />,
+    tags: ['OCR', 'PDF/Image', 'Multilingual'],
+    inputPrice: '₹99.60',
+    outputPrice: '₹398.4',
+    pricingType: 'text',
+    inputLabel: 'per Document',
+    outputLabel: 'per OCR',
   },
   {
     id: 'extract-info',
@@ -31,6 +47,12 @@ const cards: ServiceCardData[] = [
     gradient: 'from-indigo-100/50 via-purple-50/30 to-white',
     borderClass: 'border-indigo-200/60',
     playgroundUrl: '/playground/extract-info',
+    logo: <FileSearch className='w-8 h-8 text-gray-700' />,
+    tags: ['Custom schema', 'Entities', 'JSON'],
+    inputPrice: '₹1726.40',
+    outputPrice: '',
+    pricingType: 'text',
+    inputLabel: 'per Document',
   },
   {
     id: 'summarization',
@@ -40,6 +62,13 @@ const cards: ServiceCardData[] = [
     gradient: 'from-green-100/50 via-emerald-50/30 to-white',
     borderClass: 'border-green-200/60',
     playgroundUrl: '/playground/doc-summarization',
+    logo: <ScrollText className='w-8 h-8 text-gray-700' />,
+    tags: ['Abstractive', 'Configurable length'],
+    inputPrice: '₹166.00',
+    outputPrice: '₹531.20',
+    pricingType: 'text',
+    inputLabel: 'per Document',
+    outputLabel: 'per OCR',
   },
   {
     id: 'pii-masking',
@@ -49,26 +78,67 @@ const cards: ServiceCardData[] = [
     gradient: 'from-orange-100/40 via-amber-50/30 to-white',
     borderClass: 'border-amber-200/60',
     playgroundUrl: '/playground/pii-masking',
+    logo: <Shield className='w-8 h-8 text-gray-700' />,
+    tags: ['PII', 'GDPR', 'HIPAA'],
+    inputPrice: '₹232.40',
+    outputPrice: '',
+    pricingType: 'text',
+    inputLabel: 'per Document',
   },
 ];
 
 function ServiceCard({ data }: { data: ServiceCardData }) {
-  const Icon = data.icon;
   return (
     <div className={`bg-gradient-to-bl ${data.gradient} rounded-xl border ${data.borderClass} p-6 flex flex-col h-full`}>
+      {/* Top Content - Flexible */}
       <div className='flex-1 flex flex-col'>
-        <div className='flex items-center gap-3 mb-3'>
+        {/* Logo/Icon */}
+        <div className='flex justify-start mb-4'>
           <div className='w-8 h-8 flex items-center justify-center'>
-            <Icon className='h-6 w-6 text-foreground' />
+            {data.logo}
           </div>
-          <h4 className='text-base font-semibold text-foreground'>{data.title}</h4>
         </div>
-        <p className='text-sm text-muted-foreground mb-8'>{data.description}</p>
+
+        {/* Title and description */}
+        <div className='space-y-1 mb-10'>
+          <h3 className='text-lg font-semibold text-gray-900'>{data.title}</h3>
+          <p className='text-sm text-gray-600'>{data.description}</p>
+        </div>
       </div>
-      <div className='mt-auto'>
-        <Button className='w-full' asChild>
-          <a href={data.playgroundUrl}>Playground</a>
-        </Button>
+
+      {/* Bottom Content - Fixed to bottom */}
+      <div className='mt-auto space-y-4'>
+        {/* Pricing */}
+        <div className='space-y-1'>
+          <div className={`flex items-center ${data.outputPrice ? 'justify-between' : 'justify-start'}`}>
+            <span className='text-lg font-semibold text-gray-900'>{data.inputPrice}</span>
+            {data.outputPrice ? (
+              <span className={`text-lg font-semibold ${data.outputPrice === '—' ? 'text-gray-400' : 'text-gray-900'}`}>{data.outputPrice}</span>
+            ) : null}
+          </div>
+          <div className={`flex items-center text-xs text-gray-500 ${data.outputPrice ? 'justify-between' : 'justify-start'}`}>
+            <span>{data.inputLabel ?? (data.pricingType === 'audio' ? 'Per Hour of Input Audio' : 'Per 1M Input Tokens')}</span>
+            {data.outputPrice ? (
+              <span>{data.outputLabel ?? (data.pricingType === 'audio' ? 'Output' : 'Per 1M Output Tokens')}</span>
+            ) : null}
+          </div>
+        </div>
+
+        {/* Tags */}
+        <div className='flex flex-wrap gap-2'>
+          {data.tags.map(tag => (
+            <span key={tag} className='px-2 py-1 bg-white border border-gray-300 text-gray-700 text-xs rounded font-medium'>
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        {/* Action Button */}
+        <div className='flex space-x-3'>
+          <Button className='flex-1' asChild>
+            <a href={data.playgroundUrl}>Playground</a>
+          </Button>
+        </div>
       </div>
     </div>
   );
