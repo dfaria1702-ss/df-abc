@@ -47,7 +47,7 @@ const speechCards: ServiceCardData[] = [
     playgroundUrl: '/playground/text-to-speech',
     logo: <Volume2 className='w-8 h-8 text-gray-700' />,
     gradient: 'from-green-100/50 via-emerald-50/30 to-white',
-    inputPrice: '₹4.2',
+    inputPrice: '₹266',
     outputPrice: '',
     pricingType: 'text',
   },
@@ -67,6 +67,21 @@ const speechCards: ServiceCardData[] = [
     pricingType: 'audio',
   },
   {
+    id: 'stt-translation',
+    title: 'Speech-to-text translation',
+    description:
+      'Transcribe and translate audio into target language text in one step',
+    icon: Mic,
+    category: 'Speech',
+    tags: ['Streaming', 'Translation'],
+    playgroundUrl: '/playground/speech-to-text-translation',
+    logo: <Mic className='w-8 h-8 text-gray-700' />,
+    gradient: 'from-indigo-100/50 via-purple-50/30 to-white',
+    inputPrice: '₹24',
+    outputPrice: '',
+    pricingType: 'audio',
+  },
+  {
     id: 'sts',
     title: 'Speech to Speech',
     description:
@@ -81,6 +96,21 @@ const speechCards: ServiceCardData[] = [
     outputPrice: '',
     pricingType: 'audio',
   },
+  {
+    id: 'tts-translation',
+    title: 'Text-to-speech translation',
+    description:
+      'Convert text to speech in another language with natural voices',
+    icon: Volume2,
+    category: 'Speech',
+    tags: ['Translation', 'Neural voices'],
+    playgroundUrl: '/playground/text-to-speech-translation',
+    logo: <Volume2 className='w-8 h-8 text-gray-700' />,
+    gradient: 'from-indigo-100/50 via-purple-50/30 to-white',
+    inputPrice: '₹1262',
+    outputPrice: '',
+    pricingType: 'text',
+  },
 ];
 
 const textCards: ServiceCardData[] = [
@@ -94,7 +124,7 @@ const textCards: ServiceCardData[] = [
     playgroundUrl: '/playground/text-translation',
     logo: <Languages className='w-8 h-8 text-gray-700' />,
     gradient: 'from-slate-100/50 via-white/80 to-white',
-    inputPrice: '₹3.0',
+    inputPrice: '₹581',
     outputPrice: '',
     pricingType: 'text',
   },
@@ -108,7 +138,7 @@ const textCards: ServiceCardData[] = [
     playgroundUrl: '/playground/language-detection',
     logo: <SearchCheck className='w-8 h-8 text-gray-700' />,
     gradient: 'from-indigo-100/50 via-purple-50/30 to-white',
-    inputPrice: '₹0.5',
+    inputPrice: '₹66',
     outputPrice: '',
     pricingType: 'text',
   },
@@ -122,7 +152,7 @@ const textCards: ServiceCardData[] = [
     playgroundUrl: '/playground/text-extraction',
     logo: <FileText className='w-8 h-8 text-gray-700' />,
     gradient: 'from-slate-100/50 via-white/80 to-white',
-    inputPrice: '₹2.5',
+    inputPrice: '₹66',
     outputPrice: '',
     pricingType: 'text',
   },
@@ -137,7 +167,7 @@ const textCards: ServiceCardData[] = [
     playgroundUrl: '/playground/sentiment-analysis',
     logo: <Heart className='w-8 h-8 text-gray-700' />,
     gradient: 'from-orange-100/40 via-amber-50/30 to-white',
-    inputPrice: '₹1.2',
+    inputPrice: '₹66',
     outputPrice: '',
     pricingType: 'text',
   },
@@ -192,9 +222,9 @@ function ServiceCard({ data }: { data: ServiceCardData }) {
             ) : null}
           </div>
           <div className={`flex items-center text-xs text-gray-500 ${data.outputPrice ? 'justify-between' : 'justify-start'}`}>
-            <span>{data.pricingType === 'audio' ? 'Per Hour of Input Audio' : 'Per 1M Input Tokens'}</span>
+            <span>{data.pricingType === 'audio' ? 'per 1 hour of input audio' : 'per 1M input characters'}</span>
             {data.outputPrice ? (
-              <span>{data.pricingType === 'audio' ? 'Output' : 'Per 1M Output Tokens'}</span>
+              <span>{data.pricingType === 'audio' ? 'output' : 'per 1M output tokens'}</span>
             ) : null}
           </div>
         </div>
