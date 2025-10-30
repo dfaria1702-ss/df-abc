@@ -16,10 +16,10 @@ const modelData = {
     modality: 'Text-to-Speech',
     license: 'Proprietary',
     costPerToken: 0,
-    inputPrice: '5',
-    outputPrice: '0',
-    description: 'Convert text to natural-sounding speech',
-    tags: ['Text-to-Speech', 'Audio', 'Voice-Synthesis'],
+    inputPrice: '₹266',
+    outputPrice: '',
+    description: 'Transform written text into natural-sounding speech in multiple languages',
+    tags: ['Neural voices', 'Multilingual'],
     cardGradient: 'bg-gradient-to-bl from-blue-100/50 via-indigo-50/30 to-white border-blue-200/60',
     logo: (
       <svg width="20" height="20" viewBox="0 0 385 385" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" aria-hidden="true">
