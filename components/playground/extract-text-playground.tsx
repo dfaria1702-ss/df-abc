@@ -127,6 +127,13 @@ export function ExtractTextPlayground({ model, selectedModel, modelData, onModel
                 </div>
               </div>
 
+              {/* Throughput */}
+              <div className='flex items-center gap-2 py-2'>
+                <span className='text-xs text-gray-500'>Throughput</span>
+                <div className='flex-1 border-b border-dotted border-gray-300'></div>
+                <span className='text-sm font-semibold text-gray-900'>{(model as any).throughput ?? '10,000 tokens/sec'}</span>
+              </div>
+
               {/* Tags */}
               <div className='flex flex-wrap gap-2'>
                 {model.tags.map((tag, index) => (

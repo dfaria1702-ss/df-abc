@@ -394,6 +394,13 @@ export function TextToImagePlayground({
                 </div>
               </div>
 
+              {/* Throughput */}
+              <div className='flex items-center gap-2 py-2'>
+                <span className='text-xs text-gray-500'>Throughput</span>
+                <div className='flex-1 border-b border-dotted border-gray-300'></div>
+                <span className='text-sm font-semibold text-gray-900'>{(model as any).throughput ?? '25 images/min'}</span>
+              </div>
+
               {/* Tags */}
               {model.tags && model.tags.length > 0 && (
                 <div className='flex flex-wrap gap-2'>

@@ -132,6 +132,14 @@ export function LanguageDetectionPlayground({
                   ) : null}
                 </div>
               </div>
+
+              {/* Throughput */}
+              <div className='flex items-center gap-2 py-2'>
+                <span className='text-xs text-gray-500'>Throughput</span>
+                <div className='flex-1 border-b border-dotted border-gray-300'></div>
+                <span className='text-sm font-semibold text-gray-900'>{(model as any).throughput ?? '15,000 tokens/sec'}</span>
+              </div>
+
               <div className='flex flex-wrap gap-2'>
                 {model.tags?.map((tag: string, index: number) => (
                   <span key={index} className='px-2 py-1 bg-white border border-gray-300 text-gray-700 text-xs rounded font-medium'>
