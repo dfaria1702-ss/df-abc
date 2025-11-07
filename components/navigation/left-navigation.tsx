@@ -5,6 +5,7 @@ import type React from 'react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { ContactSupportModal } from '@/components/modals/contact-support-modal';
 import {
   ServerIcon,
   CpuChipIcon,
@@ -681,6 +682,7 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
   const [expandedTertiaryItem, setExpandedTertiaryItem] = useState<
     string | null
   >(null);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   // Determine which section should be expanded based on the current path
   useEffect(() => {
@@ -1021,12 +1023,12 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
       <div className='mt-auto px-3'>
         {/* Contact Support */}
         <div className='pb-3 pt-4 border-b border-border/40'>
-          <a 
-            href='mailto:support@olakrutrim.com'
-            className='text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors block px-2'
+          <button 
+            onClick={() => setIsContactModalOpen(true)}
+            className='text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors block px-2 text-left w-full cursor-pointer'
           >
             Contact Support
-          </a>
+          </button>
         </div>
         
         <div className='py-3 flex flex-col gap-1'>
@@ -1052,6 +1054,12 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
         {/* Extra spacing at bottom */}
         <div className='pb-2'></div>
       </div>
+
+      {/* Contact Support Modal */}
+      <ContactSupportModal
+        open={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
     </div>
   );
 }
