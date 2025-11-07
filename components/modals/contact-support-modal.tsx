@@ -32,8 +32,6 @@ export function ContactSupportModal({
 }: ContactSupportModalProps) {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
     subject: '',
     category: '',
     message: '',
@@ -52,8 +50,6 @@ export function ContactSupportModal({
 
     // Basic validation
     if (
-      !formData.name.trim() ||
-      !formData.email.trim() ||
       !formData.subject.trim() ||
       !formData.category ||
       !formData.message.trim()
@@ -61,17 +57,6 @@ export function ContactSupportModal({
       toast({
         title: 'Validation Error',
         description: 'Please fill in all required fields.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast({
-        title: 'Invalid Email',
-        description: 'Please enter a valid email address.',
         variant: 'destructive',
       });
       return;
@@ -86,13 +71,11 @@ export function ContactSupportModal({
       toast({
         title: 'Support Request Submitted Successfully! 🎉',
         description:
-          'Thank you for contacting us. Our support team will get back to you within 24 hours at the provided email address.',
+          'Thank you for contacting us. Our support team will get back to you within 24 hours.',
       });
 
       // Reset form and close modal
       setFormData({
-        name: '',
-        email: '',
         subject: '',
         category: '',
         message: '',
@@ -130,39 +113,6 @@ export function ContactSupportModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className='space-y-4'>
-          {/* Name Field */}
-          <div className='space-y-2'>
-            <Label htmlFor='name' className='text-sm font-medium'>
-              Your Name <span className='text-destructive'>*</span>
-            </Label>
-            <Input
-              id='name'
-              value={formData.name}
-              onChange={e => handleInputChange('name', e.target.value)}
-              placeholder='Enter your full name'
-              required
-              disabled={isSubmitting}
-              className='focus:ring-2 focus:ring-ring focus:ring-offset-2'
-            />
-          </div>
-
-          {/* Email Field */}
-          <div className='space-y-2'>
-            <Label htmlFor='email' className='text-sm font-medium'>
-              Email Address <span className='text-destructive'>*</span>
-            </Label>
-            <Input
-              id='email'
-              type='email'
-              value={formData.email}
-              onChange={e => handleInputChange('email', e.target.value)}
-              placeholder='your.email@example.com'
-              required
-              disabled={isSubmitting}
-              className='focus:ring-2 focus:ring-ring focus:ring-offset-2'
-            />
-          </div>
-
           {/* Category Field */}
           <div className='space-y-2'>
             <Label htmlFor='category' className='text-sm font-medium'>
