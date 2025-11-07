@@ -1028,7 +1028,7 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
             className='text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 px-2 text-left w-full cursor-pointer'
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" className="flex-shrink-0">
-              <g fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" stroke="currentColor">
+              <g fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" stroke="currentColor">
                 <path d="M5.486,7.688c.379-1.016,1.187-1.823,2.203-2.203"></path>
                 <path d="M10.312,5.486c1.016,.379,1.823,1.187,2.203,2.203"></path>
                 <path d="M12.514,10.312c-.379,1.016-1.187,1.823-2.203,2.203"></path>
