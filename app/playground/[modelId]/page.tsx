@@ -38,7 +38,8 @@ import {
   User,
   ChevronUp,
   Upload,
-  Info
+  Info,
+  Flame
 } from 'lucide-react';
 
 // Mock model data - in real app, this would come from API
@@ -1193,21 +1194,62 @@ export default function PlaygroundPage() {
                                 
                                 {/* Model Loading Info Banner - Only show on first response */}
                                 {index === 1 && !msg.isThinking && showModelLoadingBanner && (
-                                  <div className='rounded-lg border border-blue-200 bg-blue-50/50 p-3 flex items-start gap-3'>
-                                    <Info className='h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5' />
-                                    <div className='flex-1'>
-                                      <p className='text-sm text-blue-900/90 leading-relaxed'>
+                                  <motion.div
+                                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    transition={{ 
+                                      duration: 0.5, 
+                                      ease: "easeOut",
+                                      delay: 0.2
+                                    }}
+                                    className='rounded-lg border border-orange-300 bg-gradient-to-r from-orange-50/30 via-amber-50/20 to-orange-50/30 p-3 flex items-start gap-3 shadow-sm relative overflow-hidden backdrop-blur-sm'
+                                  >
+                                    {/* Animated glow effect */}
+                                    <motion.div
+                                      className='absolute inset-0 bg-gradient-to-r from-transparent via-orange-100/20 to-transparent'
+                                      animate={{
+                                        x: ['-100%', '100%'],
+                                      }}
+                                      transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        repeatDelay: 3,
+                                        ease: "easeInOut"
+                                      }}
+                                      style={{ pointerEvents: 'none' }}
+                                    />
+                                    
+                                    {/* Animated flame icon */}
+                                    <motion.div
+                                      animate={{
+                                        scale: [1, 1.08, 0.95, 1.05, 1],
+                                        rotate: [0, -2, 2, -1, 0],
+                                        y: [0, -1, 0, -0.5, 0],
+                                      }}
+                                      transition={{
+                                        duration: 2.5,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                      }}
+                                      className='flex-shrink-0 mt-0.5 relative z-10'
+                                    >
+                                      <Flame className='h-4 w-4 text-orange-500' fill='currentColor' />
+                                    </motion.div>
+                                    
+                                    <div className='flex-1 relative z-10'>
+                                      <p className='text-sm text-orange-900/80 leading-relaxed'>
                                         We periodically deprovision models that haven't received an API request for some time, your model weights are currently being loaded into memory and subsequent requests will be served immediately
                                       </p>
                                     </div>
+                                    
                                     <button
                                       onClick={() => setShowModelLoadingBanner(false)}
-                                      className='flex-shrink-0 p-0.5 rounded-md hover:bg-blue-100 transition-colors text-blue-600'
+                                      className='flex-shrink-0 p-0.5 rounded-md hover:bg-orange-100/50 transition-colors text-orange-500 hover:text-orange-600 relative z-10'
                                       aria-label='Close banner'
                                     >
                                       <X className='h-4 w-4' />
                                     </button>
-                                  </div>
+                                  </motion.div>
                                 )}
                                 
                                 {/* Response Content with Copy Button */}
