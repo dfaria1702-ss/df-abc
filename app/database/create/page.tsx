@@ -100,6 +100,8 @@ export default function CreateDatabasePage() {
     configuration: '',
     storageSize: 100,
     storageAutoscaling: false,
+    autoscalingThreshold: 80,
+    autoscalingIncrement: 10,
     replicaConfig: 'no-standby',
     databaseName: '',
     username: '',
@@ -120,6 +122,7 @@ export default function CreateDatabasePage() {
 
   const [formTouched, setFormTouched] = useState(false);
   const [customStorageInput, setCustomStorageInput] = useState('');
+  const [customAutoscalingInput, setCustomAutoscalingInput] = useState('');
   const [cronCopied, setCronCopied] = useState(false);
 
   // Get subnets for selected VPC
@@ -280,10 +283,9 @@ export default function CreateDatabasePage() {
                             <RadioGroupItem value='mysql' id='mysql' />
                             <Label
                               htmlFor='mysql'
-                              className='flex items-center gap-2 font-medium cursor-pointer'
+                              className='font-medium cursor-pointer'
                             >
-                              <span className='text-xl'>🐬</span>
-                              <span>MySQL</span>
+                              MySQL
                             </Label>
                             <Select
                               value={formData.engine === 'mysql' ? formData.version : ''}
@@ -311,10 +313,9 @@ export default function CreateDatabasePage() {
                             <RadioGroupItem value='postgresql' id='postgresql' />
                             <Label
                               htmlFor='postgresql'
-                              className='flex items-center gap-2 font-medium cursor-pointer'
+                              className='font-medium cursor-pointer'
                             >
-                              <span className='text-xl'>🐘</span>
-                              <span>PostgreSQL</span>
+                              PostgreSQL
                             </Label>
                             <Select
                               value={
@@ -347,10 +348,7 @@ export default function CreateDatabasePage() {
                     <Card className='mt-6'>
                       <CardContent className='pt-6'>
                         <div className='flex items-center gap-3'>
-                          <div className='flex items-center gap-2'>
-                            <span className='text-xl'>🍃</span>
-                            <span className='font-medium'>MongoDB</span>
-                          </div>
+                          <span className='font-medium'>MongoDB</span>
                           <Select
                             value={formData.version}
                             onValueChange={value => {
@@ -534,17 +532,7 @@ export default function CreateDatabasePage() {
 
                 {/* Storage Autoscaling */}
                 <div className='mb-8'>
-                  <div className='mb-4'>
-                    <h3 className='text-base font-semibold mb-2'>
-                      Storage Autoscaling
-                    </h3>
-                    <p className='text-sm text-muted-foreground'>
-                      Automatically scale storage at a price-per-unit level when storage
-                      reaches the threshold. Storage will increase incrementally as needed.
-                    </p>
-                  </div>
-
-                  <div className='flex items-center space-x-2'>
+                  <div className='flex items-center space-x-2 mb-6'>
                     <Checkbox
                       id='storageAutoscaling'
                       checked={formData.storageAutoscaling}
@@ -557,11 +545,170 @@ export default function CreateDatabasePage() {
                     />
                     <Label
                       htmlFor='storageAutoscaling'
-                      className='text-sm font-medium cursor-pointer'
+                      className='text-base font-semibold cursor-pointer'
                     >
                       Enable Storage Autoscaling
                     </Label>
                   </div>
+
+                  {formData.storageAutoscaling && (
+                    <div className='space-y-6 border rounded-lg p-6 bg-muted/20'>
+                      {/* Autoscaling Threshold */}
+                      <div>
+                        <Label className='text-base font-semibold mb-2 block'>
+                          Autoscaling Threshold (%)
+                        </Label>
+                        <p className='text-sm text-muted-foreground mb-4'>
+                          Storage will automatically increase when usage reaches this percentage of total capacity.
+                        </p>
+                        
+                        <div className='flex items-center gap-4 mb-4'>
+                          <Input
+                            type='number'
+                            value={formData.autoscalingThreshold}
+                            onChange={(e) => {
+                              const value = parseInt(e.target.value);
+                              if (value >= 20 && value <= 95) {
+                                handleSelectChange('autoscalingThreshold', value.toString());
+                              }
+                            }}
+                            className='w-24'
+                            min={20}
+                            max={95}
+                          />
+                          <span className='text-sm font-medium'>%</span>
+                        </div>
+
+                        <Slider
+                          value={[formData.autoscalingThreshold]}
+                          onValueChange={([value]) =>
+                            handleSelectChange('autoscalingThreshold', value.toString())
+                          }
+                          min={20}
+                          max={95}
+                          step={1}
+                          className='mb-2'
+                        />
+                        <div className='flex justify-between text-xs text-muted-foreground'>
+                          <span>20%</span>
+                          <span>95%</span>
+                        </div>
+                      </div>
+
+                      {/* Storage Increment Amount */}
+                      <div>
+                        <Label className='text-base font-semibold mb-2 block'>
+                          Storage Increment Amount (GB)
+                        </Label>
+                        <p className='text-sm text-muted-foreground mb-4'>
+                          Amount of storage to add each time the threshold is reached.
+                        </p>
+
+                        <div className='flex items-center gap-2 flex-wrap mb-4'>
+                          <span className='text-sm font-medium'>Quick Select</span>
+                          {[5, 10, 25, 50, 100].map((value) => (
+                            <Button
+                              key={value}
+                              type='button'
+                              variant={
+                                formData.autoscalingIncrement === value
+                                  ? 'default'
+                                  : 'outline'
+                              }
+                              size='sm'
+                              onClick={() => {
+                                handleSelectChange('autoscalingIncrement', value.toString());
+                                setCustomAutoscalingInput('');
+                              }}
+                              className='rounded-full'
+                            >
+                              {value}GB
+                            </Button>
+                          ))}
+                          <div className='flex items-center gap-2'>
+                            <span className='text-sm'>Custom</span>
+                            <Input
+                              type='number'
+                              placeholder='10'
+                              value={customAutoscalingInput}
+                              onChange={(e) => setCustomAutoscalingInput(e.target.value)}
+                              className='w-20 h-9'
+                              min={1}
+                              max={500}
+                            />
+                            <span className='text-sm text-muted-foreground'>GB</span>
+                          </div>
+                          {customAutoscalingInput && (
+                            <Button
+                              type='button'
+                              variant='outline'
+                              size='sm'
+                              onClick={() => {
+                                const value = parseInt(customAutoscalingInput);
+                                if (!isNaN(value) && value >= 1 && value <= 500) {
+                                  handleSelectChange('autoscalingIncrement', value.toString());
+                                }
+                              }}
+                            >
+                              Apply
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Autoscaling Configuration Summary */}
+                      <Card className='bg-muted/30'>
+                        <CardContent className='pt-6'>
+                          <h4 className='font-semibold mb-4'>Autoscaling Configuration</h4>
+                          <div className='space-y-2'>
+                            <div className='flex justify-between'>
+                              <span className='text-sm text-muted-foreground'>Current Threshold:</span>
+                              <span className='text-sm font-medium'>{formData.autoscalingThreshold}%</span>
+                            </div>
+                            <div className='flex justify-between'>
+                              <span className='text-sm text-muted-foreground'>Increment Size:</span>
+                              <span className='text-sm font-medium'>{formData.autoscalingIncrement} GB</span>
+                            </div>
+                            <div className='flex justify-between'>
+                              <span className='text-sm text-muted-foreground'>Maximum Storage:</span>
+                              <span className='text-sm font-medium'>2048 GB</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Incremental Monthly Cost */}
+                      <Card className='border-2'>
+                        <CardContent className='pt-6'>
+                          <div className='flex justify-between items-start mb-2'>
+                            <div>
+                              <h4 className='font-semibold'>Incremental Monthly Cost</h4>
+                              <p className='text-xs text-muted-foreground mt-1'>
+                                Cost per {formData.autoscalingIncrement} GB increment
+                              </p>
+                            </div>
+                            <div className='text-right'>
+                              <div className='text-lg font-bold'>
+                                ₹{(formData.autoscalingIncrement * 1.8).toFixed(2)}/mo
+                              </div>
+                              <div className='text-xs text-muted-foreground'>
+                                ₹{(formData.autoscalingIncrement * 1.8 * 12).toFixed(2)}/year
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Note */}
+                      <div className='p-4 bg-muted/50 rounded-lg'>
+                        <p className='text-sm'>
+                          <span className='font-semibold'>Note:</span> When storage usage reaches{' '}
+                          {formData.autoscalingThreshold}% of capacity, the system will automatically add{' '}
+                          {formData.autoscalingIncrement} GB of storage. This process repeats as needed up to the maximum limit.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Divider */}
