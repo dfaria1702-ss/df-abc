@@ -230,6 +230,12 @@ export function getEmptyStateMessage(resourceType: string): {
           'Create your first storage bucket to start storing and managing your files in the cloud. Storage buckets provide scalable object storage with built-in redundancy and security.',
         actionText: 'Create Your First Bucket',
       },
+      database: {
+        title: 'No Databases yet',
+        description:
+          'Create your first database instance to store and manage your application data. Choose from MySQL, PostgreSQL, MongoDB, Redis, and more.',
+        actionText: 'Create Database',
+      },
       default: {
         title: `No ${resourceType} yet`,
         description: `Create your first ${resourceType} to get started.`,

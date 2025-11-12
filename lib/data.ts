@@ -28,6 +28,142 @@ export interface PublicIP {
   createdOn: string
 }
 
+export interface Database {
+  id: string
+  name: string
+  dbEngine: string
+  engineVersion: string
+  status: "active" | "creating" | "stopped" | "failed" | "maintenance"
+  region: string
+  instanceType: string
+  storage: string
+  createdOn: string
+  description?: string
+}
+
+export const databases: Database[] = [
+  {
+    id: "db-1",
+    name: "production-mysql-db",
+    dbEngine: "MySQL",
+    engineVersion: "8.0.35",
+    status: "active",
+    region: "us-east-1",
+    instanceType: "db.t3.large",
+    storage: "100 GB SSD",
+    createdOn: "2023-01-15T10:30:00Z",
+    description: "Main production MySQL database for web application",
+  },
+  {
+    id: "db-2",
+    name: "analytics-postgres",
+    dbEngine: "PostgreSQL",
+    engineVersion: "15.4",
+    status: "active",
+    region: "us-west-2",
+    instanceType: "db.r5.xlarge",
+    storage: "500 GB SSD",
+    createdOn: "2023-02-20T14:20:00Z",
+    description: "PostgreSQL database for analytics and reporting",
+  },
+  {
+    id: "db-3",
+    name: "cache-redis-01",
+    dbEngine: "Redis",
+    engineVersion: "7.0.12",
+    status: "active",
+    region: "us-east-1",
+    instanceType: "cache.r6g.large",
+    storage: "25 GB Memory",
+    createdOn: "2023-03-10T09:15:00Z",
+    description: "Redis cache for session management and caching",
+  },
+  {
+    id: "db-4",
+    name: "dev-mongodb",
+    dbEngine: "MongoDB",
+    engineVersion: "6.0.9",
+    status: "active",
+    region: "eu-west-1",
+    instanceType: "db.t3.medium",
+    storage: "50 GB SSD",
+    createdOn: "2023-04-05T11:45:00Z",
+    description: "MongoDB database for development environment",
+  },
+  {
+    id: "db-5",
+    name: "staging-mysql",
+    dbEngine: "MySQL",
+    engineVersion: "8.0.35",
+    status: "stopped",
+    region: "us-east-1",
+    instanceType: "db.t3.medium",
+    storage: "50 GB SSD",
+    createdOn: "2023-05-12T16:30:00Z",
+    description: "Staging environment MySQL database - currently stopped",
+  },
+  {
+    id: "db-6",
+    name: "warehouse-postgres",
+    dbEngine: "PostgreSQL",
+    engineVersion: "15.4",
+    status: "creating",
+    region: "us-west-2",
+    instanceType: "db.r5.2xlarge",
+    storage: "1 TB SSD",
+    createdOn: "2024-12-19T10:15:00Z",
+    description: "Data warehouse PostgreSQL instance - currently provisioning",
+  },
+  {
+    id: "db-7",
+    name: "api-mariadb",
+    dbEngine: "MariaDB",
+    engineVersion: "10.11.6",
+    status: "active",
+    region: "ap-south-1",
+    instanceType: "db.t3.large",
+    storage: "100 GB SSD",
+    createdOn: "2023-06-18T08:20:00Z",
+    description: "MariaDB for API backend services",
+  },
+  {
+    id: "db-8",
+    name: "search-elasticsearch",
+    dbEngine: "Elasticsearch",
+    engineVersion: "8.10.2",
+    status: "active",
+    region: "us-east-1",
+    instanceType: "search.r5.large",
+    storage: "200 GB SSD",
+    createdOn: "2023-07-22T13:40:00Z",
+    description: "Elasticsearch cluster for full-text search",
+  },
+  {
+    id: "db-9",
+    name: "metrics-timescaledb",
+    dbEngine: "TimescaleDB",
+    engineVersion: "2.12.0",
+    status: "maintenance",
+    region: "us-west-2",
+    instanceType: "db.r5.xlarge",
+    storage: "300 GB SSD",
+    createdOn: "2023-08-30T10:00:00Z",
+    description: "TimescaleDB for metrics and time-series data - scheduled maintenance",
+  },
+  {
+    id: "db-10",
+    name: "test-postgres-replica",
+    dbEngine: "PostgreSQL",
+    engineVersion: "15.4",
+    status: "active",
+    region: "eu-west-1",
+    instanceType: "db.t3.small",
+    storage: "30 GB SSD",
+    createdOn: "2023-09-15T15:25:00Z",
+    description: "Read replica for testing environment",
+  },
+]
+
 export const vpcs = [
   {
     id: "vpc-1",

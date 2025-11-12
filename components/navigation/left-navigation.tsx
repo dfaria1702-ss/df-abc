@@ -169,6 +169,10 @@ const navigationConfig = {
         href: '/kubernetes',
         label: 'Kubernetes',
       },
+      {
+        href: '/database',
+        label: 'Database',
+      },
     ],
   },
   aiStudio: {

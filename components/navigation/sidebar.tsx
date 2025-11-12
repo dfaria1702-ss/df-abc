@@ -98,6 +98,11 @@ const navigationStructure: NavigationCategory[] = [
         href: '/kubernetes',
         icon: <Boxes className='h-5 w-5' />,
       },
+      {
+        title: 'Database',
+        href: '/database',
+        icon: <Database className='h-5 w-5' />,
+      },
     ],
   },
   {

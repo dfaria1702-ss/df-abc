@@ -96,6 +96,11 @@ export const navigationStructure: NavCategory[] = [
         href: "/kubernetes",
         icon: <Boxes className="h-5 w-5" />,
       },
+      {
+        title: "Database",
+        href: "/database",
+        icon: <Database className="h-5 w-5" />,
+      },
     ],
   },
   {
@@ -239,6 +244,11 @@ export const leftSidebarNavigation: NavCategory[] = [
           { title: "DNS", href: "/networking/dns" },
         ],
       },
+      {
+        title: "Database",
+        href: "/database",
+        icon: <Database className="h-5 w-5" />,
+      },
     ],
   },
   {
@@ -345,6 +355,7 @@ export function getSectionFromPathname(pathname: string): string {
     pathname.startsWith("/storage") ||
     pathname.startsWith("/network") ||
     pathname.startsWith("/networking") ||
+    pathname.startsWith("/database") ||
     pathname.startsWith("/infrastructure")
   ) {
     return "infrastructure"
