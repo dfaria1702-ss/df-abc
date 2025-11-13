@@ -1202,7 +1202,7 @@ export default function PlaygroundPage() {
                                       ease: "easeOut",
                                       delay: 0.2
                                     }}
-                                    className='rounded-lg border border-orange-300 bg-gradient-to-r from-orange-50/30 via-amber-50/20 to-orange-50/30 p-3 flex items-start gap-3 shadow-sm relative overflow-hidden backdrop-blur-sm'
+                                    className='rounded-lg border border-orange-300 bg-gradient-to-r from-orange-50/30 via-amber-50/20 to-orange-50/30 p-4 shadow-sm relative overflow-hidden backdrop-blur-sm'
                                   >
                                     {/* Animated glow effect */}
                                     <motion.div
@@ -1219,36 +1219,43 @@ export default function PlaygroundPage() {
                                       style={{ pointerEvents: 'none' }}
                                     />
                                     
-                                    {/* Animated flame icon */}
-                                    <motion.div
-                                      animate={{
-                                        scale: [1, 1.08, 0.95, 1.05, 1],
-                                        rotate: [0, -2, 2, -1, 0],
-                                        y: [0, -1, 0, -0.5, 0],
-                                      }}
-                                      transition={{
-                                        duration: 2.5,
-                                        repeat: Infinity,
-                                        ease: "easeInOut"
-                                      }}
-                                      className='flex-shrink-0 mt-0.5 relative z-10'
-                                    >
-                                      <Flame className='h-4 w-4 text-orange-500' fill='currentColor' />
-                                    </motion.div>
-                                    
-                                    <div className='flex-1 relative z-10'>
-                                      <p className='text-sm text-orange-900/80 leading-relaxed'>
-                                        We periodically deprovision models that haven't received an API request for some time, your model weights are currently being loaded into memory and subsequent requests will be served immediately
-                                      </p>
+                                    <div className='flex items-start gap-3 relative z-10'>
+                                      <div className='flex-1 space-y-2'>
+                                        {/* "Warming Up" Title with Animated Dots */}
+                                        <div className='flex items-center gap-2'>
+                                          <h4 className='text-sm font-semibold text-orange-600'>
+                                            Warming Up
+                                          </h4>
+                                          <motion.div
+                                            animate={{
+                                              opacity: [0.3, 1, 0.3],
+                                            }}
+                                            transition={{
+                                              duration: 1.5,
+                                              repeat: Infinity,
+                                              ease: "easeInOut"
+                                            }}
+                                            className='flex gap-0.5'
+                                          >
+                                            <span className='w-1 h-1 bg-orange-500 rounded-full'></span>
+                                            <span className='w-1 h-1 bg-orange-500 rounded-full'></span>
+                                            <span className='w-1 h-1 bg-orange-500 rounded-full'></span>
+                                          </motion.div>
+                                        </div>
+                                        
+                                        <p className='text-sm text-orange-900/80 leading-relaxed'>
+                                          We periodically deprovision models that haven't received an API request for some time, your model weights are currently being loaded into memory and subsequent requests will be served immediately
+                                        </p>
+                                      </div>
+                                      
+                                      <button
+                                        onClick={() => setShowModelLoadingBanner(false)}
+                                        className='flex-shrink-0 p-0.5 rounded-md hover:bg-orange-100/50 transition-colors text-orange-500 hover:text-orange-600'
+                                        aria-label='Close banner'
+                                      >
+                                        <X className='h-4 w-4' />
+                                      </button>
                                     </div>
-                                    
-                                    <button
-                                      onClick={() => setShowModelLoadingBanner(false)}
-                                      className='flex-shrink-0 p-0.5 rounded-md hover:bg-orange-100/50 transition-colors text-orange-500 hover:text-orange-600 relative z-10'
-                                      aria-label='Close banner'
-                                    >
-                                      <X className='h-4 w-4' />
-                                    </button>
                                   </motion.div>
                                 )}
                                 
