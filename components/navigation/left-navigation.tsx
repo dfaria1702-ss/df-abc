@@ -171,7 +171,7 @@ const navigationConfig = {
       },
       {
         href: '/database',
-        label: 'Database',
+        label: 'Databases',
       },
     ],
   },

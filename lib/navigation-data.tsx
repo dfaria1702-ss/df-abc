@@ -97,7 +97,7 @@ export const navigationStructure: NavCategory[] = [
         icon: <Boxes className="h-5 w-5" />,
       },
       {
-        title: "Database",
+        title: "Databases",
         href: "/database",
         icon: <Database className="h-5 w-5" />,
       },
@@ -245,7 +245,7 @@ export const leftSidebarNavigation: NavCategory[] = [
         ],
       },
       {
-        title: "Database",
+        title: "Databases",
         href: "/database",
         icon: <Database className="h-5 w-5" />,
       },

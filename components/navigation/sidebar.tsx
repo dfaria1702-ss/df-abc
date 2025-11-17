@@ -99,7 +99,7 @@ const navigationStructure: NavigationCategory[] = [
         icon: <Boxes className='h-5 w-5' />,
       },
       {
-        title: 'Database',
+        title: 'Databases',
         href: '/database',
         icon: <Database className='h-5 w-5' />,
       },
