@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// Force cache clear - Updated Nov 17, 2025
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
