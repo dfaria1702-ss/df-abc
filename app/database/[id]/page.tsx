@@ -663,6 +663,12 @@ export default function DatabaseDetailsPage({ params }: { params: { id: string }
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
               {/* Left Column */}
               <div className='space-y-6'>
+                {/* Port */}
+                <div>
+                  <label className='text-sm font-medium text-gray-700 block mb-2'>Port</label>
+                  <div className='text-base'>{connectionDetails.port}</div>
+                </div>
+
                 {/* Host Section */}
                 <div>
                   <div className='flex items-center gap-2 mb-3'>
@@ -701,12 +707,6 @@ export default function DatabaseDetailsPage({ params }: { params: { id: string }
                       </div>
                     ))}
                   </div>
-                </div>
-
-                {/* Port */}
-                <div>
-                  <label className='text-sm font-medium text-gray-700 block mb-2'>Port</label>
-                  <div className='text-base'>{connectionDetails.port}</div>
                 </div>
               </div>
 
