@@ -32,7 +32,7 @@ import {
   AccordionTrigger,
 } from '../../../components/ui/accordion';
 import { TooltipWrapper } from '../../../components/ui/tooltip-wrapper';
-import { HelpCircle, Copy, Check, ExternalLink } from 'lucide-react';
+import { HelpCircle, Copy, Check } from 'lucide-react';
 import { vpcs, subnets } from '../../../lib/data';
 
 // Mock data for storage buckets
@@ -528,38 +528,19 @@ export default function CreateDatabasePage() {
 
                       <Card className='border-2 hover:border-primary/50 transition-colors'>
                         <CardContent className='pt-6'>
-                          <div className='flex items-start justify-between mb-4'>
-                            <div className='flex-1'>
-                              <div className='flex items-center gap-3 mb-2'>
-                                <h4 className='font-semibold text-base'>
-                                  Upgrade for high availability
-                                </h4>
-                                <div className='px-2.5 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-md'>
-                                  RECOMMENDED
-                                </div>
+                          <div className='mb-4'>
+                            <div className='flex items-center gap-3 mb-2'>
+                              <h4 className='font-semibold text-base'>
+                                Upgrade for high availability
+                              </h4>
+                              <div className='px-2.5 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-md'>
+                                RECOMMENDED
                               </div>
-                              <p className='text-sm text-muted-foreground mt-2'>
-                                Automatically replace the primary node in case of a failure,
-                                ensuring your data stays available.
-                              </p>
-                              <a
-                                href='#'
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  // In real app, this would open SLA details
-                                  console.log('SLA details clicked');
-                                }}
-                                className='text-sm text-primary hover:underline mt-2 inline-flex items-center gap-1'
-                              >
-                                Details in Service Level Agreements (SLA)
-                                <ExternalLink className='h-3.5 w-3.5' />
-                              </a>
                             </div>
-                            <div className='ml-4'>
-                              <span className='text-sm font-semibold text-green-600'>
-                                99.95% uptime
-                              </span>
-                            </div>
+                            <p className='text-sm text-muted-foreground mt-2'>
+                              Automatically replace the primary node in case of a failure,
+                              ensuring your data stays available.
+                            </p>
                           </div>
 
                           <div className='mt-6 pt-4 border-t'>
@@ -628,26 +609,19 @@ export default function CreateDatabasePage() {
                         {/* High Availability Card */}
                         <Card className='border-2 hover:border-primary/50 transition-colors'>
                           <CardContent className='pt-6'>
-                            <div className='flex items-start justify-between mb-4'>
-                              <div className='flex-1'>
-                                <div className='flex items-center gap-3 mb-2'>
-                                  <h4 className='font-semibold text-base'>
-                                    High Availability
-                                  </h4>
-                                  <div className='px-2.5 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-md'>
-                                    RECOMMENDED
-                                  </div>
+                            <div className='mb-4'>
+                              <div className='flex items-center gap-3 mb-2'>
+                                <h4 className='font-semibold text-base'>
+                                  High Availability
+                                </h4>
+                                <div className='px-2.5 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-md'>
+                                  RECOMMENDED
                                 </div>
-                                <p className='text-sm text-muted-foreground mt-2'>
-                                  Automatically replace the primary node in case of a failure,
-                                  ensuring your data stays available.
-                                </p>
                               </div>
-                              <div className='ml-4'>
-                                <span className='text-sm font-semibold text-green-600'>
-                                  99.95% uptime
-                                </span>
-                              </div>
+                              <p className='text-sm text-muted-foreground mt-2'>
+                                Automatically replace the primary node in case of a failure,
+                                ensuring your data stays available.
+                              </p>
                             </div>
 
                             <div className='space-y-3 mt-4'>
@@ -711,21 +685,14 @@ export default function CreateDatabasePage() {
                         {/* Standard Configuration Card */}
                         <Card className='border-2 hover:border-primary/50 transition-colors'>
                           <CardContent className='pt-6'>
-                            <div className='flex items-start justify-between mb-4'>
-                              <div className='flex-1'>
-                                <h4 className='font-semibold text-base mb-2'>
-                                  Standard Configuration
-                                </h4>
-                                <p className='text-sm text-muted-foreground'>
-                                  Basic setup with automated failover, suitable for development and
-                                  testing environments.
-                                </p>
-                              </div>
-                              <div className='ml-4'>
-                                <span className='text-sm font-semibold text-muted-foreground'>
-                                  99.5% uptime
-                                </span>
-                              </div>
+                            <div className='mb-4'>
+                              <h4 className='font-semibold text-base mb-2'>
+                                Standard Configuration
+                              </h4>
+                              <p className='text-sm text-muted-foreground'>
+                                Basic setup with automated failover, suitable for development and
+                                testing environments.
+                              </p>
                             </div>
 
                             <div
