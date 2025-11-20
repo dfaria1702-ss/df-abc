@@ -23,6 +23,7 @@ import {
 } from '../../../components/ui/select';
 import { Label } from '../../../components/ui/label';
 import { RadioGroup, RadioGroupItem } from '../../../components/ui/radio-group';
+import { Checkbox } from '../../../components/ui/checkbox';
 import { Slider } from '../../../components/ui/slider';
 import {
   Accordion,
@@ -31,7 +32,7 @@ import {
   AccordionTrigger,
 } from '../../../components/ui/accordion';
 import { TooltipWrapper } from '../../../components/ui/tooltip-wrapper';
-import { HelpCircle, Copy, Check } from 'lucide-react';
+import { HelpCircle, Copy, Check, ExternalLink } from 'lucide-react';
 import { vpcs, subnets } from '../../../lib/data';
 
 // Mock data for storage buckets
@@ -169,8 +170,6 @@ export default function CreateDatabasePage() {
       formData.version &&
       formData.configuration &&
       formData.databaseName.trim().length > 0 &&
-      formData.username.trim().length > 0 &&
-      formData.password.trim().length > 0 &&
       formData.vpc &&
       formData.subnet
     );
@@ -403,29 +402,20 @@ export default function CreateDatabasePage() {
                           className='mt-1'
                         />
                         <div className='ml-3 flex-1'>
-                          <div className='flex items-start justify-between'>
-                            <div>
-                              <Label
-                                htmlFor={tier.id}
-                                className='text-base font-semibold cursor-pointer'
-                              >
-                                ₹{tier.price.toFixed(2)}/mo
-                              </Label>
-                              <p className='text-sm text-muted-foreground mt-1'>
-                                {tier.vcpu} vCPU / {tier.ram} GB RAM / Storage minimum:{' '}
-                                {tier.storage} GB
-                              </p>
-                              <p className='text-xs text-muted-foreground mt-1'>
-                                {tier.description}
-                              </p>
-                            </div>
-                            <div className='text-right text-xs text-muted-foreground'>
-                              <div className='font-medium text-foreground mb-1'>
-                                IOPS
-                              </div>
-                              <div>Read: {tier.iops.read.toLocaleString()}</div>
-                              <div>Write: {tier.iops.write.toLocaleString()}</div>
-                            </div>
+                          <div>
+                            <Label
+                              htmlFor={tier.id}
+                              className='text-base font-semibold cursor-pointer'
+                            >
+                              ₹{tier.price.toFixed(2)}/mo
+                            </Label>
+                            <p className='text-sm text-muted-foreground mt-1'>
+                              {tier.vcpu} vCPU / {tier.ram} GB RAM / Storage minimum:{' '}
+                              {tier.storage} GB
+                            </p>
+                            <p className='text-xs text-muted-foreground mt-1'>
+                              {tier.description}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -527,157 +517,249 @@ export default function CreateDatabasePage() {
 
                 {/* Replica Configuration */}
                 <div className='mb-8'>
-                  <div className='mb-6'>
-                    <h3 className='text-base font-semibold mb-2'>
-                      Replica Configuration
-                    </h3>
-                    <p className='text-sm text-muted-foreground'>
-                      Choose your preferred cluster setup based on redundancy and
-                      performance needs. Higher replica counts provide better availability
-                      and read scalability.
-                    </p>
-                  </div>
+                  {/* New Design for MySQL and MongoDB */}
+                  {(formData.engine === 'mysql' || formData.engine === 'mongodb') ? (
+                    <>
+                      <div className='mb-6'>
+                        <h3 className='text-base font-semibold mb-2'>
+                          Maximise uptime for critical workloads
+                        </h3>
+                      </div>
 
-                  <RadioGroup
-                    value={formData.replicaConfig}
-                    onValueChange={value =>
-                      handleSelectChange('replicaConfig', value)
-                    }
-                    className='space-y-4'
-                  >
-                    {/* High Availability Card */}
-                    <Card className='border-2 hover:border-primary/50 transition-colors'>
-                      <CardContent className='pt-6'>
-                        <div className='flex items-start justify-between mb-4'>
-                          <div className='flex-1'>
-                            <div className='flex items-center gap-3 mb-2'>
-                              <h4 className='font-semibold text-base'>
-                                High Availability
-                              </h4>
-                              <div className='px-2.5 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-md'>
-                                RECOMMENDED
-                              </div>
-                            </div>
-                            <p className='text-sm text-muted-foreground mt-2'>
-                              Automatically replace the primary node in case of a failure,
-                              ensuring your data stays available.
-                            </p>
-                          </div>
-                          <div className='ml-4'>
-                            <span className='text-sm font-semibold text-green-600'>
-                              99.95% uptime
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className='space-y-3 mt-4'>
-                          <div
-                            className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                              formData.replicaConfig === 'one-standby'
-                                ? 'border-primary bg-primary/5'
-                                : 'border-border hover:border-primary/30'
-                            }`}
-                            onClick={() =>
-                              handleSelectChange('replicaConfig', 'one-standby')
-                            }
-                          >
-                            <div className='flex items-center gap-3'>
-                              <RadioGroupItem value='one-standby' id='one-standby' className='pointer-events-none' />
-                              <div>
-                                <div className='cursor-pointer font-medium'>
-                                  Add one standby node
+                      <Card className='border-2 hover:border-primary/50 transition-colors'>
+                        <CardContent className='pt-6'>
+                          <div className='flex items-start justify-between mb-4'>
+                            <div className='flex-1'>
+                              <div className='flex items-center gap-3 mb-2'>
+                                <h4 className='font-semibold text-base'>
+                                  Upgrade for high availability
+                                </h4>
+                                <div className='px-2.5 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-md'>
+                                  RECOMMENDED
                                 </div>
-                                <p className='text-xs text-muted-foreground mt-0.5'>
-                                  1 primary + 1 standby replica
-                                </p>
                               </div>
-                            </div>
-                            <div className='text-right'>
-                              <div className='text-sm font-semibold'>₹231.35</div>
-                              <div className='text-xs text-muted-foreground'>/month</div>
-                            </div>
-                          </div>
-
-                          <div
-                            className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                              formData.replicaConfig === 'two-standby'
-                                ? 'border-primary bg-primary/5'
-                                : 'border-border hover:border-primary/30'
-                            }`}
-                            onClick={() =>
-                              handleSelectChange('replicaConfig', 'two-standby')
-                            }
-                          >
-                            <div className='flex items-center gap-3'>
-                              <RadioGroupItem value='two-standby' id='two-standby' className='pointer-events-none' />
-                              <div>
-                                <div className='cursor-pointer font-medium'>
-                                  Add two standby nodes
-                                </div>
-                                <p className='text-xs text-muted-foreground mt-0.5'>
-                                  1 primary + 2 standby replicas
-                                </p>
-                              </div>
-                            </div>
-                            <div className='text-right'>
-                              <div className='text-sm font-semibold'>₹462.70</div>
-                              <div className='text-xs text-muted-foreground'>/month</div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Standard Configuration Card */}
-                    <Card className='border-2 hover:border-primary/50 transition-colors'>
-                      <CardContent className='pt-6'>
-                        <div className='flex items-start justify-between mb-4'>
-                          <div className='flex-1'>
-                            <h4 className='font-semibold text-base mb-2'>
-                              Standard Configuration
-                            </h4>
-                            <p className='text-sm text-muted-foreground'>
-                              Basic setup with automated failover, suitable for development and
-                              testing environments.
-                            </p>
-                          </div>
-                          <div className='ml-4'>
-                            <span className='text-sm font-semibold text-muted-foreground'>
-                              99.5% uptime
-                            </span>
-                          </div>
-                        </div>
-
-                        <div
-                          className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                            formData.replicaConfig === 'no-standby'
-                              ? 'border-primary bg-primary/5'
-                              : 'border-border hover:border-primary/30'
-                          }`}
-                          onClick={() =>
-                            handleSelectChange('replicaConfig', 'no-standby')
-                          }
-                        >
-                          <div className='flex items-center gap-3'>
-                            <RadioGroupItem value='no-standby' id='no-standby' className='pointer-events-none' />
-                            <div>
-                              <div className='cursor-pointer font-medium'>
-                                No standby node
-                              </div>
-                              <p className='text-xs text-muted-foreground mt-0.5'>
-                                Single primary node only
+                              <p className='text-sm text-muted-foreground mt-2'>
+                                Automatically replace the primary node in case of a failure,
+                                ensuring your data stays available.
                               </p>
+                              <a
+                                href='#'
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  // In real app, this would open SLA details
+                                  console.log('SLA details clicked');
+                                }}
+                                className='text-sm text-primary hover:underline mt-2 inline-flex items-center gap-1'
+                              >
+                                Details in Service Level Agreements (SLA)
+                                <ExternalLink className='h-3.5 w-3.5' />
+                              </a>
+                            </div>
+                            <div className='ml-4'>
+                              <span className='text-sm font-semibold text-green-600'>
+                                99.95% uptime
+                              </span>
                             </div>
                           </div>
-                          <div className='text-right'>
-                            <div className='text-sm font-semibold text-muted-foreground'>
-                              Included
+
+                          <div className='mt-6 pt-4 border-t'>
+                            <div className='flex items-center justify-between'>
+                              <div className='flex items-center gap-3'>
+                                <Checkbox
+                                  id='two-standby-checkbox'
+                                  checked={formData.replicaConfig === 'two-standby'}
+                                  onCheckedChange={(checked) => {
+                                    handleSelectChange('replicaConfig', checked ? 'two-standby' : 'no-standby');
+                                  }}
+                                />
+                                <div className='flex items-center gap-2'>
+                                  <Label
+                                    htmlFor='two-standby-checkbox'
+                                    className='font-medium cursor-pointer'
+                                  >
+                                    Add two standby nodes
+                                  </Label>
+                                  <TooltipWrapper
+                                    content={
+                                      <div className='space-y-2'>
+                                        <p className='font-medium'>Two Standby Nodes</p>
+                                        <p>
+                                          This configuration includes 1 primary node and 2 standby replicas,
+                                          providing maximum availability and redundancy for your database.
+                                        </p>
+                                      </div>
+                                    }
+                                    side='top'
+                                  >
+                                    <HelpCircle className='h-4 w-4 text-muted-foreground hover:text-foreground cursor-help' />
+                                  </TooltipWrapper>
+                                </div>
+                              </div>
+                              <div className='text-right'>
+                                <div className='text-sm font-semibold'>₹462.70</div>
+                                <div className='text-xs text-muted-foreground'>/month</div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </RadioGroup>
+                        </CardContent>
+                      </Card>
+                    </>
+                  ) : (
+                    /* Original Design for PostgreSQL */
+                    <>
+                      <div className='mb-6'>
+                        <h3 className='text-base font-semibold mb-2'>
+                          Replica Configuration
+                        </h3>
+                        <p className='text-sm text-muted-foreground'>
+                          Choose your preferred cluster setup based on redundancy and
+                          performance needs. Higher replica counts provide better availability
+                          and read scalability.
+                        </p>
+                      </div>
+
+                      <RadioGroup
+                        value={formData.replicaConfig}
+                        onValueChange={value =>
+                          handleSelectChange('replicaConfig', value)
+                        }
+                        className='space-y-4'
+                      >
+                        {/* High Availability Card */}
+                        <Card className='border-2 hover:border-primary/50 transition-colors'>
+                          <CardContent className='pt-6'>
+                            <div className='flex items-start justify-between mb-4'>
+                              <div className='flex-1'>
+                                <div className='flex items-center gap-3 mb-2'>
+                                  <h4 className='font-semibold text-base'>
+                                    High Availability
+                                  </h4>
+                                  <div className='px-2.5 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-md'>
+                                    RECOMMENDED
+                                  </div>
+                                </div>
+                                <p className='text-sm text-muted-foreground mt-2'>
+                                  Automatically replace the primary node in case of a failure,
+                                  ensuring your data stays available.
+                                </p>
+                              </div>
+                              <div className='ml-4'>
+                                <span className='text-sm font-semibold text-green-600'>
+                                  99.95% uptime
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className='space-y-3 mt-4'>
+                              <div
+                                className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                                  formData.replicaConfig === 'one-standby'
+                                    ? 'border-primary bg-primary/5'
+                                    : 'border-border hover:border-primary/30'
+                                }`}
+                                onClick={() =>
+                                  handleSelectChange('replicaConfig', 'one-standby')
+                                }
+                              >
+                                <div className='flex items-center gap-3'>
+                                  <RadioGroupItem value='one-standby' id='one-standby' className='pointer-events-none' />
+                                  <div>
+                                    <div className='cursor-pointer font-medium'>
+                                      Add one standby node
+                                    </div>
+                                    <p className='text-xs text-muted-foreground mt-0.5'>
+                                      1 primary + 1 standby replica
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className='text-right'>
+                                  <div className='text-sm font-semibold'>₹231.35</div>
+                                  <div className='text-xs text-muted-foreground'>/month</div>
+                                </div>
+                              </div>
+
+                              <div
+                                className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                                  formData.replicaConfig === 'two-standby'
+                                    ? 'border-primary bg-primary/5'
+                                    : 'border-border hover:border-primary/30'
+                                }`}
+                                onClick={() =>
+                                  handleSelectChange('replicaConfig', 'two-standby')
+                                }
+                              >
+                                <div className='flex items-center gap-3'>
+                                  <RadioGroupItem value='two-standby' id='two-standby' className='pointer-events-none' />
+                                  <div>
+                                    <div className='cursor-pointer font-medium'>
+                                      Add two standby nodes
+                                    </div>
+                                    <p className='text-xs text-muted-foreground mt-0.5'>
+                                      1 primary + 2 standby replicas
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className='text-right'>
+                                  <div className='text-sm font-semibold'>₹462.70</div>
+                                  <div className='text-xs text-muted-foreground'>/month</div>
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        {/* Standard Configuration Card */}
+                        <Card className='border-2 hover:border-primary/50 transition-colors'>
+                          <CardContent className='pt-6'>
+                            <div className='flex items-start justify-between mb-4'>
+                              <div className='flex-1'>
+                                <h4 className='font-semibold text-base mb-2'>
+                                  Standard Configuration
+                                </h4>
+                                <p className='text-sm text-muted-foreground'>
+                                  Basic setup with automated failover, suitable for development and
+                                  testing environments.
+                                </p>
+                              </div>
+                              <div className='ml-4'>
+                                <span className='text-sm font-semibold text-muted-foreground'>
+                                  99.5% uptime
+                                </span>
+                              </div>
+                            </div>
+
+                            <div
+                              className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                                formData.replicaConfig === 'no-standby'
+                                  ? 'border-primary bg-primary/5'
+                                  : 'border-border hover:border-primary/30'
+                              }`}
+                              onClick={() =>
+                                handleSelectChange('replicaConfig', 'no-standby')
+                              }
+                            >
+                              <div className='flex items-center gap-3'>
+                                <RadioGroupItem value='no-standby' id='no-standby' className='pointer-events-none' />
+                                <div>
+                                  <div className='cursor-pointer font-medium'>
+                                    No standby node
+                                  </div>
+                                  <p className='text-xs text-muted-foreground mt-0.5'>
+                                    Single primary node only
+                                  </p>
+                                </div>
+                              </div>
+                              <div className='text-right'>
+                                <div className='text-sm font-semibold text-muted-foreground'>
+                                  Included
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </RadioGroup>
+                    </>
+                  )}
                 </div>
 
                 {/* Divider */}
@@ -688,8 +770,7 @@ export default function CreateDatabasePage() {
                   <div className='mb-4'>
                     <h3 className='text-base font-semibold mb-2'>Database Details</h3>
                     <p className='text-sm text-muted-foreground'>
-                      Set your database credentials. These will be used to connect to your
-                      database instance. Keep your password secure.
+                      Set your database name. This will be used to identify your database instance.
                     </p>
                   </div>
 
@@ -702,71 +783,6 @@ export default function CreateDatabasePage() {
                         id='databaseName'
                         placeholder='my_prod_action_db'
                         value={formData.databaseName}
-                        onChange={handleChange}
-                        className='focus:ring-2 focus:ring-ring focus:ring-offset-2'
-                      />
-                    </div>
-
-                    <div>
-                      <div className='flex items-center gap-2 mb-2'>
-                        <Label htmlFor='username' className='font-medium'>
-                          Username *
-                        </Label>
-                        <TooltipWrapper
-                          content={
-                            <div className='space-y-2'>
-                              <p className='font-medium'>Username Guidelines</p>
-                              <p>
-                                Choose a username for your database administrator account.
-                              </p>
-                              <ul className='list-disc pl-4 space-y-1'>
-                                <li>Must start with a letter</li>
-                                <li>Can contain letters, numbers, and underscores</li>
-                                <li>Cannot be reserved keywords (admin, root, etc.)</li>
-                              </ul>
-                            </div>
-                          }
-                          side='top'
-                        >
-                          <HelpCircle className='h-4 w-4 text-muted-foreground hover:text-foreground cursor-help' />
-                        </TooltipWrapper>
-                      </div>
-                      <Input
-                        id='username'
-                        placeholder='database_user'
-                        value={formData.username}
-                        onChange={handleChange}
-                        className='focus:ring-2 focus:ring-ring focus:ring-offset-2'
-                      />
-                    </div>
-
-                    <div>
-                      <div className='flex items-center gap-2 mb-2'>
-                        <Label htmlFor='password' className='font-medium'>
-                          Password *
-                        </Label>
-                        <TooltipWrapper
-                          content={
-                            <div className='space-y-2'>
-                              <p className='font-medium'>Password Requirements</p>
-                              <ul className='list-disc pl-4 space-y-1'>
-                                <li>Minimum 8 characters</li>
-                                <li>Include uppercase and lowercase letters</li>
-                                <li>Include at least one number</li>
-                                <li>Include at least one special character</li>
-                              </ul>
-                            </div>
-                          }
-                          side='top'
-                        >
-                          <HelpCircle className='h-4 w-4 text-muted-foreground hover:text-foreground cursor-help' />
-                        </TooltipWrapper>
-                      </div>
-                      <Input
-                        id='password'
-                        type='password'
-                        placeholder='Enter secure password'
-                        value={formData.password}
                         onChange={handleChange}
                         className='focus:ring-2 focus:ring-ring focus:ring-offset-2'
                       />
@@ -1242,7 +1258,7 @@ export default function CreateDatabasePage() {
                     className='text-muted-foreground'
                     style={{ fontSize: '13px' }}
                   >
-                    Use strong passwords and secure your database credentials
+                    Choose a descriptive database name that reflects its purpose
                   </span>
                 </li>
                 <li className='flex items-start gap-2'>
