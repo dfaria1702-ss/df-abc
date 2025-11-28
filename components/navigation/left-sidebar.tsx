@@ -180,6 +180,17 @@ const navigationStructure: NavCategory[] = [
     title: 'ADMINISTRATION',
     items: [
       {
+        title: 'IAM',
+        href: '/iam',
+        icon: <Shield className='h-5 w-5' />,
+        items: [
+          { title: 'Users', href: '/iam/users' },
+          { title: 'Groups', href: '/iam/groups' },
+          { title: 'Roles', href: '/iam/roles' },
+          { title: 'Policies', href: '/iam/policies' },
+        ],
+      },
+      {
         title: 'Billing & Administration',
         href: '/billing',
         icon: <CreditCard className='h-5 w-5' />,

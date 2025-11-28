@@ -7,72 +7,72 @@ import { Button } from '@/components/ui/button';
 import { ShadcnDataTable, type Column } from '@/components/ui/shadcn-data-table';
 import { ActionMenu } from '@/components/action-menu';
 import {
-  mockRoles,
-  type Role,
-  getRoleById,
-  canDeleteRole,
+  mockPolicies,
+  type Policy,
+  getPolicyById,
+  canDeletePolicy,
 } from '@/lib/iam-data';
-import { CreateRoleModal } from '@/components/modals/create-role-modal';
+import { CreatePolicyModal } from '@/components/modals/create-policy-modal';
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal';
 import { useToast } from '@/hooks/use-toast';
 
-export default function RolesPage() {
+export default function PoliciesPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [roles, setRoles] = useState(mockRoles);
+  const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null);
+  const [policies, setPolicies] = useState(mockPolicies);
 
   const handleCreateSuccess = () => {
     setCreateModalOpen(false);
     toast({
-      title: 'Role created successfully',
-      description: 'The new role has been created.',
+      title: 'Policy created successfully',
+      description: 'The new policy has been created.',
     });
   };
 
-  const handleDeleteClick = (role: Role) => {
-    const validation = canDeleteRole(role.id);
+  const handleDeleteClick = (policy: Policy) => {
+    const validation = canDeletePolicy(policy.id);
     if (!validation.canDelete) {
       toast({
-        title: 'Cannot delete role',
+        title: 'Cannot delete policy',
         description: validation.reason,
         variant: 'destructive',
       });
       return;
     }
-    setSelectedRole(role);
+    setSelectedPolicy(policy);
     setDeleteModalOpen(true);
   };
 
   const handleDeleteConfirm = () => {
-    if (selectedRole) {
-      setRoles(roles.filter(r => r.id !== selectedRole.id));
+    if (selectedPolicy) {
+      setPolicies(policies.filter(p => p.id !== selectedPolicy.id));
       setDeleteModalOpen(false);
-      setSelectedRole(null);
+      setSelectedPolicy(null);
       toast({
-        title: 'Role deleted',
-        description: `Role "${selectedRole.name}" has been deleted.`,
+        title: 'Policy deleted',
+        description: `Policy "${selectedPolicy.name}" has been deleted.`,
       });
     }
   };
 
-  const handleViewRole = (role: Role) => {
-    router.push(`/iam/roles/${role.id}`);
+  const handleViewPolicy = (policy: Policy) => {
+    router.push(`/iam/policies/${policy.id}`);
   };
 
-  const columns: Column<Role>[] = [
+  const columns: Column<Policy>[] = [
     {
       key: 'name',
       label: 'Name',
       sortable: true,
       searchable: true,
-      render: (value: string, row: Role) => (
+      render: (value: string, row: Policy) => (
         <div>
           <div
             className='font-medium text-sm cursor-pointer hover:text-primary'
-            onClick={() => handleViewRole(row)}
+            onClick={() => handleViewPolicy(row)}
           >
             {value}
           </div>
@@ -88,35 +88,34 @@ export default function RolesPage() {
       ),
     },
     {
-      key: 'policyIds',
-      label: 'Policies',
-      render: (_: unknown, row: Role) => (
+      key: 'creatorName',
+      label: 'Created By',
+      sortable: true,
+      render: (value: string, row: Policy) => (
         <div className='text-sm'>
-          {row.policyIds.length} polic{row.policyIds.length !== 1 ? 'ies' : 'y'}
+          <div>{row.creatorName}</div>
+          <div className='text-xs text-muted-foreground'>{row.creatorEmail}</div>
         </div>
       ),
     },
     {
-      key: 'createdAt',
-      label: 'Created',
-      sortable: true,
-      render: (value: string) => (
-        <div className='text-sm'>
-          {new Date(value).toLocaleDateString()}
-        </div>
+      key: 'rules',
+      label: 'Rules',
+      render: (_: unknown, row: Policy) => (
+        <div className='text-sm'>{row.rules.length} rule{row.rules.length !== 1 ? 's' : ''}</div>
       ),
     },
     {
       key: 'actions',
       label: 'Action',
       align: 'right',
-      render: (_: unknown, row: Role) => (
+      render: (_: unknown, row: Policy) => (
         <div className='flex justify-end'>
           <ActionMenu
-            viewHref={`/iam/roles/${row.id}`}
+            viewHref={`/iam/policies/${row.id}`}
+            onDelete={() => handleDeleteClick(row)}
             resourceName={row.name}
-            resourceType='Role'
-            // Roles are not editable, so no edit action
+            resourceType='Policy'
           />
         </div>
       ),
@@ -126,47 +125,48 @@ export default function RolesPage() {
   return (
     <>
       <PageShell
-        title='Roles'
-        description='Define reusable permission sets for specific job functions'
+        title='Policies'
+        description='Create and manage access control policies'
         headerActions={
           <Button
             onClick={() => setCreateModalOpen(true)}
             className='bg-black text-white rounded-full px-6 py-2 text-base font-medium hover:bg-neutral-800'
           >
-            Create Role
+            Create Policy
           </Button>
         }
       >
         <ShadcnDataTable
           columns={columns}
-          data={roles}
+          data={policies}
           searchableColumns={['name', 'description']}
           defaultSort={{ column: 'name', direction: 'asc' }}
           pageSize={10}
           enableSearch={true}
           enablePagination={true}
-          searchPlaceholder='Search roles by name or description...'
+          searchPlaceholder='Search policies by name or description...'
         />
       </PageShell>
 
-      <CreateRoleModal
+      <CreatePolicyModal
         open={createModalOpen}
         onOpenChange={setCreateModalOpen}
         onSuccess={handleCreateSuccess}
       />
 
-      {selectedRole && (
+      {selectedPolicy && (
         <DeleteConfirmationModal
           isOpen={deleteModalOpen}
           onClose={() => {
             setDeleteModalOpen(false);
-            setSelectedRole(null);
+            setSelectedPolicy(null);
           }}
           onConfirm={handleDeleteConfirm}
-          resourceName={selectedRole.name}
-          resourceType='Role'
+          resourceName={selectedPolicy.name}
+          resourceType='Policy'
         />
       )}
     </>
   );
 }
+

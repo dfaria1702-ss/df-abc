@@ -337,6 +337,16 @@ const navigationConfig = {
         href: '/administration/certificates',
         label: 'Certificate Manager',
       },
+      {
+        href: '/iam',
+        label: 'IAM',
+        subItems: [
+          { href: '/iam/users', label: 'Users' },
+          { href: '/iam/groups', label: 'Groups' },
+          { href: '/iam/roles', label: 'Roles' },
+          { href: '/iam/policies', label: 'Policies' },
+        ],
+      },
     ],
   },
   developertools: {
