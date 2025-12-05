@@ -14,6 +14,7 @@ import {
 } from '@/lib/iam-data';
 import { CreateGroupModal } from '@/components/modals/create-group-modal';
 import { EditGroupModal } from '@/components/modals/edit-group-modal';
+import { DetachGroupModal } from '@/components/modals/detach-group-modal';
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal';
 import { useToast } from '@/hooks/use-toast';
 
@@ -22,6 +23,7 @@ export default function GroupsPage() {
   const { toast } = useToast();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [detachModalOpen, setDetachModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [groups, setGroups] = useState(mockGroups);
@@ -51,15 +53,35 @@ export default function GroupsPage() {
   const handleDeleteClick = (group: Group) => {
     const validation = canDeleteGroup(group.id);
     if (!validation.canDelete) {
-      toast({
-        title: 'Cannot delete group',
-        description: validation.reason,
-        variant: 'destructive',
-      });
+      // Show detachment modal instead
+      setSelectedGroup(group);
+      setDetachModalOpen(true);
       return;
     }
     setSelectedGroup(group);
     setDeleteModalOpen(true);
+  };
+
+  const handleDetach = (detachedUserIds: string[]) => {
+    if (selectedGroup) {
+      toast({
+        title: 'Group detached',
+        description: `Group has been detached from ${detachedUserIds.length} user(s).`,
+      });
+      // After detachment, try deletion again
+      const validation = canDeleteGroup(selectedGroup.id);
+      if (validation.canDelete) {
+        setDetachModalOpen(false);
+        setDeleteModalOpen(true);
+      } else {
+        setDetachModalOpen(false);
+        toast({
+          title: 'Still has dependencies',
+          description: validation.reason,
+          variant: 'destructive',
+        });
+      }
+    }
   };
 
   const handleDeleteConfirm = () => {
@@ -179,6 +201,16 @@ export default function GroupsPage() {
             onOpenChange={setEditModalOpen}
             group={selectedGroup}
             onSuccess={handleEditSuccess}
+          />
+
+          <DetachGroupModal
+            open={detachModalOpen}
+            onClose={() => {
+              setDetachModalOpen(false);
+              setSelectedGroup(null);
+            }}
+            group={selectedGroup}
+            onDetach={handleDetach}
           />
 
           <DeleteConfirmationModal

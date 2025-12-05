@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -15,28 +15,35 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { Search } from 'lucide-react';
-import { mockPolicies, type Policy } from '@/lib/iam-data';
+import { mockPolicies, type Role, type Policy } from '@/lib/iam-data';
 
-interface CreateRoleModalProps {
+interface EditRoleModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  role: Role;
   onSuccess: () => void;
 }
 
-export function CreateRoleModal({
+export function EditRoleModal({
   open,
   onOpenChange,
+  role,
   onSuccess,
-}: CreateRoleModalProps) {
+}: EditRoleModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedPolicies, setSelectedPolicies] = useState<string[]>([]);
   const [search, setSearch] = useState('');
 
+  useEffect(() => {
+    if (open && role) {
+      setName(role.name);
+      setDescription(role.description);
+      setSelectedPolicies(role.policyIds);
+    }
+  }, [open, role]);
+
   const handleClose = () => {
-    setName('');
-    setDescription('');
-    setSelectedPolicies([]);
     setSearch('');
     onOpenChange(false);
   };
@@ -49,13 +56,18 @@ export function CreateRoleModal({
     );
   };
 
-  const handleCreate = () => {
+  const handleSave = () => {
     // Validate
     if (!name.trim()) return;
     if (selectedPolicies.length === 0) return;
 
-    // Mock creation
-    console.log('Creating role:', { name, description, policies: selectedPolicies });
+    // Mock update
+    console.log('Updating role:', {
+      roleId: role.id,
+      name,
+      description,
+      policies: selectedPolicies,
+    });
 
     // Simulate API call
     setTimeout(() => {
@@ -77,10 +89,10 @@ export function CreateRoleModal({
       <DialogContent className='sm:max-w-2xl max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
           <DialogTitle className='text-xl font-semibold'>
-            Create Role
+            Edit Role
           </DialogTitle>
           <p className='text-sm text-muted-foreground pt-2'>
-            Create a new role by selecting policies to attach
+            Modify role details and attached policies
           </p>
         </DialogHeader>
 
@@ -182,12 +194,12 @@ export function CreateRoleModal({
             Cancel
           </Button>
           <Button
-            onClick={handleCreate}
+            onClick={handleSave}
             disabled={!isValid}
             size='sm'
             className='bg-black text-white hover:bg-neutral-800'
           >
-            Create Role
+            Save Changes
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,10 +1,12 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { PageLayout } from '@/components/page-layout';
 import { DetailSection } from '@/components/detail-section';
 import { DetailGrid } from '@/components/detail-grid';
 import { DetailItem } from '@/components/detail-item';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield } from 'lucide-react';
 import {
@@ -12,18 +14,32 @@ import {
   getPoliciesByRoleId,
   type Role,
 } from '@/lib/iam-data';
+import { EditRoleModal } from '@/components/modals/edit-role-modal';
+import { useToast } from '@/hooks/use-toast';
 import { notFound } from 'next/navigation';
 
 export default function RoleDetailsPage() {
   const params = useParams();
+  const router = useRouter();
+  const { toast } = useToast();
   const roleId = params.roleId as string;
   const role = getRoleById(roleId);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   if (!role) {
     notFound();
   }
 
   const policies = getPoliciesByRoleId(roleId);
+
+  const handleEditSuccess = () => {
+    setEditModalOpen(false);
+    toast({
+      title: 'Role updated successfully',
+      description: 'The role has been updated.',
+    });
+    router.refresh();
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -44,11 +60,21 @@ export default function RoleDetailsPage() {
   ];
 
   return (
-    <PageLayout
-      title={role.name}
-      description={role.description || 'Role details and attached policies'}
-      customBreadcrumbs={customBreadcrumbs}
-    >
+    <>
+      <PageLayout
+        title={role.name}
+        description={role.description || 'Role details and attached policies'}
+        customBreadcrumbs={customBreadcrumbs}
+        headerActions={
+          <Button
+            variant='outline'
+            onClick={() => setEditModalOpen(true)}
+            size='sm'
+          >
+            Edit Role
+          </Button>
+        }
+      >
       <div className='space-y-6'>
         {/* Role Information */}
         <DetailSection title='Role Information'>
@@ -114,6 +140,14 @@ export default function RoleDetailsPage() {
         </DetailSection>
       </div>
     </PageLayout>
+
+    <EditRoleModal
+      open={editModalOpen}
+      onOpenChange={setEditModalOpen}
+      role={role}
+      onSuccess={handleEditSuccess}
+    />
+    </>
   );
 }
 

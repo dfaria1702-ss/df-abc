@@ -12,6 +12,7 @@ import { mockUsers, type User, getUserById, getRolesByUserId, getGroupsByUserId 
 import { StatusBadge } from '@/components/status-badge';
 import { InviteUserModal } from '@/components/modals/invite-user-modal';
 import { EditUserAccessModal } from '@/components/modals/edit-user-access-modal';
+import { ResendInviteModal } from '@/components/modals/resend-invite-modal';
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,6 +21,7 @@ export default function UsersPage() {
   const { toast } = useToast();
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [resendInviteModalOpen, setResendInviteModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [users, setUsers] = useState(mockUsers);
@@ -50,6 +52,37 @@ export default function UsersPage() {
   const handleDeleteClick = (user: User) => {
     setSelectedUser(user);
     setDeleteModalOpen(true);
+  };
+
+  const handleResendInvite = (user: User) => {
+    setSelectedUser(user);
+    setResendInviteModalOpen(true);
+  };
+
+  const handleResendInviteSuccess = () => {
+    setResendInviteModalOpen(false);
+    if (selectedUser) {
+      toast({
+        title: 'Invitation resent',
+        description: `Invitation email has been resent to ${selectedUser.email}.`,
+      });
+    }
+  };
+
+  const handleBlockUser = (user: User) => {
+    setUsers(
+      users.map(u =>
+        u.id === user.id
+          ? { ...u, status: u.status === 'blocked' ? 'active' : 'blocked' }
+          : u
+      )
+    );
+    toast({
+      title: user.status === 'blocked' ? 'User unblocked' : 'User blocked',
+      description: `User "${user.name}" has been ${
+        user.status === 'blocked' ? 'unblocked' : 'blocked'
+      }.`,
+    });
   };
 
   const handleDeleteConfirm = () => {
@@ -87,6 +120,7 @@ export default function UsersPage() {
       case 'pending':
         return 'info';
       case 'suspended':
+      case 'blocked':
         return 'destructive';
       default:
         return 'default';
@@ -192,6 +226,23 @@ export default function UsersPage() {
             onDelete={() => handleDeleteClick(row)}
             resourceName={row.name}
             resourceType='User'
+            customActions={[
+              ...(row.status === 'invited' || row.status === 'pending'
+                ? [
+                    {
+                      label: 'Resend Invite',
+                      onClick: () => handleResendInvite(row),
+                      icon: null,
+                    },
+                  ]
+                : []),
+              {
+                label: row.status === 'blocked' ? 'Unblock User' : 'Block User',
+                onClick: () => handleBlockUser(row),
+                icon: null,
+                variant: row.status === 'blocked' ? 'default' : 'destructive',
+              },
+            ]}
           />
         </div>
       ),
@@ -237,6 +288,13 @@ export default function UsersPage() {
             onOpenChange={setEditModalOpen}
             user={selectedUser}
             onSuccess={handleEditSuccess}
+          />
+
+          <ResendInviteModal
+            open={resendInviteModalOpen}
+            onOpenChange={setResendInviteModalOpen}
+            user={selectedUser}
+            onSuccess={handleResendInviteSuccess}
           />
 
           <DeleteConfirmationModal

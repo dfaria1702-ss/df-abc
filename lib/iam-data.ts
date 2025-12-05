@@ -1,6 +1,6 @@
 // Mock data for IAM (Identity & Access Management)
 
-export type UserStatus = 'invited' | 'active' | 'pending' | 'suspended';
+export type UserStatus = 'invited' | 'active' | 'pending' | 'suspended' | 'blocked';
 export type AccessType = 'console' | 'programmatic' | 'both';
 export type PolicyType = 'VM' | 'Storage' | 'Network' | 'Kubernetes' | 'Database' | 'Billing' | 'IAM';
 export type CRUDOperation = 'Create' | 'Read' | 'Update' | 'Delete';
@@ -445,6 +445,16 @@ export function canDeleteGroup(groupId: string): { canDelete: boolean; reason?: 
   }
   
   return { canDelete: true };
+}
+
+// Get roles that use a policy
+export function getRolesByPolicyId(policyId: string): Role[] {
+  return mockRoles.filter(role => role.policyIds.includes(policyId));
+}
+
+// Get groups that use a role
+export function getGroupsByRoleId(roleId: string): Group[] {
+  return mockGroups.filter(group => group.roleIds.includes(roleId));
 }
 
 // Policy Type options for dropdown

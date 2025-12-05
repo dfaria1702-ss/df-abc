@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Search, X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { mockRoles, mockGroups, type Role, type Group } from '@/lib/iam-data';
 import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 interface InviteUserModalProps {
   open: boolean;
@@ -209,53 +210,43 @@ export function InviteUserModal({
               </p>
             </div>
 
-            <div className='flex gap-2 border-b'>
-              <Button
-                variant={viewMode === 'roles' ? 'default' : 'ghost'}
-                onClick={() => setViewMode('roles')}
-                className='rounded-b-none'
-                size='sm'
-              >
-                Roles
-                {selectedRoles.length > 0 && (
-                  <Badge variant='secondary' className='ml-2'>
-                    {selectedRoles.length}
-                  </Badge>
-                )}
-              </Button>
-              <Button
-                variant={viewMode === 'groups' ? 'default' : 'ghost'}
-                onClick={() => setViewMode('groups')}
-                className='rounded-b-none'
-                size='sm'
-              >
-                Groups
-                {selectedGroups.length > 0 && (
-                  <Badge variant='secondary' className='ml-2'>
-                    {selectedGroups.length}
-                  </Badge>
-                )}
-              </Button>
-            </div>
+            <Tabs
+              value={viewMode}
+              onValueChange={value => setViewMode(value as 'roles' | 'groups')}
+              className='w-full'
+            >
+              <TabsList className='grid w-full grid-cols-2'>
+                <TabsTrigger value='roles' className='flex items-center gap-2'>
+                  Roles
+                  {selectedRoles.length > 0 && (
+                    <Badge variant='secondary' className='ml-1'>
+                      {selectedRoles.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value='groups' className='flex items-center gap-2'>
+                  Groups
+                  {selectedGroups.length > 0 && (
+                    <Badge variant='secondary' className='ml-1'>
+                      {selectedGroups.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              </TabsList>
 
-            <div className='space-y-4'>
-              <div className='relative'>
-                <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-                <Input
-                  placeholder={`Search ${viewMode}...`}
-                  value={viewMode === 'roles' ? roleSearch : groupSearch}
-                  onChange={e =>
-                    viewMode === 'roles'
-                      ? setRoleSearch(e.target.value)
-                      : setGroupSearch(e.target.value)
-                  }
-                  className='pl-9'
-                />
-              </div>
+              <TabsContent value='roles' className='space-y-4 mt-4'>
+                <div className='relative'>
+                  <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+                  <Input
+                    placeholder='Search roles...'
+                    value={roleSearch}
+                    onChange={e => setRoleSearch(e.target.value)}
+                    className='pl-9'
+                  />
+                </div>
 
-              <div className='max-h-[300px] overflow-y-auto space-y-2'>
-                {viewMode === 'roles' ? (
-                  filteredRoles.length > 0 ? (
+                <div className='max-h-[300px] overflow-y-auto space-y-2'>
+                  {filteredRoles.length > 0 ? (
                     filteredRoles.map(role => (
                       <Card
                         key={role.id}
@@ -299,9 +290,23 @@ export function InviteUserModal({
                     <div className='text-center py-8 text-sm text-muted-foreground'>
                       No roles found
                     </div>
-                  )
-                ) : (
-                  filteredGroups.length > 0 ? (
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value='groups' className='space-y-4 mt-4'>
+                <div className='relative'>
+                  <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+                  <Input
+                    placeholder='Search groups...'
+                    value={groupSearch}
+                    onChange={e => setGroupSearch(e.target.value)}
+                    className='pl-9'
+                  />
+                </div>
+
+                <div className='max-h-[300px] overflow-y-auto space-y-2'>
+                  {filteredGroups.length > 0 ? (
                     filteredGroups.map(group => (
                       <Card
                         key={group.id}
@@ -345,10 +350,10 @@ export function InviteUserModal({
                     <div className='text-center py-8 text-sm text-muted-foreground'>
                       No groups found
                     </div>
-                  )
-                )}
-              </div>
-            </div>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         )}
 

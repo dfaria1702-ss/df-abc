@@ -139,8 +139,8 @@ export function CreateGroupModal({
                     }`}
                     onClick={() => toggleRole(role.id)}
                   >
-                    <CardContent className='p-4'>
-                      <div className='flex items-start justify-between'>
+                    <CardContent className='p-3'>
+                      <div className='flex items-center justify-between'>
                         <div className='flex-1'>
                           <div className='flex items-center gap-2'>
                             <h4 className='font-medium text-sm'>
@@ -152,13 +152,8 @@ export function CreateGroupModal({
                               </span>
                             )}
                           </div>
-                          <p className='text-xs text-muted-foreground mt-1'>
+                          <p className='text-xs text-muted-foreground mt-0.5'>
                             {role.description}
-                          </p>
-                          <p className='text-xs text-muted-foreground mt-2'>
-                            {role.policyIds.length} polic
-                            {role.policyIds.length !== 1 ? 'ies' : 'y'} • Created{' '}
-                            {new Date(role.createdAt).toLocaleDateString()}
                           </p>
                         </div>
                         <Checkbox

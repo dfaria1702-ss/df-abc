@@ -15,10 +15,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   mockRoles,
   mockGroups,
   type User,
+  type AccessType,
   getRolesByUserId,
   getGroupsByUserId,
 } from '@/lib/iam-data';
@@ -38,6 +40,8 @@ export function EditUserAccessModal({
 }: EditUserAccessModalProps) {
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
+  const [consoleAccess, setConsoleAccess] = useState(false);
+  const [programmaticAccess, setProgrammaticAccess] = useState(false);
   const [roleSearch, setRoleSearch] = useState('');
   const [groupSearch, setGroupSearch] = useState('');
   const [viewMode, setViewMode] = useState<'roles' | 'groups'>('roles');
@@ -47,13 +51,33 @@ export function EditUserAccessModal({
       // Initialize with user's current roles and groups
       setSelectedRoles(user.roleIds);
       setSelectedGroups(user.groupIds);
+      // Initialize access types
+      setConsoleAccess(
+        user.accessType === 'console' || user.accessType === 'both'
+      );
+      setProgrammaticAccess(
+        user.accessType === 'programmatic' || user.accessType === 'both'
+      );
     }
   }, [open, user]);
 
   const handleSave = () => {
+    // Validate - at least one access type must be selected
+    if (!consoleAccess && !programmaticAccess) {
+      return;
+    }
+
     // Validate - at least one role or group must be selected
     if (selectedRoles.length === 0 && selectedGroups.length === 0) {
       return;
+    }
+
+    // Determine access type
+    let accessType: AccessType = 'console';
+    if (consoleAccess && programmaticAccess) {
+      accessType = 'both';
+    } else if (programmaticAccess) {
+      accessType = 'programmatic';
     }
 
     // Mock update
@@ -61,6 +85,7 @@ export function EditUserAccessModal({
       userId: user.id,
       roles: selectedRoles,
       groups: selectedGroups,
+      accessType,
     });
 
     // Simulate API call
@@ -103,21 +128,64 @@ export function EditUserAccessModal({
     group.description.toLowerCase().includes(groupSearch.toLowerCase())
   );
 
-  const isValid = selectedRoles.length > 0 || selectedGroups.length > 0;
+  const isValid =
+    (consoleAccess || programmaticAccess) &&
+    (selectedRoles.length > 0 || selectedGroups.length > 0);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className='sm:max-w-2xl max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
           <DialogTitle className='text-xl font-semibold'>
-            Edit User Access
+            Manage Permissions
           </DialogTitle>
           <p className='text-sm text-muted-foreground pt-2'>
-            Modify roles and groups for <strong>{user.name}</strong> ({user.email})
+            Manage permissions for <strong>{user.name}</strong> ({user.email})
           </p>
         </DialogHeader>
 
         <div className='space-y-6 py-4'>
+          {/* Access Type Section */}
+          <div className='space-y-4'>
+            <div className='space-y-2'>
+              <Label className='text-sm font-medium'>Access Type</Label>
+              <p className='text-xs text-muted-foreground'>
+                Select at least one access type
+              </p>
+            </div>
+            <div className='space-y-3'>
+              <div className='flex items-center space-x-2'>
+                <Checkbox
+                  id='console-access'
+                  checked={consoleAccess}
+                  onCheckedChange={checked => setConsoleAccess(checked === true)}
+                />
+                <Label
+                  htmlFor='console-access'
+                  className='text-sm font-normal cursor-pointer'
+                >
+                  Console Access
+                </Label>
+              </div>
+              <div className='flex items-center space-x-2'>
+                <Checkbox
+                  id='programmatic-access'
+                  checked={programmaticAccess}
+                  onCheckedChange={checked =>
+                    setProgrammaticAccess(checked === true)
+                  }
+                />
+                <Label
+                  htmlFor='programmatic-access'
+                  className='text-sm font-normal cursor-pointer'
+                >
+                  Programmatic Access
+                </Label>
+              </div>
+            </div>
+          </div>
+
+          {/* Roles & Groups Section */}
           <div className='space-y-2'>
             <Label className='text-sm font-medium'>
               Assign Roles & Groups
@@ -127,53 +195,43 @@ export function EditUserAccessModal({
             </p>
           </div>
 
-          <div className='flex gap-2 border-b'>
-            <Button
-              variant={viewMode === 'roles' ? 'default' : 'ghost'}
-              onClick={() => setViewMode('roles')}
-              className='rounded-b-none'
-              size='sm'
-            >
-              Roles
-              {selectedRoles.length > 0 && (
-                <Badge variant='secondary' className='ml-2'>
-                  {selectedRoles.length}
-                </Badge>
-              )}
-            </Button>
-            <Button
-              variant={viewMode === 'groups' ? 'default' : 'ghost'}
-              onClick={() => setViewMode('groups')}
-              className='rounded-b-none'
-              size='sm'
-            >
-              Groups
-              {selectedGroups.length > 0 && (
-                <Badge variant='secondary' className='ml-2'>
-                  {selectedGroups.length}
-                </Badge>
-              )}
-            </Button>
-          </div>
+          <Tabs
+            value={viewMode}
+            onValueChange={value => setViewMode(value as 'roles' | 'groups')}
+            className='w-full'
+          >
+            <TabsList className='grid w-full grid-cols-2'>
+              <TabsTrigger value='roles' className='flex items-center gap-2'>
+                Roles
+                {selectedRoles.length > 0 && (
+                  <Badge variant='secondary' className='ml-1'>
+                    {selectedRoles.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value='groups' className='flex items-center gap-2'>
+                Groups
+                {selectedGroups.length > 0 && (
+                  <Badge variant='secondary' className='ml-1'>
+                    {selectedGroups.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+            </TabsList>
 
-          <div className='space-y-4'>
-            <div className='relative'>
-              <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-              <Input
-                placeholder={`Search ${viewMode}...`}
-                value={viewMode === 'roles' ? roleSearch : groupSearch}
-                onChange={e =>
-                  viewMode === 'roles'
-                    ? setRoleSearch(e.target.value)
-                    : setGroupSearch(e.target.value)
-                }
-                className='pl-9'
-              />
-            </div>
+            <TabsContent value='roles' className='space-y-4 mt-4'>
+              <div className='relative'>
+                <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+                <Input
+                  placeholder='Search roles...'
+                  value={roleSearch}
+                  onChange={e => setRoleSearch(e.target.value)}
+                  className='pl-9'
+                />
+              </div>
 
-            <div className='max-h-[300px] overflow-y-auto space-y-2'>
-              {viewMode === 'roles' ? (
-                filteredRoles.length > 0 ? (
+              <div className='max-h-[300px] overflow-y-auto space-y-2'>
+                {filteredRoles.length > 0 ? (
                   filteredRoles.map(role => (
                     <Card
                       key={role.id}
@@ -217,9 +275,23 @@ export function EditUserAccessModal({
                   <div className='text-center py-8 text-sm text-muted-foreground'>
                     No roles found
                   </div>
-                )
-              ) : (
-                filteredGroups.length > 0 ? (
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value='groups' className='space-y-4 mt-4'>
+              <div className='relative'>
+                <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+                <Input
+                  placeholder='Search groups...'
+                  value={groupSearch}
+                  onChange={e => setGroupSearch(e.target.value)}
+                  className='pl-9'
+                />
+              </div>
+
+              <div className='max-h-[300px] overflow-y-auto space-y-2'>
+                {filteredGroups.length > 0 ? (
                   filteredGroups.map(group => (
                     <Card
                       key={group.id}
@@ -263,10 +335,10 @@ export function EditUserAccessModal({
                   <div className='text-center py-8 text-sm text-muted-foreground'>
                     No groups found
                   </div>
-                )
-              )}
-            </div>
-          </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
 
         <DialogFooter className='flex items-center justify-end gap-2'>

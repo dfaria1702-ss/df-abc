@@ -13,6 +13,7 @@ import {
   canDeletePolicy,
 } from '@/lib/iam-data';
 import { CreatePolicyModal } from '@/components/modals/create-policy-modal';
+import { DetachPolicyModal } from '@/components/modals/detach-policy-modal';
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,6 +21,7 @@ export default function PoliciesPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [detachModalOpen, setDetachModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null);
   const [policies, setPolicies] = useState(mockPolicies);
@@ -35,15 +37,35 @@ export default function PoliciesPage() {
   const handleDeleteClick = (policy: Policy) => {
     const validation = canDeletePolicy(policy.id);
     if (!validation.canDelete) {
-      toast({
-        title: 'Cannot delete policy',
-        description: validation.reason,
-        variant: 'destructive',
-      });
+      // Show detachment modal instead
+      setSelectedPolicy(policy);
+      setDetachModalOpen(true);
       return;
     }
     setSelectedPolicy(policy);
     setDeleteModalOpen(true);
+  };
+
+  const handleDetach = (detachedRoleIds: string[], detachedGroupIds: string[]) => {
+    if (selectedPolicy) {
+      toast({
+        title: 'Policy detached',
+        description: `Policy has been detached from ${detachedRoleIds.length} role(s) and ${detachedGroupIds.length} group(s).`,
+      });
+      // After detachment, try deletion again
+      const validation = canDeletePolicy(selectedPolicy.id);
+      if (validation.canDelete) {
+        setDetachModalOpen(false);
+        setDeleteModalOpen(true);
+      } else {
+        setDetachModalOpen(false);
+        toast({
+          title: 'Still has dependencies',
+          description: validation.reason,
+          variant: 'destructive',
+        });
+      }
+    }
   };
 
   const handleDeleteConfirm = () => {
@@ -155,16 +177,28 @@ export default function PoliciesPage() {
       />
 
       {selectedPolicy && (
-        <DeleteConfirmationModal
-          isOpen={deleteModalOpen}
-          onClose={() => {
-            setDeleteModalOpen(false);
-            setSelectedPolicy(null);
-          }}
-          onConfirm={handleDeleteConfirm}
-          resourceName={selectedPolicy.name}
-          resourceType='Policy'
-        />
+        <>
+          <DetachPolicyModal
+            open={detachModalOpen}
+            onClose={() => {
+              setDetachModalOpen(false);
+              setSelectedPolicy(null);
+            }}
+            policy={selectedPolicy}
+            onDetach={handleDetach}
+          />
+
+          <DeleteConfirmationModal
+            isOpen={deleteModalOpen}
+            onClose={() => {
+              setDeleteModalOpen(false);
+              setSelectedPolicy(null);
+            }}
+            onConfirm={handleDeleteConfirm}
+            resourceName={selectedPolicy.name}
+            resourceType='Policy'
+          />
+        </>
       )}
     </>
   );

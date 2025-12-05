@@ -13,6 +13,8 @@ import {
   canDeleteRole,
 } from '@/lib/iam-data';
 import { CreateRoleModal } from '@/components/modals/create-role-modal';
+import { EditRoleModal } from '@/components/modals/edit-role-modal';
+import { DetachRoleModal } from '@/components/modals/detach-role-modal';
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,6 +22,8 @@ export default function RolesPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [detachModalOpen, setDetachModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [roles, setRoles] = useState(mockRoles);
@@ -32,18 +36,52 @@ export default function RolesPage() {
     });
   };
 
+  const handleEditClick = (role: Role) => {
+    setSelectedRole(role);
+    setEditModalOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    setEditModalOpen(false);
+    setSelectedRole(null);
+    toast({
+      title: 'Role updated successfully',
+      description: 'The role has been updated.',
+    });
+  };
+
   const handleDeleteClick = (role: Role) => {
     const validation = canDeleteRole(role.id);
     if (!validation.canDelete) {
-      toast({
-        title: 'Cannot delete role',
-        description: validation.reason,
-        variant: 'destructive',
-      });
+      // Show detachment modal instead
+      setSelectedRole(role);
+      setDetachModalOpen(true);
       return;
     }
     setSelectedRole(role);
     setDeleteModalOpen(true);
+  };
+
+  const handleDetach = (detachedGroupIds: string[], detachedUserIds: string[]) => {
+    if (selectedRole) {
+      toast({
+        title: 'Role detached',
+        description: `Role has been detached from ${detachedGroupIds.length} group(s) and ${detachedUserIds.length} user(s).`,
+      });
+      // After detachment, try deletion again
+      const validation = canDeleteRole(selectedRole.id);
+      if (validation.canDelete) {
+        setDetachModalOpen(false);
+        setDeleteModalOpen(true);
+      } else {
+        setDetachModalOpen(false);
+        toast({
+          title: 'Still has dependencies',
+          description: validation.reason,
+          variant: 'destructive',
+        });
+      }
+    }
   };
 
   const handleDeleteConfirm = () => {
@@ -114,9 +152,9 @@ export default function RolesPage() {
         <div className='flex justify-end'>
           <ActionMenu
             viewHref={`/iam/roles/${row.id}`}
+            onEdit={() => handleEditClick(row)}
             resourceName={row.name}
             resourceType='Role'
-            // Roles are not editable, so no edit action
           />
         </div>
       ),
@@ -156,16 +194,35 @@ export default function RolesPage() {
       />
 
       {selectedRole && (
-        <DeleteConfirmationModal
-          isOpen={deleteModalOpen}
-          onClose={() => {
-            setDeleteModalOpen(false);
-            setSelectedRole(null);
-          }}
-          onConfirm={handleDeleteConfirm}
-          resourceName={selectedRole.name}
-          resourceType='Role'
-        />
+        <>
+          <EditRoleModal
+            open={editModalOpen}
+            onOpenChange={setEditModalOpen}
+            role={selectedRole}
+            onSuccess={handleEditSuccess}
+          />
+
+          <DetachRoleModal
+            open={detachModalOpen}
+            onClose={() => {
+              setDetachModalOpen(false);
+              setSelectedRole(null);
+            }}
+            role={selectedRole}
+            onDetach={handleDetach}
+          />
+
+          <DeleteConfirmationModal
+            isOpen={deleteModalOpen}
+            onClose={() => {
+              setDeleteModalOpen(false);
+              setSelectedRole(null);
+            }}
+            onConfirm={handleDeleteConfirm}
+            resourceName={selectedRole.name}
+            resourceType='Role'
+          />
+        </>
       )}
     </>
   );
