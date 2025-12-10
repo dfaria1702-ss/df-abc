@@ -213,16 +213,16 @@ export default function RolesPage() {
             onDetach={handleDetach}
           />
 
-          <DeleteConfirmationModal
-            isOpen={deleteModalOpen}
-            onClose={() => {
-              setDeleteModalOpen(false);
-              setSelectedRole(null);
-            }}
-            onConfirm={handleDeleteConfirm}
-            resourceName={selectedRole.name}
-            resourceType='Role'
-          />
+        <DeleteConfirmationModal
+          isOpen={deleteModalOpen}
+          onClose={() => {
+            setDeleteModalOpen(false);
+            setSelectedRole(null);
+          }}
+          onConfirm={handleDeleteConfirm}
+          resourceName={selectedRole.name}
+          resourceType='Role'
+        />
         </>
       )}
     </>

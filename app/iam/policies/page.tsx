@@ -188,16 +188,16 @@ export default function PoliciesPage() {
             onDetach={handleDetach}
           />
 
-          <DeleteConfirmationModal
-            isOpen={deleteModalOpen}
-            onClose={() => {
-              setDeleteModalOpen(false);
-              setSelectedPolicy(null);
-            }}
-            onConfirm={handleDeleteConfirm}
-            resourceName={selectedPolicy.name}
-            resourceType='Policy'
-          />
+        <DeleteConfirmationModal
+          isOpen={deleteModalOpen}
+          onClose={() => {
+            setDeleteModalOpen(false);
+            setSelectedPolicy(null);
+          }}
+          onConfirm={handleDeleteConfirm}
+          resourceName={selectedPolicy.name}
+          resourceType='Policy'
+        />
         </>
       )}
     </>

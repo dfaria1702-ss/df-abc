@@ -202,35 +202,35 @@ export function EditUserAccessModal({
           >
             <TabsList className='grid w-full grid-cols-2'>
               <TabsTrigger value='roles' className='flex items-center gap-2'>
-                Roles
-                {selectedRoles.length > 0 && (
+              Roles
+              {selectedRoles.length > 0 && (
                   <Badge variant='secondary' className='ml-1'>
-                    {selectedRoles.length}
-                  </Badge>
-                )}
+                  {selectedRoles.length}
+                </Badge>
+              )}
               </TabsTrigger>
               <TabsTrigger value='groups' className='flex items-center gap-2'>
-                Groups
-                {selectedGroups.length > 0 && (
+              Groups
+              {selectedGroups.length > 0 && (
                   <Badge variant='secondary' className='ml-1'>
-                    {selectedGroups.length}
-                  </Badge>
-                )}
+                  {selectedGroups.length}
+                </Badge>
+              )}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value='roles' className='space-y-4 mt-4'>
-              <div className='relative'>
-                <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-                <Input
+            <div className='relative'>
+              <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+              <Input
                   placeholder='Search roles...'
                   value={roleSearch}
                   onChange={e => setRoleSearch(e.target.value)}
-                  className='pl-9'
-                />
-              </div>
+                className='pl-9'
+              />
+            </div>
 
-              <div className='max-h-[300px] overflow-y-auto space-y-2'>
+            <div className='max-h-[300px] overflow-y-auto space-y-2'>
                 {filteredRoles.length > 0 ? (
                   filteredRoles.map(role => (
                     <Card
@@ -335,8 +335,8 @@ export function EditUserAccessModal({
                   <div className='text-center py-8 text-sm text-muted-foreground'>
                     No groups found
                   </div>
-                )}
-              </div>
+              )}
+            </div>
             </TabsContent>
           </Tabs>
         </div>

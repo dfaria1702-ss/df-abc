@@ -61,10 +61,10 @@ export default function RoleDetailsPage() {
 
   return (
     <>
-      <PageLayout
-        title={role.name}
-        description={role.description || 'Role details and attached policies'}
-        customBreadcrumbs={customBreadcrumbs}
+    <PageLayout
+      title={role.name}
+      description={role.description || 'Role details and attached policies'}
+      customBreadcrumbs={customBreadcrumbs}
         headerActions={
           <Button
             variant='outline'
@@ -74,7 +74,7 @@ export default function RoleDetailsPage() {
             Edit Role
           </Button>
         }
-      >
+    >
       <div className='space-y-6'>
         {/* Role Information */}
         <DetailSection title='Role Information'>

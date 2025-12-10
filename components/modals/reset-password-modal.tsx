@@ -185,7 +185,7 @@ export function ResetPasswordModal({
             size='sm'
             className='bg-black text-white hover:bg-neutral-800'
           >
-            {loading ? 'Resetting...' : 'Reset Password'}
+            {loading ? 'Regenerating...' : 'Regenerate Password'}
           </Button>
         </DialogFooter>
       </DialogContent>

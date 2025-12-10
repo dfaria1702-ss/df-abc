@@ -224,68 +224,68 @@ export function CreatePolicyModal({
             </Card>
           ) : (
             <>
-              <div className='space-y-2'>
-                <Label htmlFor='name' className='text-sm font-medium'>
-                  Policy Name <span className='text-destructive'>*</span>
-                </Label>
-                <Input
-                  id='name'
-                  placeholder='Enter policy name'
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                />
-              </div>
+          <div className='space-y-2'>
+            <Label htmlFor='name' className='text-sm font-medium'>
+              Policy Name <span className='text-destructive'>*</span>
+            </Label>
+            <Input
+              id='name'
+              placeholder='Enter policy name'
+              value={name}
+              onChange={e => setName(e.target.value)}
+            />
+          </div>
 
-              <div className='space-y-2'>
-                <Label htmlFor='description' className='text-sm font-medium'>
-                  Description
-                </Label>
-                <Textarea
-                  id='description'
-                  placeholder='Enter policy description'
-                  value={description}
-                  onChange={e => setDescription(e.target.value)}
-                  rows={3}
-                />
-              </div>
+          <div className='space-y-2'>
+            <Label htmlFor='description' className='text-sm font-medium'>
+              Description
+            </Label>
+            <Textarea
+              id='description'
+              placeholder='Enter policy description'
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={3}
+            />
+          </div>
 
-              <div className='space-y-4'>
-                <div className='flex items-center justify-between'>
-                  <Label className='text-sm font-medium'>
-                    Access Rules <span className='text-destructive'>*</span>
-                  </Label>
-                  <Button
-                    type='button'
-                    variant='outline'
-                    size='sm'
-                    onClick={addRule}
-                  >
-                    <Plus className='h-4 w-4 mr-1' />
-                    Add Rule
-                  </Button>
-                </div>
+          <div className='space-y-4'>
+            <div className='flex items-center justify-between'>
+              <Label className='text-sm font-medium'>
+                Access Rules <span className='text-destructive'>*</span>
+              </Label>
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                onClick={addRule}
+              >
+                <Plus className='h-4 w-4 mr-1' />
+                Add Rule
+              </Button>
+            </div>
 
-                <div className='space-y-3'>
-                  {rules.map((rule, index) => (
-                    <Card key={rule.id} className='p-4'>
-                      <div className='flex items-start justify-between mb-4'>
-                        <span className='text-sm font-medium text-muted-foreground'>
-                          Rule {index + 1}
-                        </span>
-                        {rules.length > 1 && (
-                          <Button
-                            type='button'
-                            variant='ghost'
-                            size='sm'
-                            onClick={() => removeRule(rule.id)}
-                            className='h-8 w-8 p-0'
-                          >
-                            <Trash2 className='h-4 w-4' />
-                          </Button>
-                        )}
-                      </div>
+            <div className='space-y-3'>
+              {rules.map((rule, index) => (
+                <Card key={rule.id} className='p-4'>
+                  <div className='flex items-start justify-between mb-4'>
+                    <span className='text-sm font-medium text-muted-foreground'>
+                      Rule {index + 1}
+                    </span>
+                    {rules.length > 1 && (
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => removeRule(rule.id)}
+                        className='h-8 w-8 p-0'
+                      >
+                        <Trash2 className='h-4 w-4' />
+                      </Button>
+                    )}
+                  </div>
 
-                      <div className='grid grid-cols-2 gap-4'>
+                  <div className='grid grid-cols-2 gap-4'>
                         {/* Policy Type - First */}
                         <div className='space-y-2'>
                           <Label className='text-xs'>Policy Type</Label>
@@ -345,29 +345,29 @@ export function CreatePolicyModal({
                         </div>
 
                         {/* Effect - Third */}
-                        <div className='space-y-2'>
-                          <Label className='text-xs'>Effect</Label>
-                          <Select
-                            value={rule.effect}
-                            onValueChange={value =>
-                              updateRule(rule.id, 'effect', value as Effect)
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {effectOptions.map(effect => (
-                                <SelectItem key={effect} value={effect}>
-                                  {effect}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                    <div className='space-y-2'>
+                      <Label className='text-xs'>Effect</Label>
+                      <Select
+                        value={rule.effect}
+                        onValueChange={value =>
+                          updateRule(rule.id, 'effect', value as Effect)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {effectOptions.map(effect => (
+                            <SelectItem key={effect} value={effect}>
+                              {effect}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
                         {/* Resource Name - Fourth */}
-                        <div className='space-y-2'>
+                    <div className='space-y-2'>
                           <div className='flex items-center gap-1'>
                             <Label className='text-xs'>Resource Name</Label>
                             <TooltipWrapper
@@ -376,20 +376,20 @@ export function CreatePolicyModal({
                             >
                               <Info className='h-3 w-3 text-muted-foreground cursor-help' />
                             </TooltipWrapper>
-                          </div>
-                          <Input
-                            placeholder='e.g., vm-*, storage-*'
-                            value={rule.resourceName}
-                            onChange={e =>
-                              updateRule(rule.id, 'resourceName', e.target.value)
-                            }
-                          />
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </div>
+                    </div>
+                      <Input
+                        placeholder='e.g., vm-*, storage-*'
+                        value={rule.resourceName}
+                        onChange={e =>
+                          updateRule(rule.id, 'resourceName', e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
             </>
           )}
         </div>
