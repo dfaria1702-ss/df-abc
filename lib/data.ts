@@ -2716,6 +2716,7 @@ export interface TargetMember {
   name: string
   ipAddress: string
   port: number
+  weight: number
   status: "healthy" | "unhealthy" | "draining"
 }
 
@@ -2923,35 +2924,39 @@ export const targetGroups: TargetGroup[] = [
     targets: 4,
     targetMembers: [
       {
-        id: "vm-web-1",
+        id: "vm-rkd-1231",
         type: "VM",
-        name: "web-server-01",
-        ipAddress: "10.0.1.10",
+        name: "vm-rkd-1231",
+        ipAddress: "192.168.1.87",
         port: 80,
+        weight: 1,
         status: "healthy"
       },
       {
-        id: "vm-web-2",
+        id: "vm-rkd-1232",
         type: "VM",
-        name: "web-server-02",
-        ipAddress: "10.0.1.11",
+        name: "vm-rkd-1232",
+        ipAddress: "192.168.1.88",
         port: 80,
+        weight: 1,
+        status: "unhealthy"
+      },
+      {
+        id: "vm-rkd-1233",
+        type: "VM",
+        name: "vm-rkd-1233",
+        ipAddress: "192.168.1.89",
+        port: 80,
+        weight: 2,
         status: "healthy"
       },
       {
-        id: "vm-web-3",
+        id: "vm-rkd-1234",
         type: "VM",
-        name: "web-server-03",
-        ipAddress: "10.0.1.12",
+        name: "vm-rkd-1234",
+        ipAddress: "192.168.1.90",
         port: 80,
-        status: "healthy"
-      },
-      {
-        id: "vm-web-4",
-        type: "VM",
-        name: "web-server-04",
-        ipAddress: "10.0.1.13",
-        port: 80,
+        weight: 1,
         status: "healthy"
       }
     ],
@@ -2983,6 +2988,7 @@ export const targetGroups: TargetGroup[] = [
         name: "api-server-01",
         ipAddress: "10.0.2.20",
         port: 443,
+        weight: 1,
         status: "healthy"
       },
       {
@@ -2991,6 +2997,7 @@ export const targetGroups: TargetGroup[] = [
         name: "api-server-02",
         ipAddress: "10.0.2.21",
         port: 443,
+        weight: 1,
         status: "healthy"
       }
     ],
@@ -3022,6 +3029,7 @@ export const targetGroups: TargetGroup[] = [
         name: "gateway-server-01",
         ipAddress: "10.0.3.30",
         port: 8080,
+        weight: 1,
         status: "healthy"
       },
       {
@@ -3030,6 +3038,7 @@ export const targetGroups: TargetGroup[] = [
         name: "gateway-server-02",
         ipAddress: "10.0.3.31",
         port: 8080,
+        weight: 1,
         status: "healthy"
       }
     ],
@@ -3060,6 +3069,7 @@ export const targetGroups: TargetGroup[] = [
         name: "mysql-primary",
         ipAddress: "10.0.4.40",
         port: 3306,
+        weight: 1,
         status: "healthy"
       },
       {
@@ -3068,6 +3078,7 @@ export const targetGroups: TargetGroup[] = [
         name: "mysql-secondary",
         ipAddress: "10.0.4.41",
         port: 3306,
+        weight: 1,
         status: "healthy"
       }
     ],
@@ -3098,6 +3109,7 @@ export const targetGroups: TargetGroup[] = [
         name: "redis-primary",
         ipAddress: "10.0.5.50",
         port: 6379,
+        weight: 1,
         status: "healthy"
       },
       {
@@ -3106,6 +3118,7 @@ export const targetGroups: TargetGroup[] = [
         name: "redis-replica",
         ipAddress: "10.0.5.51",
         port: 6379,
+        weight: 1,
         status: "healthy"
       }
     ],
@@ -3136,6 +3149,7 @@ export const targetGroups: TargetGroup[] = [
         name: "rabbitmq-01",
         ipAddress: "10.0.6.60",
         port: 5672,
+        weight: 1,
         status: "healthy"
       },
       {
@@ -3144,6 +3158,7 @@ export const targetGroups: TargetGroup[] = [
         name: "rabbitmq-02",
         ipAddress: "10.0.6.61",
         port: 5672,
+        weight: 1,
         status: "healthy"
       }
     ],
@@ -3175,6 +3190,7 @@ export const targetGroups: TargetGroup[] = [
         name: "staging-app-01",
         ipAddress: "10.1.1.10",
         port: 80,
+        weight: 1,
         status: "healthy"
       },
       {
@@ -3183,6 +3199,7 @@ export const targetGroups: TargetGroup[] = [
         name: "staging-app-02",
         ipAddress: "10.1.1.11",
         port: 80,
+        weight: 1,
         status: "draining"
       }
     ],
@@ -3214,6 +3231,7 @@ export const targetGroups: TargetGroup[] = [
         name: "prometheus-exporter",
         ipAddress: "10.0.7.70",
         port: 9090,
+        weight: 1,
         status: "unhealthy"
       },
       {
@@ -3222,6 +3240,7 @@ export const targetGroups: TargetGroup[] = [
         name: "grafana-instance",
         ipAddress: "10.0.7.71",
         port: 9090,
+        weight: 1,
         status: "healthy"
       },
       {
@@ -3230,6 +3249,7 @@ export const targetGroups: TargetGroup[] = [
         name: "analytics-vm-01",
         ipAddress: "10.0.7.72",
         port: 9090,
+        weight: 1,
         status: "unhealthy"
       }
     ],

@@ -441,7 +441,7 @@ export default function LoadBalancerDetailsPage({
     >
       {/* Load Balancer Basic Information */}
       <div
-        className='mb-6 group relative'
+        className='group relative'
         style={{
           borderRadius: '16px',
           border: '4px solid #FFF',
@@ -716,18 +716,18 @@ export default function LoadBalancerDetailsPage({
       </div>
 
       {/* Listeners */}
-      <div className='space-y-6'>
-        <div className='flex items-center justify-between'>
+      <Card className='mt-4'>
+        <CardContent className='pt-6 space-y-6'>
           <div className='flex items-center gap-2'>
             <h2 className='text-lg font-semibold'>Listeners</h2>
             <div className='flex items-center justify-center w-6 h-6 bg-primary text-primary-foreground text-sm font-medium rounded-full'>
               {loadBalancer.listeners.length}
             </div>
           </div>
-        </div>
 
-        {loadBalancer.listeners.map((listener, index) => (
-          <Card key={listener.id} className='overflow-hidden'>
+          <div className='space-y-6'>
+            {loadBalancer.listeners.map((listener, index) => (
+              <Card key={listener.id} className='overflow-hidden'>
             <CardHeader className='pb-3'>
               <CardTitle className='text-base'>
                 {listener.name} ({listener.protocol}:{listener.port})
@@ -963,8 +963,10 @@ export default function LoadBalancerDetailsPage({
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal

@@ -311,7 +311,7 @@ export function ShadcnDataTable<T = any>({
         if (!col.sortable) {
           return (
             <div
-              className={`font-medium ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}`}
+              className={`text-xs font-medium uppercase tracking-wide ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}`}
             >
               {col.label}
             </div>
@@ -324,7 +324,7 @@ export function ShadcnDataTable<T = any>({
           <button
             type='button'
             onClick={() => column.toggleSorting(isSorted === 'asc')}
-            className={`h-auto p-0 font-medium hover:bg-muted/50 transition-colors duration-200 flex items-center group w-full ${col.align === 'right' ? 'justify-end' : col.align === 'center' ? 'justify-center' : 'text-left'} pr-2 py-1 rounded-md ${isActive ? 'bg-muted font-bold' : ''}`}
+            className={`h-auto p-0 text-xs font-medium uppercase tracking-wide hover:bg-muted/50 transition-colors duration-200 flex items-center group w-full ${col.align === 'right' ? 'justify-end' : col.align === 'center' ? 'justify-center' : 'text-left'} pr-2 py-1 rounded-md ${isActive ? 'bg-muted' : ''}`}
             style={{ minWidth: 0 }}
           >
             <span className='truncate'>{col.label}</span>
@@ -337,13 +337,13 @@ export function ShadcnDataTable<T = any>({
                     isSorted === 'desc' ? 'rotate(0deg)' : 'rotate(180deg)',
                 }}
               >
-                <ArrowDown className='h-4 w-4 text-primary' />
+                <ArrowDown className='h-3.5 w-3.5 text-primary' />
               </span>
             )}
             {/* Show faded arrow on hover for sortable but inactive columns */}
             {!isActive && (
               <span className='ml-2 opacity-0 group-hover:opacity-40 transition-opacity duration-200'>
-                <ArrowUp className='h-4 w-4' />
+                <ArrowUp className='h-3.5 w-3.5' />
               </span>
             )}
           </button>
@@ -356,7 +356,7 @@ export function ShadcnDataTable<T = any>({
         }
         return (
           <div
-            className={`${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}`}
+            className={`text-sm ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}`}
           >
             {String(value ?? '')}
           </div>
@@ -584,15 +584,12 @@ export function ShadcnDataTable<T = any>({
         {/* Data Table */}
         <div className='rounded-md border'>
           <div className='relative w-full'>
-            <table
-              className='w-full caption-bottom'
-              style={{ fontSize: '13px' }}
-            >
+            <table className='w-full caption-bottom text-sm'>
               <thead className='[&_tr]:border-b'>
                 {table.getHeaderGroups().map(headerGroup => (
                   <tr
                     key={headerGroup.id}
-                    className='border-b transition-colors bg-muted hover:bg-muted/80'
+                    className='border-b transition-colors bg-muted/50'
                   >
                     {headerGroup.headers.map((header, index) => {
                       const isFirst = index === 0;
@@ -606,7 +603,7 @@ export function ShadcnDataTable<T = any>({
                       return (
                         <th
                           key={header.id}
-                          className={`h-10 px-4 text-left align-middle font-medium text-muted-foreground ${isFirst ? 'rounded-tl-md' : ''} ${isLast ? 'rounded-tr-md' : ''}`}
+                          className={`h-12 px-4 text-left align-middle text-muted-foreground ${isFirst ? 'rounded-tl-md' : ''} ${isLast ? 'rounded-tr-md' : ''}`}
                           style={{ width }}
                         >
                           {header.isPlaceholder
@@ -630,7 +627,7 @@ export function ShadcnDataTable<T = any>({
                       <tr
                         key={row.id}
                         data-state={row.getIsSelected() && 'selected'}
-                        className='border-b transition-colors bg-white hover:bg-gray-50/40 data-[state=selected]:bg-blue-50/50'
+                        className='border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted'
                       >
                         {row.getVisibleCells().map((cell, cellIndex) => {
                           const isFirst = cellIndex === 0;
@@ -647,7 +644,7 @@ export function ShadcnDataTable<T = any>({
                           return (
                             <td
                               key={cell.id}
-                              className={`px-4 py-2 align-middle ${isLastRow && isFirst ? 'rounded-bl-md' : ''} ${isLastRow && isLast ? 'rounded-br-md' : ''}`}
+                              className={`px-4 py-4 align-middle ${isLastRow && isFirst ? 'rounded-bl-md' : ''} ${isLastRow && isLast ? 'rounded-br-md' : ''}`}
                               style={{ width }}
                             >
                               {flexRender(

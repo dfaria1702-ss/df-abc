@@ -344,6 +344,7 @@ export default function EditLoadBalancerPage({
   params: Promise<{ id: string }>;
 }) {
   const router = useRouter();
+  const [listenersEditMode, setListenersEditMode] = useState(false);
 
   // Unwrap the params Promise using React.use()
   const { id } = use(params);
@@ -363,6 +364,10 @@ export default function EditLoadBalancerPage({
 
   const handleCancel = () => {
     router.push(`/networking/load-balancing/balancer/${id}`);
+  };
+
+  const handleToggleListenersEdit = () => {
+    setListenersEditMode(prev => !prev);
   };
 
   const customBreadcrumbs = [
@@ -387,6 +392,8 @@ export default function EditLoadBalancerPage({
         isEditMode={true}
         editData={loadBalancer}
         customBreadcrumbs={customBreadcrumbs}
+        listenersEditMode={listenersEditMode}
+        onToggleListenersEdit={handleToggleListenersEdit}
       />
     );
   } else {
@@ -398,6 +405,8 @@ export default function EditLoadBalancerPage({
         isEditMode={true}
         editData={loadBalancer}
         customBreadcrumbs={customBreadcrumbs}
+        listenersEditMode={listenersEditMode}
+        onToggleListenersEdit={handleToggleListenersEdit}
       />
     );
   }

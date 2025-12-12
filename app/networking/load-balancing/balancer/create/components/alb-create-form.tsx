@@ -24,14 +24,16 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { TooltipWrapper } from '@/components/ui/tooltip-wrapper';
-import { HelpCircle, Plus, Trash2, Info } from 'lucide-react';
+import { HelpCircle, Plus, Trash2, Info, Edit } from 'lucide-react';
 import { BasicSection } from './sections/basic-section';
 import { CreateVPCModal } from '@/components/modals/vm-creation-modals';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { PolicyRulesSection } from './sections/policy-rules-section';
 import { PoolSection } from './sections/pool-section';
 import { ALBProgressModal } from './alb-progress-modal';
-import { vpcs } from '@/lib/data';
+import { ListenersTable } from './listeners-table';
+import { ListenerViewEditModal } from './listener-view-edit-modal';
+import { vpcs, targetGroups } from '@/lib/data';
 
 import type { LoadBalancerConfiguration } from '../page';
 
@@ -92,6 +94,8 @@ interface ALBCreateFormProps {
   isEditMode?: boolean;
   editData?: any;
   customBreadcrumbs?: Array<{ href: string; title: string }>;
+  listenersEditMode?: boolean;
+  onToggleListenersEdit?: () => void;
 }
 
 const getLoadBalancerTypeName = (config: LoadBalancerConfiguration) => {
@@ -301,6 +305,8 @@ export function ALBCreateForm({
   isEditMode = false,
   editData,
   customBreadcrumbs,
+  listenersEditMode = false,
+  onToggleListenersEdit,
 }: ALBCreateFormProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -309,24 +315,59 @@ export function ALBCreateForm({
   const [showCreateSecurityGroupModal, setShowCreateSecurityGroupModal] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [taskId, setTaskId] = useState('');
-  const [formData, setFormData] = useState<ALBFormData>({
-    name: isEditMode ? editData?.name || '' : '',
-    description: isEditMode ? editData?.description || '' : '',
-    loadBalancerType: getLoadBalancerTypeName(config),
-    region: isEditMode ? editData?.region || '' : '',
-    vpc: isEditMode ? editData?.vpc || '' : '',
-    subnet: isEditMode ? editData?.subnet || '' : '',
-    securityGroup: isEditMode ? editData?.securityGroup || '' : '',
-    performanceTier: isEditMode
-      ? editData?.performanceTier || 'standard'
-      : 'standard',
-    standardConfig: isEditMode
-      ? editData?.standardConfig || 'high-availability'
-      : 'high-availability',
-    ipAddressType: isEditMode ? editData?.ipAddressType || '' : '',
-    reservedIpId: isEditMode ? editData?.reservedIpId || '' : '',
-    listeners: isEditMode ? editData?.listeners || [] : [],
-  });
+  const [showListenerModal, setShowListenerModal] = useState(false);
+  const [selectedListener, setSelectedListener] = useState<ALBFormData['listeners'][0] | null>(null);
+  const [listenerModalMode, setListenerModalMode] = useState<'view' | 'edit'>('view');
+  const [isNewListenerModal, setIsNewListenerModal] = useState(false);
+  
+  // Generate a storage key based on edit mode and ID
+  const storageKey = isEditMode && editData?.id 
+    ? `alb-form-${editData.id}` 
+    : 'alb-form-new';
+  
+  // Initialize form data from localStorage if available, otherwise use defaults
+  const getInitialFormData = (): ALBFormData => {
+    // Try to load from localStorage first
+    if (typeof window !== 'undefined') {
+      const savedData = localStorage.getItem(storageKey);
+      if (savedData) {
+        try {
+          return JSON.parse(savedData);
+        } catch (e) {
+          console.error('Failed to parse saved form data:', e);
+        }
+      }
+    }
+    
+    // Return default initial data
+    return {
+      name: isEditMode ? editData?.name || '' : '',
+      description: isEditMode ? editData?.description || '' : '',
+      loadBalancerType: getLoadBalancerTypeName(config),
+      region: isEditMode ? editData?.region || '' : '',
+      vpc: isEditMode ? editData?.vpc || '' : '',
+      subnet: isEditMode ? editData?.subnet || '' : '',
+      securityGroup: isEditMode ? editData?.securityGroup || '' : '',
+      performanceTier: isEditMode
+        ? editData?.performanceTier || 'standard'
+        : 'standard',
+      standardConfig: isEditMode
+        ? editData?.standardConfig || 'high-availability'
+        : 'high-availability',
+      ipAddressType: isEditMode ? editData?.ipAddressType || '' : '',
+      reservedIpId: isEditMode ? editData?.reservedIpId || '' : '',
+      listeners: isEditMode ? editData?.listeners || [] : [],
+    };
+  };
+
+  const [formData, setFormData] = useState<ALBFormData>(getInitialFormData());
+  
+  // Save form data to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(storageKey, JSON.stringify(formData));
+    }
+  }, [formData, storageKey]);
 
   // Initialize with default listener (only in create mode)
   useEffect(() => {
@@ -379,10 +420,12 @@ export function ALBCreateForm({
   };
 
   const addListener = () => {
-    setFormData(prev => ({
-      ...prev,
-      listeners: [...prev.listeners, createNewListener()],
-    }));
+    // Open modal with empty listener
+    const newListener = createNewListener();
+    setSelectedListener(newListener);
+    setListenerModalMode('edit');
+    setIsNewListenerModal(true);
+    setShowListenerModal(true);
   };
 
   const removeListener = (listenerId: string) => {
@@ -403,6 +446,105 @@ export function ALBCreateForm({
         listener.id === listenerId ? { ...listener, [field]: value } : listener
       ),
     }));
+  };
+
+  const handleViewListener = (listener: ALBFormData['listeners'][0]) => {
+    setSelectedListener(listener);
+    setListenerModalMode('view');
+    setIsNewListenerModal(false);
+    setShowListenerModal(true);
+  };
+
+  const handleEditListener = (listener: ALBFormData['listeners'][0]) => {
+    setSelectedListener(listener);
+    setListenerModalMode('edit');
+    setIsNewListenerModal(false);
+    setShowListenerModal(true);
+  };
+
+  const handleDeleteListener = (listenerId: string) => {
+    if (formData.listeners.length > 1) {
+      setFormData(prev => ({
+        ...prev,
+        listeners: prev.listeners.filter(
+          listener => listener.id !== listenerId
+        ),
+      }));
+      toast({
+        title: 'Listener deleted',
+        description: 'The listener has been removed.',
+      });
+    }
+  };
+
+  const handleSaveListener = (updatedListener: ALBFormData['listeners'][0]) => {
+    // Enrich listener data with target group health information
+    const enrichedListener = {
+      ...updatedListener,
+      pools: updatedListener.pools.map(pool => {
+        // Find the target group by name
+        const targetGroup = targetGroups.find(tg => tg.name === pool.targetGroup);
+        
+        if (targetGroup) {
+          // Calculate health status based on target members
+          const healthyCount = targetGroup.targetMembers.filter(
+            tm => tm.status === 'healthy'
+          ).length;
+          const totalCount = targetGroup.targetMembers.length;
+          
+          // Determine overall health status
+          let targetGroupStatus: 'healthy' | 'unhealthy' | 'degraded' = 'healthy';
+          if (healthyCount === 0) {
+            targetGroupStatus = 'unhealthy';
+          } else if (healthyCount < totalCount) {
+            targetGroupStatus = 'degraded';
+          }
+          
+          return {
+            ...pool,
+            targetGroupStatus,
+            targetCount: totalCount,
+            healthyTargets: healthyCount,
+          };
+        }
+        
+        return pool;
+      }),
+    };
+    
+    setFormData(prev => {
+      // Check if listener already exists
+      const existingListenerIndex = prev.listeners.findIndex(
+        listener => listener.id === enrichedListener.id
+      );
+      
+      if (existingListenerIndex >= 0) {
+        // Update existing listener
+        return {
+          ...prev,
+          listeners: prev.listeners.map(listener =>
+            listener.id === enrichedListener.id ? enrichedListener : listener
+          ),
+        };
+      } else {
+        // Add new listener
+        return {
+          ...prev,
+          listeners: [...prev.listeners, enrichedListener],
+        };
+      }
+    });
+    
+    const isNewListener = !formData.listeners.some(
+      listener => listener.id === enrichedListener.id
+    );
+    
+    toast({
+      title: isNewListener ? 'Listener added' : 'Listener updated',
+      description: isNewListener
+        ? 'The listener has been added successfully.'
+        : 'The listener has been updated successfully.',
+    });
   };
 
   const handleVPCCreated = (vpcId: string) => {
@@ -426,6 +568,11 @@ export function ALBCreateForm({
       console.log('Saving ALB changes:', formData);
       // In a real app, this would be an API call to update the load balancer
 
+      // Clear localStorage after successful save
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(storageKey);
+      }
+
       // Navigate back to details page
       router.push(`/networking/load-balancing/balancer/${editData?.id}`);
     } else {
@@ -447,11 +594,25 @@ export function ALBCreateForm({
 
   const handleProgressSuccess = () => {
     setShowProgressModal(false);
+    
+    // Clear localStorage after successful creation
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(storageKey);
+    }
+    
     // Show success toast
     toast({
       title: 'Application Load Balancer created successfully',
       description: `Load Balancer "${formData.name}" has been created successfully`,
     });
+  };
+  
+  const handleCancel = () => {
+    // Clear localStorage when user cancels
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(storageKey);
+    }
+    onCancel();
   };
 
   const isFormValid = () => {
@@ -491,117 +652,107 @@ export function ALBCreateForm({
     >
       <div className='flex flex-col lg:flex-row gap-6'>
         {/* Main Content */}
-        <div className='flex-1'>
+        <div className='flex-1 space-y-4'>
+          {/* Load Balancer Details Section */}
           <Card>
-            <CardContent className='space-y-8 pt-6'>
-              {/* Required Section: Basics */}
-              <div className='space-y-6'>
-                <BasicSection
-                  formData={formData}
-                  updateFormData={updateFormData}
-                  isSection={true}
-                  isEditMode={isEditMode}
-                  onCreateVPC={() => setShowCreateVPCModal(true)}
-                  onCreateSubnet={() => setShowCreateSubnetModal(true)}
-                  onCreateSecurityGroup={() => setShowCreateSecurityGroupModal(true)}
-                />
+            <CardContent className='pt-6'>
+              <BasicSection
+                formData={formData}
+                updateFormData={updateFormData}
+                isSection={true}
+                isEditMode={isEditMode}
+                onCreateVPC={() => setShowCreateVPCModal(true)}
+                onCreateSubnet={() => setShowCreateSubnetModal(true)}
+                onCreateSecurityGroup={() => setShowCreateSecurityGroupModal(true)}
+              />
+            </CardContent>
+          </Card>
 
-                <div className='border-t border-gray-200 pt-4'>
-                  <div className='flex items-start gap-2'>
-                    <Info className='h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0' />
-                    <p className='text-gray-600' style={{ fontSize: '13px' }}>
-                      Configure multiple listeners below. Each listener can have
-                      its own Policy & Rules and Pool configurations.
-                    </p>
+          {/* Listeners Section */}
+          <Card>
+            <CardContent className='pt-6 space-y-6'>
+              <div className='flex items-center justify-between'>
+                <div className='flex items-center gap-2'>
+                  <h2 className='text-lg font-semibold'>Listeners</h2>
+                  <div className='flex items-center justify-center w-6 h-6 bg-primary text-primary-foreground text-sm font-medium rounded-full'>
+                    {formData.listeners.length}
                   </div>
                 </div>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={addListener}
+                  className='flex items-center gap-2'
+                >
+                  <Plus className='h-4 w-4' />
+                  Add Listener
+                </Button>
               </div>
 
-              {/* Listeners Section */}
-              <div className='space-y-6'>
-                <div className='flex items-center justify-between'>
-                  <h3 className='text-lg font-semibold'>
-                    Listeners Configuration
-                  </h3>
-                  <Button
-                    type='button'
-                    variant='outline'
-                    onClick={addListener}
-                    className='flex items-center gap-2'
-                  >
-                    <Plus className='h-4 w-4' />
-                    Add Listener
-                  </Button>
-                </div>
-
-                {/* Listeners Accordion */}
-                <Accordion type='multiple' className='w-full space-y-4'>
-                  {formData.listeners.map((listener, index) => (
-                    <AccordionItem
-                      key={listener.id}
-                      value={listener.id}
-                      className='border rounded-lg'
-                    >
-                      <AccordionTrigger className='px-4 py-3 text-base font-semibold hover:no-underline'>
-                        <div className='flex items-center justify-between w-full pr-4'>
-                          <span>
-                            Listener {index + 1}
-                            {listener.name && ` - ${listener.name}`}
-                            {listener.protocol &&
-                              ` (${listener.protocol}:${listener.port})`}
-                          </span>
-                          {formData.listeners.length > 1 && (
-                            <Button
-                              type='button'
-                              variant='outline'
-                              size='sm'
-                              onClick={e => {
-                                e.stopPropagation();
-                                removeListener(listener.id);
-                              }}
-                              className='text-red-600 hover:text-red-700 hover:bg-red-50 ml-2'
-                            >
-                              <Trash2 className='h-4 w-4' />
-                            </Button>
-                          )}
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className='px-4 pb-4'>
-                        <ListenerCard
-                          listener={listener}
-                          updateListener={updateListener}
-                          isEditMode={isEditMode}
-                        />
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </div>
+              {/* Listeners Table */}
+              <ListenersTable
+                listeners={formData.listeners}
+                onView={handleViewListener}
+                onEdit={handleEditListener}
+                onDelete={handleDeleteListener}
+                isEditMode={isEditMode}
+                listenersEditMode={listenersEditMode}
+              />
             </CardContent>
-
-            {/* Submit Actions */}
-            <div className='flex justify-end gap-4 px-6 pb-6'>
-              <Button
-                type='button'
-                variant='outline'
-                className='hover:bg-secondary transition-colors'
-                onClick={onCancel}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleReviewAndCreate}
-                disabled={!isFormValid()}
-                className={`transition-colors ${
-                  isFormValid()
-                    ? 'bg-black text-white hover:bg-black/90'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                {isEditMode ? 'Save Changes' : 'Review & Create'}
-              </Button>
-            </div>
           </Card>
+
+          {/* Submit Actions - show different buttons based on mode */}
+          <div className='flex justify-end gap-4'>
+            {isEditMode && listenersEditMode ? (
+              // Listener edit mode buttons
+              <>
+                <Button
+                  type='button'
+                  variant='outline'
+                  className='hover:bg-secondary transition-colors'
+                  onClick={onToggleListenersEdit}
+                >
+                  Cancel Listener Changes
+                </Button>
+                <Button
+                  onClick={() => {
+                    // Save listener changes
+                    toast({
+                      title: 'Listeners updated successfully',
+                      description: 'Your listener configuration has been saved.',
+                    });
+                    if (onToggleListenersEdit) onToggleListenersEdit();
+                  }}
+                  className='bg-black text-white hover:bg-black/90'
+                >
+                  Save Listeners
+                </Button>
+              </>
+            ) : (
+              // Normal edit/create mode buttons
+              <>
+                <Button
+                  type='button'
+                  variant='outline'
+                  className='hover:bg-secondary transition-colors'
+                  onClick={handleCancel}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleReviewAndCreate}
+                  disabled={!isFormValid()}
+                  className={`transition-colors ${
+                    isFormValid()
+                      ? 'bg-black text-white hover:bg-black/90'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  {isEditMode ? 'Save Changes' : 'Review & Create'}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Side Panel */}
@@ -726,6 +877,20 @@ export function ALBCreateForm({
         taskId={taskId}
         onSuccess={handleProgressSuccess}
         formData={formData}
+      />
+
+      {/* Listener View/Edit Modal */}
+      <ListenerViewEditModal
+        isOpen={showListenerModal}
+        onClose={() => {
+          setShowListenerModal(false);
+          setIsNewListenerModal(false);
+        }}
+        listener={selectedListener}
+        onSave={handleSaveListener}
+        mode={listenerModalMode}
+        isALB={true}
+        isNewListener={isNewListenerModal}
       />
     </PageLayout>
   );
