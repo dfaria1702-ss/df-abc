@@ -13,6 +13,7 @@ import {
   canDeletePolicy,
 } from '@/lib/iam-data';
 import { CreatePolicyModal } from '@/components/modals/create-policy-modal';
+import { EditPolicyModal } from '@/components/modals/edit-policy-modal';
 import { DetachPolicyModal } from '@/components/modals/detach-policy-modal';
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +22,7 @@ export default function PoliciesPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [detachModalOpen, setDetachModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null);
@@ -31,6 +33,20 @@ export default function PoliciesPage() {
     toast({
       title: 'Policy created successfully',
       description: 'The new policy has been created.',
+    });
+  };
+
+  const handleEditClick = (policy: Policy) => {
+    setSelectedPolicy(policy);
+    setEditModalOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    setEditModalOpen(false);
+    setSelectedPolicy(null);
+    toast({
+      title: 'Policy updated successfully',
+      description: 'The policy has been updated.',
     });
   };
 
@@ -135,6 +151,7 @@ export default function PoliciesPage() {
         <div className='flex justify-end'>
           <ActionMenu
             viewHref={`/iam/policies/${row.id}`}
+            onEdit={() => handleEditClick(row)}
             onCustomDelete={() => handleDeleteClick(row)}
             resourceName={row.name}
             resourceType='Policy'
@@ -178,6 +195,13 @@ export default function PoliciesPage() {
 
       {selectedPolicy && (
         <>
+          <EditPolicyModal
+            open={editModalOpen}
+            onOpenChange={setEditModalOpen}
+            policy={selectedPolicy}
+            onSuccess={handleEditSuccess}
+          />
+
           <DetachPolicyModal
             open={detachModalOpen}
             onClose={() => {

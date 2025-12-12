@@ -12,15 +12,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Plus, Trash2 } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Trash2, Plus, Info, Eye, EyeOff } from 'lucide-react';
+import { TooltipWrapper } from '@/components/ui/tooltip-wrapper';
+import { SearchableSelect, SearchableMultiSelect } from '@/components/ui/searchable-select';
 import {
   type Policy,
   type PolicyAccessRule,
@@ -39,6 +34,40 @@ interface EditPolicyModalProps {
   onSuccess: () => void;
 }
 
+interface RuleFormData {
+  id: string;
+  effect: Effect;
+  operations: CRUDOperation[];
+  policyType: PolicyType;
+  resourceName: string;
+}
+
+// Helper function to group PolicyAccessRules into RuleFormData
+function groupRulesForEditing(rules: PolicyAccessRule[]): RuleFormData[] {
+  const groupMap = new Map<string, RuleFormData>();
+  
+  rules.forEach(rule => {
+    const key = `${rule.effect}-${rule.policyType}-${rule.resourceName}`;
+    
+    if (groupMap.has(key)) {
+      const existing = groupMap.get(key)!;
+      if (!existing.operations.includes(rule.operation)) {
+        existing.operations.push(rule.operation);
+      }
+    } else {
+      groupMap.set(key, {
+        id: rule.id,
+        effect: rule.effect,
+        operations: [rule.operation],
+        policyType: rule.policyType,
+        resourceName: rule.resourceName,
+      });
+    }
+  });
+  
+  return Array.from(groupMap.values());
+}
+
 export function EditPolicyModal({
   open,
   onOpenChange,
@@ -47,13 +76,25 @@ export function EditPolicyModal({
 }: EditPolicyModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [rules, setRules] = useState<PolicyAccessRule[]>([]);
+  const [showJsonPreview, setShowJsonPreview] = useState(false);
+  const [rules, setRules] = useState<RuleFormData[]>([]);
 
   useEffect(() => {
     if (open && policy) {
       setName(policy.name);
       setDescription(policy.description);
-      setRules([...policy.rules]);
+      setShowJsonPreview(false);
+      // Group the existing rules for editing
+      const groupedRules = groupRulesForEditing(policy.rules);
+      setRules(groupedRules.length > 0 ? groupedRules : [
+        {
+          id: '1',
+          effect: 'Allow',
+          operations: ['Read'],
+          policyType: 'VM',
+          resourceName: '',
+        },
+      ]);
     }
   }, [open, policy]);
 
@@ -61,29 +102,33 @@ export function EditPolicyModal({
     onOpenChange(false);
   };
 
-  const handleAddRule = () => {
-    const newRule: PolicyAccessRule = {
-      id: `rule-${Date.now()}`,
-      effect: 'Allow',
-      operation: 'Read',
-      policyType: 'VM',
-      resourceName: '*',
-    };
-    setRules([...rules, newRule]);
+  const addRule = () => {
+    setRules([
+      ...rules,
+      {
+        id: Date.now().toString(),
+        effect: 'Allow',
+        operations: ['Read'],
+        policyType: 'VM',
+        resourceName: '',
+      },
+    ]);
   };
 
-  const handleDeleteRule = (ruleId: string) => {
-    setRules(rules.filter(rule => rule.id !== ruleId));
+  const removeRule = (id: string) => {
+    if (rules.length > 1) {
+      setRules(rules.filter(rule => rule.id !== id));
+    }
   };
 
-  const handleUpdateRule = (
-    ruleId: string,
-    field: keyof PolicyAccessRule,
-    value: string
+  const updateRule = (
+    id: string,
+    field: keyof RuleFormData,
+    value: string | CRUDOperation[]
   ) => {
     setRules(
       rules.map(rule =>
-        rule.id === ruleId ? { ...rule, [field]: value } : rule
+        rule.id === id ? { ...rule, [field]: value } : rule
       )
     );
   };
@@ -91,14 +136,26 @@ export function EditPolicyModal({
   const handleSave = () => {
     // Validate
     if (!name.trim()) return;
-    if (rules.length === 0) return;
+    if (rules.some(rule => !rule.resourceName.trim() || rule.operations.length === 0))
+      return;
+
+    // Convert form rules to PolicyAccessRule format (one rule per operation)
+    const policyRules: PolicyAccessRule[] = rules.flatMap(rule =>
+      rule.operations.map((operation, idx) => ({
+        id: `${rule.id}-${idx}`,
+        effect: rule.effect,
+        operation,
+        policyType: rule.policyType,
+        resourceName: rule.resourceName,
+      }))
+    );
 
     // Mock update
-    console.log('Updating policy:', {
-      policyId: policy.id,
-      name,
-      description,
-      rules,
+    console.log('Updating policy:', { 
+      policyId: policy.id, 
+      name, 
+      description, 
+      rules: policyRules 
     });
 
     // Simulate API call
@@ -108,11 +165,35 @@ export function EditPolicyModal({
     }, 500);
   };
 
-  const getEffectBadgeVariant = (effect: Effect) => {
-    return effect === 'Allow' ? 'default' : 'destructive';
-  };
+  const isValid =
+    name.trim() &&
+    rules.every(
+      rule => rule.resourceName.trim() && rule.operations.length > 0
+    );
 
-  const isValid = name.trim() && rules.length > 0;
+  // Generate JSON preview
+  const getJsonPreview = () => {
+    const policyRules: PolicyAccessRule[] = rules.flatMap(rule =>
+      rule.operations.map((operation, idx) => ({
+        id: `${rule.id}-${idx}`,
+        effect: rule.effect,
+        operation,
+        policyType: rule.policyType,
+        resourceName: rule.resourceName,
+      }))
+    );
+
+    return JSON.stringify(
+      {
+        id: policy.id,
+        name,
+        description,
+        rules: policyRules,
+      },
+      null,
+      2
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -124,15 +205,45 @@ export function EditPolicyModal({
           <p className='text-sm text-muted-foreground pt-2'>
             Modify policy details and access rules
           </p>
+          <div className='flex items-center justify-end pt-2'>
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              onClick={() => setShowJsonPreview(!showJsonPreview)}
+            >
+              {showJsonPreview ? (
+                <>
+                  <EyeOff className='h-4 w-4 mr-1' />
+                  Hide JSON
+                </>
+              ) : (
+                <>
+                  <Eye className='h-4 w-4 mr-1' />
+                  View JSON
+                </>
+              )}
+            </Button>
+          </div>
         </DialogHeader>
 
         <div className='space-y-6 py-4'>
+          {showJsonPreview ? (
+            <Card>
+              <CardContent className='p-4'>
+                <pre className='bg-muted p-4 rounded-md overflow-x-auto text-xs max-h-[500px] overflow-y-auto'>
+                  {getJsonPreview()}
+                </pre>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
           <div className='space-y-2'>
-            <Label htmlFor='name' className='text-sm font-medium'>
+            <Label htmlFor='edit-name' className='text-sm font-medium'>
               Policy Name <span className='text-destructive'>*</span>
             </Label>
             <Input
-              id='name'
+              id='edit-name'
               placeholder='Enter policy name'
               value={name}
               onChange={e => setName(e.target.value)}
@@ -140,11 +251,11 @@ export function EditPolicyModal({
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='description' className='text-sm font-medium'>
+            <Label htmlFor='edit-description' className='text-sm font-medium'>
               Description
             </Label>
             <Textarea
-              id='description'
+              id='edit-description'
               placeholder='Enter policy description'
               value={description}
               onChange={e => setDescription(e.target.value)}
@@ -154,170 +265,118 @@ export function EditPolicyModal({
 
           <div className='space-y-4'>
             <div className='flex items-center justify-between'>
-              <div className='space-y-1'>
-                <Label className='text-sm font-medium'>
-                  Access Rules <span className='text-destructive'>*</span>
-                </Label>
-                <p className='text-xs text-muted-foreground'>
-                  Define access permissions for this policy
-                </p>
-              </div>
+              <Label className='text-sm font-medium'>
+                Access Rules <span className='text-destructive'>*</span>
+              </Label>
               <Button
+                type='button'
                 variant='outline'
                 size='sm'
-                onClick={handleAddRule}
-                className='gap-1'
+                onClick={addRule}
               >
-                <Plus className='h-4 w-4' />
+                <Plus className='h-4 w-4 mr-1' />
                 Add Rule
               </Button>
             </div>
 
-            {rules.length === 0 ? (
-              <div className='text-center py-8 border rounded-md bg-muted/20'>
-                <p className='text-sm text-muted-foreground'>
-                  No rules defined. Click "Add Rule" to create one.
-                </p>
-              </div>
-            ) : (
-              <div className='space-y-3'>
-                {rules.map((rule, index) => (
-                  <div
-                    key={rule.id}
-                    className='border rounded-lg p-4 bg-card space-y-3'
-                  >
-                    <div className='flex items-center justify-between'>
-                      <span className='text-sm font-medium text-muted-foreground'>
-                        Rule {index + 1}
-                      </span>
+            <div className='space-y-3'>
+              {rules.map((rule, index) => (
+                <Card key={rule.id} className='p-4'>
+                  <div className='flex items-start justify-between mb-4'>
+                    <span className='text-sm font-medium text-muted-foreground'>
+                      Rule {index + 1}
+                    </span>
+                    {rules.length > 1 && (
                       <Button
+                        type='button'
                         variant='ghost'
                         size='sm'
-                        onClick={() => handleDeleteRule(rule.id)}
-                        className='h-8 w-8 p-0 text-muted-foreground hover:text-red-600'
+                        onClick={() => removeRule(rule.id)}
+                        className='h-8 w-8 p-0'
                       >
                         <Trash2 className='h-4 w-4' />
                       </Button>
+                    )}
+                  </div>
+
+                  <div className='grid grid-cols-2 gap-4'>
+                    {/* Policy Type - First */}
+                    <div className='space-y-2'>
+                      <Label className='text-xs'>Policy Type</Label>
+                      <SearchableSelect
+                        options={policyTypeOptions.map(type => ({
+                          value: type,
+                          label: type,
+                        }))}
+                        value={rule.policyType}
+                        onValueChange={value =>
+                          updateRule(rule.id, 'policyType', value as PolicyType)
+                        }
+                        placeholder='Select policy type'
+                        searchPlaceholder='Search policy types...'
+                      />
                     </div>
 
-                    <div className='grid grid-cols-2 md:grid-cols-4 gap-3'>
-                      <div className='space-y-1'>
-                        <Label className='text-xs text-muted-foreground'>
-                          Effect
-                        </Label>
-                        <Select
-                          value={rule.effect}
-                          onValueChange={value =>
-                            handleUpdateRule(rule.id, 'effect', value)
-                          }
-                        >
-                          <SelectTrigger className='h-9'>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {effectOptions.map(effect => (
-                              <SelectItem key={effect} value={effect}>
-                                <Badge
-                                  variant={getEffectBadgeVariant(effect)}
-                                  className='text-xs'
-                                >
-                                  {effect}
-                                </Badge>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className='space-y-1'>
-                        <Label className='text-xs text-muted-foreground'>
-                          Operation
-                        </Label>
-                        <Select
-                          value={rule.operation}
-                          onValueChange={value =>
-                            handleUpdateRule(rule.id, 'operation', value)
-                          }
-                        >
-                          <SelectTrigger className='h-9'>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {crudOperationOptions.map(op => (
-                              <SelectItem key={op} value={op}>
-                                {op}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className='space-y-1'>
-                        <Label className='text-xs text-muted-foreground'>
-                          Resource Type
-                        </Label>
-                        <Select
-                          value={rule.policyType}
-                          onValueChange={value =>
-                            handleUpdateRule(rule.id, 'policyType', value)
-                          }
-                        >
-                          <SelectTrigger className='h-9'>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {policyTypeOptions.map(type => (
-                              <SelectItem key={type} value={type}>
-                                {type}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className='space-y-1'>
-                        <Label className='text-xs text-muted-foreground'>
-                          Resource Name
-                        </Label>
-                        <Input
-                          placeholder='e.g., vm-* or *'
-                          value={rule.resourceName}
-                          onChange={e =>
-                            handleUpdateRule(
-                              rule.id,
-                              'resourceName',
-                              e.target.value
-                            )
-                          }
-                          className='h-9'
-                        />
-                      </div>
+                    {/* Operations - Second (Multi-select with search) */}
+                    <div className='space-y-2'>
+                      <Label className='text-xs'>Operations</Label>
+                      <SearchableMultiSelect
+                        options={crudOperationOptions.map(op => ({
+                          value: op,
+                          label: op,
+                        }))}
+                        values={rule.operations}
+                        onValuesChange={values =>
+                          updateRule(rule.id, 'operations', values as CRUDOperation[])
+                        }
+                        placeholder='Select operations'
+                        searchPlaceholder='Search operations...'
+                      />
                     </div>
 
-                    {/* Rule Preview */}
-                    <div className='pt-2 border-t'>
-                      <div className='flex items-center gap-2 text-xs text-muted-foreground'>
-                        <span>Preview:</span>
-                        <Badge
-                          variant={getEffectBadgeVariant(rule.effect)}
-                          className='text-xs'
+                    {/* Effect - Third */}
+                    <div className='space-y-2'>
+                      <Label className='text-xs'>Effect</Label>
+                      <SearchableSelect
+                        options={effectOptions.map(effect => ({
+                          value: effect,
+                          label: effect,
+                        }))}
+                        value={rule.effect}
+                        onValueChange={value =>
+                          updateRule(rule.id, 'effect', value as Effect)
+                        }
+                        placeholder='Select effect'
+                        searchPlaceholder='Search effects...'
+                      />
+                    </div>
+
+                    {/* Resource Name - Fourth */}
+                    <div className='space-y-2'>
+                      <div className='flex items-center gap-1'>
+                        <Label className='text-xs'>Resource Name</Label>
+                        <TooltipWrapper
+                          content='Put * if you want to give access of all resources for this policy'
+                          inModal={true}
                         >
-                          {rule.effect}
-                        </Badge>
-                        <span className='font-medium'>{rule.operation}</span>
-                        <span>on</span>
-                        <span className='font-medium'>{rule.policyType}</span>
-                        <span>resources matching</span>
-                        <code className='bg-muted px-1.5 py-0.5 rounded text-xs'>
-                          {rule.resourceName || '*'}
-                        </code>
+                          <Info className='h-3 w-3 text-muted-foreground cursor-help' />
+                        </TooltipWrapper>
                       </div>
+                      <Input
+                        placeholder='e.g., vm-*, storage-*'
+                        value={rule.resourceName}
+                        onChange={e =>
+                          updateRule(rule.id, 'resourceName', e.target.value)
+                        }
+                      />
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                </Card>
+              ))}
+            </div>
           </div>
+            </>
+          )}
         </div>
 
         <DialogFooter className='flex items-center justify-end gap-2'>
@@ -337,4 +396,3 @@ export function EditPolicyModal({
     </Dialog>
   );
 }
-
