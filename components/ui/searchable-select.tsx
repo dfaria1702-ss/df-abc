@@ -128,7 +128,7 @@ export function SearchableMultiSelect({
   );
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button
           variant='outline'
@@ -142,44 +142,61 @@ export function SearchableMultiSelect({
           <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
-        <Command shouldFilter={false}>
-          <CommandInput 
-            placeholder={searchPlaceholder} 
-            value={search}
-            onValueChange={setSearch}
-          />
-          <CommandList>
+      <PopoverContent 
+        className='w-[--radix-popover-trigger-width] p-0' 
+        align='start'
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
+        <div className='flex flex-col'>
+          {/* Search Input */}
+          <div className='flex items-center border-b px-3'>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4 shrink-0 opacity-50 mr-2"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <input
+              className='flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50'
+              placeholder={searchPlaceholder}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          
+          {/* Options List */}
+          <div className='max-h-[200px] overflow-y-auto p-1'>
             {filteredOptions.length === 0 ? (
-              <CommandEmpty>{emptyText}</CommandEmpty>
+              <div className='py-6 text-center text-sm text-muted-foreground'>
+                {emptyText}
+              </div>
             ) : (
-              <CommandGroup>
-                {filteredOptions.map(option => {
-                  const isSelected = values.includes(option.value);
-                  return (
-                    <div
-                      key={option.value}
-                      className='relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground'
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        toggleValue(option.value);
-                      }}
-                    >
-                      <Checkbox
-                        checked={isSelected}
-                        className='mr-2 h-4 w-4'
-                        onCheckedChange={() => toggleValue(option.value)}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <span>{option.label}</span>
-                    </div>
-                  );
-                })}
-              </CommandGroup>
+              filteredOptions.map(option => {
+                const isSelected = values.includes(option.value);
+                return (
+                  <div
+                    key={option.value}
+                    className='relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground'
+                    onClick={() => toggleValue(option.value)}
+                  >
+                    <Checkbox
+                      checked={isSelected}
+                      className='mr-2 h-4 w-4 pointer-events-none'
+                    />
+                    <span>{option.label}</span>
+                  </div>
+                );
+              })
             )}
-          </CommandList>
-        </Command>
+          </div>
+        </div>
       </PopoverContent>
     </Popover>
   );
