@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Check, ChevronsUpDown, Search } from 'lucide-react';
+import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface SearchableSelectProps {
   options: { value: string; label: string }[];
@@ -106,6 +107,7 @@ export function SearchableMultiSelect({
   className,
 }: SearchableMultiSelectProps) {
   const [open, setOpen] = React.useState(false);
+  const [search, setSearch] = React.useState('');
 
   const selectedLabels = values
     .map(v => options.find(o => o.value === v)?.label)
@@ -119,6 +121,11 @@ export function SearchableMultiSelect({
       onValuesChange([...values, optionValue]);
     }
   };
+
+  // Filter options based on search
+  const filteredOptions = options.filter(option =>
+    option.label.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -136,27 +143,38 @@ export function SearchableMultiSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
-        <Command>
-          <CommandInput placeholder={searchPlaceholder} />
+        <Command shouldFilter={false}>
+          <CommandInput 
+            placeholder={searchPlaceholder} 
+            value={search}
+            onValueChange={setSearch}
+          />
           <CommandList>
-            <CommandEmpty>{emptyText}</CommandEmpty>
-            <CommandGroup>
-              {options.map(option => (
-                <div
-                  key={option.value}
-                  className='relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50'
-                  onClick={() => toggleValue(option.value)}
-                >
-                  <Check
-                    className={cn(
-                      'mr-2 h-4 w-4',
-                      values.includes(option.value) ? 'opacity-100' : 'opacity-0'
-                    )}
-                  />
-                  {option.label}
-                </div>
-              ))}
-            </CommandGroup>
+            {filteredOptions.length === 0 ? (
+              <CommandEmpty>{emptyText}</CommandEmpty>
+            ) : (
+              <CommandGroup>
+                {filteredOptions.map(option => {
+                  const isSelected = values.includes(option.value);
+                  return (
+                    <CommandItem
+                      key={option.value}
+                      value={option.value}
+                      onSelect={() => toggleValue(option.value)}
+                      className='cursor-pointer'
+                    >
+                      <Checkbox
+                        checked={isSelected}
+                        className='mr-2 h-4 w-4'
+                        onCheckedChange={() => toggleValue(option.value)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <span>{option.label}</span>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>
