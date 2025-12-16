@@ -241,7 +241,7 @@ export function SignInScreen() {
                 type='button'
                 variant='outline'
                 className='flex-1'
-                onClick={() => router.push('/auth/signup')}
+                onClick={() => router.push('/auth/new-signin')}
               >
                 New Sign In
               </Button>
