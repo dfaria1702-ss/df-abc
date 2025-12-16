@@ -95,7 +95,21 @@ export function NewUserSignIn() {
 
   return (
     <div className='flex min-h-screen'>
-      {/* Left side - 60% - Form Content */}
+      {/* Left side - 40% - Image */}
+      <div className='hidden lg:flex lg:w-[40%] relative bg-gradient-to-br from-green-50 to-green-100'>
+        <div className='absolute inset-0 flex items-center justify-center p-12'>
+          <Image
+            src='/register-krutrim-cloud.png'
+            alt='Krutrim Cloud Platform'
+            width={600}
+            height={600}
+            className='object-contain w-full h-auto'
+            priority
+          />
+        </div>
+      </div>
+
+      {/* Right side - 60% - Form Content */}
       <div className='flex w-full lg:w-[60%] flex-col items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8'>
         <div className='w-full max-w-md'>
           {/* Krutrim Logo */}
@@ -230,20 +244,6 @@ export function NewUserSignIn() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Right side - 40% - Image */}
-      <div className='hidden lg:flex lg:w-[40%] relative bg-gradient-to-br from-green-50 to-green-100'>
-        <div className='absolute inset-0 flex items-center justify-center p-12'>
-          <Image
-            src='/register-krutrim-cloud.png'
-            alt='Krutrim Cloud Platform'
-            width={600}
-            height={600}
-            className='object-contain w-full h-auto'
-            priority
-          />
         </div>
       </div>
     </div>
