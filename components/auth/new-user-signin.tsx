@@ -107,10 +107,10 @@ export function NewUserSignIn() {
       </div>
 
       {/* Right side - 60% - Form Content */}
-      <div className='flex w-full lg:w-[60%] flex-col items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8'>
+      <div className='flex w-full lg:w-[60%] flex-col items-center justify-center bg-white px-4 py-12 sm:px-6 lg:px-8'>
         <div className='w-full max-w-md'>
           {/* Krutrim Logo */}
-          <div className='flex justify-center mb-8'>
+          <div className='flex justify-start mb-8'>
             <Image
               src='https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Krutrim%20Logo-YGvFj442htj2kpqEDlt4mjbOEIqtzX.png'
               alt='Krutrim'
@@ -121,9 +121,9 @@ export function NewUserSignIn() {
           </div>
 
           {/* Card Container */}
-          <div className='bg-white shadow-sm rounded-lg p-8'>
+          <div className='bg-white rounded-lg p-8'>
             {/* Title and Description */}
-            <div className='text-center mb-6'>
+            <div className='text-left mb-6'>
               <h2 className='text-2xl font-bold tracking-tight text-gray-900 mb-2'>
                 Login to your account
               </h2>
@@ -220,7 +220,7 @@ export function NewUserSignIn() {
             </form>
 
             {/* Footer Links */}
-            <div className='mt-6 text-center text-sm'>
+            <div className='mt-6 text-left text-sm'>
               <div>
                 <span className='text-gray-600'>Don&apos;t have an account? </span>
                 <Link
