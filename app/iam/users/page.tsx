@@ -30,7 +30,7 @@ export default function UsersPage() {
   const handleInviteSuccess = () => {
     setInviteModalOpen(false);
     toast({
-      title: 'User invited successfully',
+      title: 'User added successfully',
       description: 'An invitation email has been sent to the user.',
     });
     // In a real app, this would refresh the user list
@@ -260,7 +260,7 @@ export default function UsersPage() {
             onClick={() => setInviteModalOpen(true)}
             className='bg-black text-white rounded-full px-6 py-2 text-base font-medium hover:bg-neutral-800'
           >
-            Invite User
+            Add User
           </Button>
         }
       >

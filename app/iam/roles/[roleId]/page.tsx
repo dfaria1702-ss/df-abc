@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { PageLayout } from '@/components/page-layout';
 import { DetailGrid } from '@/components/detail-grid';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2 } from 'lucide-react';
 import {
   getRoleById,
@@ -83,29 +84,31 @@ export default function RoleDetailsPage() {
             padding: '1.5rem',
           }}
         >
-          {/* Overlay Edit/Delete Buttons */}
-          <div className='absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10'>
-            <Button
-              variant='ghost'
-              size='sm'
-              onClick={() => setEditModalOpen(true)}
-              className='h-8 w-8 p-0 text-muted-foreground hover:text-foreground bg-white/80 hover:bg-white border border-gray-200 shadow-sm'
-            >
-              <Edit className='h-4 w-4' />
-            </Button>
-            <Button
-              variant='ghost'
-              size='sm'
-              onClick={() => setDeleteModalOpen(true)}
-              className='h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm'
-            >
-              <Trash2 className='h-4 w-4' />
-            </Button>
-          </div>
+          {/* Overlay Edit/Delete Buttons - Only for custom roles */}
+          {role.type === 'custom' && (
+            <div className='absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10'>
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => setEditModalOpen(true)}
+                className='h-8 w-8 p-0 text-muted-foreground hover:text-foreground bg-white/80 hover:bg-white border border-gray-200 shadow-sm'
+              >
+                <Edit className='h-4 w-4' />
+              </Button>
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => setDeleteModalOpen(true)}
+                className='h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm'
+              >
+                <Trash2 className='h-4 w-4' />
+              </Button>
+            </div>
+          )}
 
           <DetailGrid>
-            {/* Row 1: Created At, Policies */}
-            <div className='col-span-full grid grid-cols-2 gap-4'>
+            {/* Row 1: Created At, Policies, Type */}
+            <div className='col-span-full grid grid-cols-3 gap-4'>
               <div className='space-y-1'>
                 <label className='text-sm font-normal text-gray-700' style={{ fontSize: '13px' }}>
                   Created At
@@ -120,6 +123,19 @@ export default function RoleDetailsPage() {
                 </label>
                 <div className='font-medium' style={{ fontSize: '14px' }}>
                   {policies.length} {policies.length === 1 ? 'policy' : 'policies'}
+                </div>
+              </div>
+              <div className='space-y-1'>
+                <label className='text-sm font-normal text-gray-700' style={{ fontSize: '13px' }}>
+                  Type
+                </label>
+                <div>
+                  <Badge 
+                    variant={role.type === 'default' ? 'secondary' : 'outline'}
+                    className='text-xs capitalize'
+                  >
+                    {role.type}
+                  </Badge>
                 </div>
               </div>
             </div>

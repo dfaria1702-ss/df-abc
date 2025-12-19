@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PageShell } from '@/components/page-shell';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { ShadcnDataTable, type Column } from '@/components/ui/shadcn-data-table';
 import { ActionMenu } from '@/components/action-menu';
 import {
@@ -126,6 +127,19 @@ export default function RolesPage() {
       ),
     },
     {
+      key: 'type',
+      label: 'Type',
+      sortable: true,
+      render: (value: string) => (
+        <Badge 
+          variant={value === 'default' ? 'secondary' : 'outline'}
+          className='text-xs capitalize'
+        >
+          {value}
+        </Badge>
+      ),
+    },
+    {
       key: 'policyIds',
       label: 'Policies',
       render: (_: unknown, row: Role) => (
@@ -152,8 +166,8 @@ export default function RolesPage() {
         <div className='flex justify-end'>
           <ActionMenu
             viewHref={`/iam/roles/${row.id}`}
-            onEdit={() => handleEditClick(row)}
-            onCustomDelete={() => handleDeleteClick(row)}
+            onEdit={row.type === 'custom' ? () => handleEditClick(row) : undefined}
+            onCustomDelete={row.type === 'custom' ? () => handleDeleteClick(row) : undefined}
             resourceName={row.name}
             resourceType='Role'
           />

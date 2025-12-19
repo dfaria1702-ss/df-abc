@@ -5,6 +5,7 @@ export type AccessType = 'console' | 'programmatic' | 'both';
 export type PolicyType = 'VM' | 'Storage' | 'Network' | 'Kubernetes' | 'Database' | 'Billing' | 'IAM';
 export type CRUDOperation = 'Create' | 'Read' | 'Update' | 'Delete';
 export type Effect = 'Allow' | 'Deny';
+export type RoleType = 'default' | 'custom';
 
 // Policy Access Rule
 export interface PolicyAccessRule {
@@ -33,6 +34,7 @@ export interface Role {
   id: string;
   name: string;
   description: string;
+  type: RoleType;
   policyIds: string[];
   createdAt: string;
   createdBy: string;
@@ -275,6 +277,7 @@ export const mockRoles: Role[] = [
     id: 'role-1',
     name: 'Super Admin',
     description: 'Full system access and control',
+    type: 'default',
     policyIds: ['policy-1', 'policy-3', 'policy-4'],
     createdAt: '2024-01-15T10:00:00Z',
     createdBy: 'user-1',
@@ -283,6 +286,7 @@ export const mockRoles: Role[] = [
     id: 'role-2',
     name: 'Developer',
     description: 'Development and testing access',
+    type: 'custom',
     policyIds: ['policy-1', 'policy-2'],
     createdAt: '2024-01-18T14:20:00Z',
     createdBy: 'user-1',
@@ -291,6 +295,7 @@ export const mockRoles: Role[] = [
     id: 'role-3',
     name: 'Viewer',
     description: 'Read-only access to resources',
+    type: 'default',
     policyIds: ['policy-2', 'policy-5'],
     createdAt: '2024-02-01T09:30:00Z',
     createdBy: 'user-2',
@@ -299,6 +304,7 @@ export const mockRoles: Role[] = [
     id: 'role-4',
     name: 'Network Admin',
     description: 'Network infrastructure management',
+    type: 'custom',
     policyIds: ['policy-3'],
     createdAt: '2024-02-05T11:00:00Z',
     createdBy: 'user-1',

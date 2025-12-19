@@ -184,7 +184,7 @@ export function InviteUserModal({
       <DialogContent className='sm:max-w-2xl max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
           <DialogTitle className='text-xl font-semibold'>
-            Invite User
+            Add User
           </DialogTitle>
           <div className='flex items-center gap-2 pt-2'>
             <div
