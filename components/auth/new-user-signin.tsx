@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Info } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 export function NewUserSignIn() {
@@ -21,6 +22,7 @@ export function NewUserSignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [hoveredTab, setHoveredTab] = useState<'root' | 'iam' | null>(null);
   const [errors, setErrors] = useState<{
     organisationId?: string;
     email?: string;
@@ -177,34 +179,88 @@ export function NewUserSignIn() {
 
               {/* User Type Toggle */}
               <div>
-                <Switch 
-                  name="userType" 
-                  size="medium"
-                  value={userType}
-                  onValueChange={(value) => setUserType(value as 'root' | 'iam')}
-                >
-                  <Switch.Control
-                    label="Root User"
-                    value="root"
-                    defaultChecked={userType === 'root'}
-                  />
-                  <Switch.Control
-                    label="IAM User"
-                    value="iam"
-                    defaultChecked={userType === 'iam'}
-                  />
-                </Switch>
+                <TooltipProvider delayDuration={200}>
+                  <Switch 
+                    name="userType" 
+                    size="medium"
+                    value={userType}
+                    onValueChange={(value) => setUserType(value as 'root' | 'iam')}
+                  >
+                    <div
+                      onMouseEnter={() => setHoveredTab('root')}
+                      onMouseLeave={() => setHoveredTab(null)}
+                      className="flex-1"
+                    >
+                      <Switch.Control
+                        label={
+                          <div className="flex items-center justify-center relative w-full">
+                            <span>Root User</span>
+                            {(userType === 'root' || hoveredTab === 'root') && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3.5 w-3.5 text-gray-500 absolute left-1/2 translate-x-[45px]" />
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-none whitespace-nowrap">
+                                  <p>Choose this if you have created the organisation</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                          </div>
+                        }
+                        value="root"
+                        defaultChecked={userType === 'root'}
+                      />
+                    </div>
+                    <div
+                      onMouseEnter={() => setHoveredTab('iam')}
+                      onMouseLeave={() => setHoveredTab(null)}
+                      className="flex-1"
+                    >
+                      <Switch.Control
+                        label={
+                          <div className="flex items-center justify-center relative w-full">
+                            <span>IAM User</span>
+                            {(userType === 'iam' || hoveredTab === 'iam') && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3.5 w-3.5 text-gray-500 absolute left-1/2 translate-x-[40px]" />
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-none whitespace-nowrap">
+                                  <p>Choose this if you were invited to the organisation</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                          </div>
+                        }
+                        value="iam"
+                        defaultChecked={userType === 'iam'}
+                      />
+                    </div>
+                  </Switch>
+                </TooltipProvider>
               </div>
 
               {/* Organisation ID - Only for IAM Users */}
               {userType === 'iam' && (
                 <div>
-                  <Label
-                    htmlFor='organisationId'
-                    className='block text-sm text-gray-500 mb-2'
-                  >
-                    Organisation ID
-                  </Label>
+                  <TooltipProvider delayDuration={200}>
+                    <div className='flex items-center gap-1.5 mb-2'>
+                      <Label
+                        htmlFor='organisationId'
+                        className='block text-sm text-gray-500'
+                      >
+                        Organisation ID
+                      </Label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-gray-500 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>This identifies which organization you are signing into. Enter the Org ID shared with you when you were invited.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </TooltipProvider>
                   <Input
                     id='organisationId'
                     name='organisationId'
