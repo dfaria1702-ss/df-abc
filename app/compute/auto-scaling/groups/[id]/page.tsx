@@ -23,12 +23,14 @@ import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ShadcnDataTable } from '@/components/ui/shadcn-data-table';
 import { AutoScalingSettingsModal } from '@/components/modals/auto-scaling-settings-modal';
+import { ASGLogsModal } from '@/components/modals/asg-logs-modal';
 
 export default function AutoScalingGroupDetailsPage() {
   const { id } = useParams();
   const { toast } = useToast();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isScalingModalOpen, setIsScalingModalOpen] = useState(false);
+  const [isLogsModalOpen, setIsLogsModalOpen] = useState(false);
 
   const asg = autoScalingGroups.find(a => a.id === id);
 
@@ -224,12 +226,24 @@ export default function AutoScalingGroupDetailsPage() {
     });
   };
 
+  const handleViewLogs = () => {
+    setIsLogsModalOpen(true);
+  };
+
 
   return (
     <PageLayout
       title={asg.name}
       customBreadcrumbs={customBreadcrumbs}
       hideViewDocs={true}
+      headerActions={
+        <Button
+          variant="secondary"
+          onClick={handleViewLogs}
+        >
+          View Logs
+        </Button>
+      }
     >
       <div className='space-y-8'>
         {/* ASG Basic Information */}
@@ -614,6 +628,13 @@ export default function AutoScalingGroupDetailsPage() {
         minCapacity={asg.minCapacity}
         maxCapacity={asg.maxCapacity}
         desiredCapacity={asg.desiredCapacity}
+      />
+
+      {/* ASG Logs Modal */}
+      <ASGLogsModal
+        isOpen={isLogsModalOpen}
+        onClose={() => setIsLogsModalOpen(false)}
+        asgName={asg.name}
       />
     </PageLayout>
   );
