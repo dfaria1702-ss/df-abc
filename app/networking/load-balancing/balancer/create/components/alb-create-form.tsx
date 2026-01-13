@@ -490,59 +490,59 @@ export function ALBCreateForm({
       customBreadcrumbs={customBreadcrumbs}
       hideViewDocs={false}
     >
-      {/* Step Indicator - only show in create mode */}
-      {!isEditMode && (
-        <div className='mb-12 flex items-center justify-center'>
-          {/* Step 1 */}
-          <div className='flex items-center gap-3'>
-            <div
-              className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
-                currentStep === 1
-                  ? 'bg-black text-white'
-                  : currentStep > 1
-                    ? 'bg-black text-white'
-                    : 'bg-gray-200 text-gray-600'
-              }`}
-            >
-              1
-            </div>
-            <span
-              className={`text-base font-medium ${
-                currentStep === 1 ? 'text-black' : 'text-gray-500'
-              }`}
-            >
-              Load Balancer Details
-            </span>
-          </div>
-
-          {/* Connecting Line */}
-          <div className='mx-8 h-px w-24 bg-gray-300'></div>
-
-          {/* Step 2 */}
-          <div className='flex items-center gap-3'>
-            <div
-              className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
-                currentStep === 2
-                  ? 'bg-black text-white'
-                  : 'bg-gray-200 text-gray-600'
-              }`}
-            >
-              2
-            </div>
-            <span
-              className={`text-base font-medium ${
-                currentStep === 2 ? 'text-black' : 'text-gray-500'
-              }`}
-            >
-              Listener Details
-            </span>
-          </div>
-        </div>
-      )}
-
       <div className='flex flex-col lg:flex-row gap-6'>
         {/* Main Content */}
         <div className='flex-1 space-y-4'>
+          {/* Step Indicator - only show in create mode */}
+          {!isEditMode && (
+            <div className='mb-8 flex items-center justify-center'>
+              {/* Step 1 */}
+              <div className='flex items-center gap-3'>
+                <div
+                  className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
+                    currentStep === 1
+                      ? 'bg-black text-white'
+                      : currentStep > 1
+                        ? 'bg-black text-white'
+                        : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  1
+                </div>
+                <span
+                  className={`text-base font-medium ${
+                    currentStep === 1 ? 'text-black' : 'text-gray-500'
+                  }`}
+                >
+                  Load Balancer Details
+                </span>
+              </div>
+
+              {/* Connecting Line */}
+              <div className='mx-8 h-px w-24 bg-gray-300'></div>
+
+              {/* Step 2 */}
+              <div className='flex items-center gap-3'>
+                <div
+                  className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
+                    currentStep === 2
+                      ? 'bg-black text-white'
+                      : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  2
+                </div>
+                <span
+                  className={`text-base font-medium ${
+                    currentStep === 2 ? 'text-black' : 'text-gray-500'
+                  }`}
+                >
+                  Listener Details
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Step 1: Load Balancer Details Section */}
           {(!isEditMode && currentStep === 1) || (isEditMode && !listenersEditMode) ? (
             <Card>
