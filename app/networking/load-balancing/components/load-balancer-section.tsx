@@ -270,11 +270,6 @@ export default function LoadBalancerSection() {
       ),
     },
     {
-      key: 'provisioningStatus',
-      label: 'Provisioning Status',
-      render: (value: string) => <StatusBadge status={value} />,
-    },
-    {
       key: 'operatingStatus',
       label: 'Operating Status',
       render: (value: string) => <StatusBadge status={value} />,
