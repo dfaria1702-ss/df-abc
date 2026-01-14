@@ -40,7 +40,7 @@ export default function CreateLoadBalancerPage() {
 
   const handleModalClose = () => {
     // If modal is closed without selection, go back to list
-    router.push('/networking/load-balancing/balancer');
+    router.push('/networking/load-balancing');
   };
 
   const handleBack = () => {

@@ -151,7 +151,7 @@ export function ALBProgressModal({
           // All steps completed, redirect after a short delay
           setTimeout(() => {
             onSuccess();
-            router.push('/networking/load-balancing/balancer');
+            router.push('/networking/load-balancing');
           }, 1000);
           return 100;
         }

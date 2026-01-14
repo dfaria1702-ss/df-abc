@@ -60,7 +60,7 @@ export default function LoadBalancerSummaryPage() {
       });
 
       // Redirect to load balancer list
-      router.push('/networking/load-balancing/balancer');
+      router.push('/networking/load-balancing');
     } catch (error) {
       console.error('Error creating load balancer:', error);
       toast({

@@ -546,7 +546,7 @@ export default function LoadBalancerDetailsPage({
       description: `Load Balancer "${loadBalancer.name}" has been deleted.`,
     });
 
-    router.push('/networking/load-balancing/balancer');
+    router.push('/networking/load-balancing');
   };
 
   const handleEdit = () => {
