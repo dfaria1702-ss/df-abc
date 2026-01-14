@@ -560,7 +560,6 @@ export default function LoadBalancerDetailsPage({
     { href: '/dashboard', title: 'Home' },
     { href: '/networking', title: 'Networking' },
     { href: '/networking/load-balancing', title: 'Load Balancers' },
-    { href: '/networking/load-balancing/balancer', title: 'Load Balancers' },
     {
       href: `/networking/load-balancing/balancer/${id}`,
       title: loadBalancer.name,
