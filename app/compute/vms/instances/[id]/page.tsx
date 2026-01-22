@@ -27,6 +27,7 @@ import {
   RefreshCw,
   Image,
   Wifi,
+  BarChart3,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -401,6 +402,20 @@ export default function VMInstanceDetailsPage() {
                 >
                   <Wifi className='mr-2 h-4 w-4' />
                   <span>Attach/Detach Public IP</span>
+                </DropdownMenuItem>
+
+                <div className='h-px bg-border my-1' />
+
+                {/* View Metrics */}
+                <DropdownMenuItem
+                  onClick={() => {
+                    const metricsUrl = `/observability/metrics/vm?resource=${encodeURIComponent(vm.name)}&timeRange=6&granularity=1`;
+                    router.push(metricsUrl);
+                  }}
+                  className='flex items-center cursor-pointer'
+                >
+                  <BarChart3 className='mr-2 h-4 w-4' />
+                  <span>View Metrics</span>
                 </DropdownMenuItem>
 
                 <div className='h-px bg-border my-1' />

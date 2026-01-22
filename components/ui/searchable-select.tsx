@@ -38,8 +38,29 @@ export function SearchableSelect({
   className,
 }: SearchableSelectProps) {
   const [open, setOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
 
   const selectedOption = options.find(option => option.value === value);
+
+  // Filter options based on search query
+  const filteredOptions = React.useMemo(() => {
+    if (!searchQuery.trim()) {
+      return options;
+    }
+    const query = searchQuery.toLowerCase();
+    return options.filter(
+      option =>
+        option.label.toLowerCase().includes(query) ||
+        option.value.toLowerCase().includes(query)
+    );
+  }, [options, searchQuery]);
+
+  // Reset search when popover closes
+  React.useEffect(() => {
+    if (!open) {
+      setSearchQuery('');
+    }
+  }, [open]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -55,30 +76,38 @@ export function SearchableSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
-        <Command>
-          <CommandInput placeholder={searchPlaceholder} />
+        <Command shouldFilter={false}>
+          <CommandInput 
+            placeholder={searchPlaceholder}
+            value={searchQuery}
+            onValueChange={setSearchQuery}
+          />
           <CommandList>
-            <CommandEmpty>{emptyText}</CommandEmpty>
-            <CommandGroup>
-              {options.map(option => (
-                <CommandItem
-                  key={option.value}
-                  value={option.value}
-                  onSelect={() => {
-                    onValueChange(option.value);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      'mr-2 h-4 w-4',
-                      value === option.value ? 'opacity-100' : 'opacity-0'
-                    )}
-                  />
-                  {option.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            {filteredOptions.length === 0 ? (
+              <CommandEmpty>{emptyText}</CommandEmpty>
+            ) : (
+              <CommandGroup>
+                {filteredOptions.map(option => (
+                  <div
+                    key={option.value}
+                    className='relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50'
+                    onClick={() => {
+                      onValueChange(option.value);
+                      setOpen(false);
+                      setSearchQuery(''); // Clear search on selection
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        'mr-2 h-4 w-4',
+                        value === option.value ? 'opacity-100' : 'opacity-0'
+                      )}
+                    />
+                    {option.label}
+                  </div>
+                ))}
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>

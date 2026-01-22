@@ -37,6 +37,7 @@ import {
   Map,
   X,
   Code,
+  Activity,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -345,6 +346,28 @@ const navigationConfig = {
           { href: '/iam/groups', label: 'Groups' },
           { href: '/iam/roles', label: 'Roles' },
           { href: '/iam/policies', label: 'Policies' },
+        ],
+      },
+      {
+        href: '/observability',
+        label: 'Observability',
+        subItems: [
+          {
+            href: '/observability/metrics',
+            label: 'Metrics',
+            subItems: [
+              { href: '/observability/metrics/vm', label: 'VM Metrics' },
+              { href: '/observability/metrics/lb', label: 'LB Metrics' },
+            ],
+          },
+          {
+            href: '/observability/alerts',
+            label: 'Alerts',
+            subItems: [
+              { href: '/observability/alerts/configured', label: 'Configured Alerts' },
+              { href: '/observability/alerts/triggered', label: 'Triggered Alerts' },
+            ],
+          },
         ],
       },
     ],

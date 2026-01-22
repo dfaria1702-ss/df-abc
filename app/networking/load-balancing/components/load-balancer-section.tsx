@@ -385,17 +385,23 @@ export default function LoadBalancerSection() {
       key: 'actions',
       label: 'Action',
       align: 'right' as const,
-      render: (_: any, row: any) => (
-        <div className='flex justify-end'>
-          <ActionMenu
-            viewHref={`/networking/load-balancing/balancer/${row.id}`}
-            editHref={`/networking/load-balancing/balancer/${row.id}/edit`}
-            onCustomDelete={() => handleDeleteClick(row)}
-            resourceName={row.name}
-            resourceType='Load Balancer'
-          />
-        </div>
-      ),
+      render: (_: any, row: any) => {
+        // Build metrics URL with resource name, 6 hours time range, and 1 min granularity
+        const metricsHref = `/observability/metrics/lb?resource=${encodeURIComponent(row.name)}&timeRange=6&granularity=1`;
+        
+        return (
+          <div className='flex justify-end'>
+            <ActionMenu
+              viewHref={`/networking/load-balancing/balancer/${row.id}`}
+              editHref={`/networking/load-balancing/balancer/${row.id}/edit`}
+              onCustomDelete={() => handleDeleteClick(row)}
+              resourceName={row.name}
+              resourceType='Load Balancer'
+              metricsHref={metricsHref}
+            />
+          </div>
+        );
+      },
     },
   ];
 

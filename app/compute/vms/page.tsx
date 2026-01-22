@@ -793,6 +793,9 @@ function VMActionMenu({
   onAttachDetachPublicIP,
   onEdit,
 }: VMActionMenuProps) {
+  // Build metrics URL with resource name, 6 hours time range, and 1 min granularity
+  const metricsHref = `/observability/metrics/vm?resource=${encodeURIComponent(vm.name)}&timeRange=6&granularity=1`;
+
   return (
     <ActionMenu
       viewHref={`/compute/vms/instances/${vm.id}`}
@@ -801,6 +804,7 @@ function VMActionMenu({
       deleteLabel='Terminate Machine'
       onCustomDelete={onTerminate}
       onEdit={onEdit}
+      metricsHref={metricsHref}
       // Show Stop action only for running VMs
       {...(isRunning && { onStop: onStop })}
       // Show Restart action only for stopped VMs

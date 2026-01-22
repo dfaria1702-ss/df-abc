@@ -16,7 +16,7 @@ import {
   HealthIndicator,
   calculateOverallHealth,
 } from '@/components/ui/health-indicator';
-import { Edit, Trash2, ChevronDown, ChevronRight, MoreVertical, Plus } from 'lucide-react';
+import { Edit, Trash2, ChevronDown, ChevronRight, MoreVertical, Plus, BarChart3 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ListenerViewEditModal } from '../create/components/listener-view-edit-modal';
 import {
@@ -583,8 +583,19 @@ export default function LoadBalancerDetailsPage({
           padding: '1.5rem',
         }}
       >
-        {/* Overlay Edit/Delete Buttons */}
+        {/* Overlay Edit/Delete/Metrics Buttons */}
         <div className='absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10'>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => {
+              const metricsUrl = `/observability/metrics/lb?resource=${encodeURIComponent(loadBalancer.name)}&timeRange=6&granularity=1`;
+              router.push(metricsUrl);
+            }}
+            className='h-8 w-8 p-0 text-muted-foreground hover:text-foreground bg-white/80 hover:bg-white border border-gray-200 shadow-sm'
+          >
+            <BarChart3 className='h-4 w-4' />
+          </Button>
           <Button
             variant='ghost'
             size='sm'

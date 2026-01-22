@@ -23,6 +23,7 @@ import {
   HardDrive,
   Shield,
   Wifi,
+  BarChart3,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import {
@@ -73,6 +74,7 @@ interface ActionMenuProps {
   onAttachDetachPublicIP?: () => void; // For IP address management
   onRetry?: () => void; // For retry action (e.g., failed volumes)
   customActions?: CustomAction[]; // New prop for custom actions
+  metricsHref?: string; // New prop for metrics navigation
 }
 
 /**
@@ -117,6 +119,7 @@ export function ActionMenu({
   onAttachDetachPublicIP,
   onRetry,
   customActions = [],
+  metricsHref,
 }: ActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const router = useRouter();
@@ -324,6 +327,17 @@ export function ActionMenu({
             >
               <Download className='mr-2 h-4 w-4' />
               <span>Download</span>
+            </DropdownMenuItem>
+          )}
+          {metricsHref && (
+            <DropdownMenuItem asChild>
+              <Link
+                href={metricsHref}
+                className='flex items-center cursor-pointer'
+              >
+                <BarChart3 className='mr-2 h-4 w-4' />
+                <span>View Metrics</span>
+              </Link>
             </DropdownMenuItem>
           )}
           {customActions.map((action, index) => (

@@ -22,6 +22,7 @@ import {
   ChevronRight,
   MessageSquare,
   FileSearch,
+  Activity,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -186,6 +187,29 @@ const navigationStructure: NavigationCategory[] = [
           { title: 'Groups', href: '/iam/groups' },
           { title: 'Roles', href: '/iam/roles' },
           { title: 'Policy', href: '/iam/policy' },
+        ],
+      },
+      {
+        title: 'Observability',
+        href: '/observability',
+        icon: <Activity className='h-5 w-5' />,
+        items: [
+          {
+            title: 'Metrics',
+            href: '/observability/metrics',
+            items: [
+              { title: 'VM Metrics', href: '/observability/metrics/vm' },
+              { title: 'LB Metrics', href: '/observability/metrics/lb' },
+            ],
+          },
+          {
+            title: 'Alerts',
+            href: '/observability/alerts',
+            items: [
+              { title: 'Configured Alerts', href: '/observability/alerts/configured' },
+              { title: 'Triggered Alerts', href: '/observability/alerts/triggered' },
+            ],
+          },
         ],
       },
       {
