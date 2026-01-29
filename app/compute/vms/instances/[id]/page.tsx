@@ -53,6 +53,9 @@ import {
 import { useRouter } from 'next/navigation';
 import { VMEditModal } from '@/components/modals/vm-edit-modal';
 import { useToast } from '@/hooks/use-toast';
+import { VercelTabs } from '@/components/ui/vercel-tabs';
+import { VMMonitoringSection } from '@/components/vm-monitoring-section';
+import { VMAlertsSection } from '@/components/vm-alerts-section';
 import {
   StopMachineModal,
   RestartMachineModal,
@@ -74,6 +77,7 @@ export default function VMInstanceDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('overview');
 
   // VM Edit Modal state
   const [vmEditModalOpen, setVmEditModalOpen] = useState(false);
@@ -548,7 +552,22 @@ export default function VMInstanceDetailsPage() {
           </DetailGrid>
         </div>
 
-        {/* Volume Configuration */}
+        {/* Tabs Section */}
+        <div className='space-y-6'>
+          <VercelTabs
+            tabs={[
+              { id: 'overview', label: 'Overview' },
+              { id: 'monitoring', label: 'Monitoring' },
+              { id: 'alerts', label: 'Alerts' },
+            ]}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            size='md'
+          />
+
+          {activeTab === 'overview' && (
+            <div className='space-y-6'>
+              {/* Volume Configuration */}
         <DetailSection title='Volume Configuration'>
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
             {/* Bootable Volume */}
@@ -849,6 +868,25 @@ export default function VMInstanceDetailsPage() {
             </div>
           </div>
         </DetailSection>
+            </div>
+          )}
+
+          {activeTab === 'monitoring' && (
+            <div className='space-y-6'>
+              <VMMonitoringSection
+                vmName={vm.name}
+                defaultTimeRange={24}
+                defaultGranularity={1}
+              />
+            </div>
+          )}
+
+          {activeTab === 'alerts' && (
+            <div className='space-y-6'>
+              <VMAlertsSection vmName={vm.name} vmId={vm.id} />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* VM Edit Modal */}
